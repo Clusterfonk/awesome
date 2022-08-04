@@ -2,6 +2,8 @@
 -- @author Clusterfonk <https://github.com/Clusterfonk>
 local awful = require("awful")
 
+local minimize_list = require("configuration.clients.minimize")
+
 
 client.connect_signal("request::default_keybindings", function()
     awful.keyboard.append_client_keybindings({
@@ -11,15 +13,24 @@ client.connect_signal("request::default_keybindings", function()
                 c:raise()
             end,
         {description = 'toggle fullscreen', group = 'client'}),
+
         --- Toggle floating
         awful.key({ MODKEY, SHIFT }, "space", awful.client.floating.toggle,
                   {description = "toggle floating", group = "client"}), 
+        
+        -- Kill or minimize to systray
         awful.key({ MODKEY, SHIFT   }, "c",      
         function (c) 
-            c:kill() -- TODO: don't kill clients that can be minimized to tray
+            for _, prog in pairs(minimize_list) do
+                if c.name:find("(" .. prog .. ")") then
+                    c.minimized = true
+                    return
+                end
+            end
+            c:kill()
         end,
                   {description = "close", group = "client"}),
-
+        
         awful.key({ MODKEY, CTRL }, "Return", 
         function (c) c:swap(awful.client.getmaster()) end,
                   {description = "move to master", group = "client"}),

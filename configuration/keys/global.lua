@@ -41,14 +41,14 @@ awful.keyboard.append_global_keybindings({
     awful.key({ MODKEY }, "p", function() menubar.show() end,
               {description = "show the menubar", group = "cmd"}),
 
-    -- logout panel
+    -- Snipregion
     awful.key({ MODKEY }, "s", function() 
         awful.spawn(cmd.snipregion) end,
               {description = "Select a region to clipboard", group = "cmd"}),
 
     -- logout panel
     awful.key({ MODKEY }, "Escape", function() 
-        panels.logpop:emit_signal("toggle") end,
+        panels.exitscreen:emit_signal("toggle") end,
               {description = "toggle logout panel", group = "cmd"}),
 ---------------------------------------------------------------
 -- => Standard 

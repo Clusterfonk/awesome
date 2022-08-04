@@ -5,9 +5,6 @@ local beautiful = require("beautiful")
 local ruled = require("ruled")
 
 
----
--- => Global rules
----
 ruled.client.connect_signal("request::rules", function()
     --- Global
 	ruled.client.append_rule({
@@ -30,22 +27,6 @@ ruled.client.connect_signal("request::rules", function()
             callback = awful.client.setslave,
         },
 	})
-
----    -- Add titlebars to normal clients and dialogs
----    --- Titlebar rules
----	ruled.client.append_rule({
----		id = "titlebars",
----		rule_any = {
----			class = {
----				"Spotify",
----				"Org.gnome.Nautilus",
----				"Peek",
----			},
----		},
----		properties = {
----			titlebars_enabled = false,
----		},
----	})
 
     -- Float
 	ruled.client.append_rule({

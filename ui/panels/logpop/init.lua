@@ -168,9 +168,7 @@ local function create_widget(self, s)
             }, 
             {
                     bottom_text,
-                    layout = wibox.layout.manual,
-                    forced_width = dpi(100, s),
-                    forced_height = dpi(15, s),
+                    layout = wibox.container.place
             },
             layout = wibox.layout.fixed.vertical,
             spacing = dpi(5, s),

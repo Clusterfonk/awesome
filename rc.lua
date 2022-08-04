@@ -10,11 +10,10 @@
 --      -> Garbage-Collection
 --      -> Error-Handling
 ---------------------------------------------------------------
-
 pcall(require, "luarocks.loader")
 local awful = require("awful")
 local gears = require("gears")
-local beautiful = require("beautiful")
+local bt = require("bt")
 
 
 ---------------------------------------------------------------
@@ -26,7 +25,7 @@ require("autostart")
 -- => Theme
 ---------------------------------------------------------------
  local theme_dir = gears.filesystem.get_configuration_dir() .. "theme/gruvbox/"
- beautiful.init(theme_dir .. "theme.lua")
+ bt.init(theme_dir .. "theme.lua")
 
 ---------------------------------------------------------------
 -- => Configuration

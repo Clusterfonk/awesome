@@ -1,7 +1,7 @@
 -- @license APGL-3.0 <https://www.gnu.org/licenses/>
 -- @author Clusterfonk <https://github.com/Clusterfonk>
 
-local logpop = require(... .. ".logpop")({
+local exitscreen = require(... .. ".exitscreen")({
     widget_margins = {
         left = 25,
         right = 25,
@@ -14,5 +14,5 @@ local logpop = require(... .. ".logpop")({
 })
 
 return {
-    logpop = logpop,
+    exitscreen = exitscreen,
 }

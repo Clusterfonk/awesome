@@ -14,8 +14,6 @@ local partial_taglist = { mt = {} }
 -- @tparam table tag_template The template to build the individual tags
 -- @return The partial taglist
 function partial_taglist.new(s, tag_filter, tag_template)
-    local self = partial_taglist
-
     local ret = widget.taglist {
         screen  = s,
         filter  = tag_filter,
@@ -26,7 +24,7 @@ function partial_taglist.new(s, tag_filter, tag_template)
         },
     }
 
-    gtable.crush(ret, self, true)
+    gtable.crush(ret, partial_taglist, true)
     return ret
 end
 

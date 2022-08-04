@@ -4,7 +4,6 @@ local awful = require("awful")
 local wibox = require("wibox")
 local bt = require("beautiful")
 local dpi = bt.xresources.apply_dpi
-local debug = require("gears.debug")
 
 local template = require(... .. ".tag_template")
 local partial_taglist = require(... .. ".partial_taglist")

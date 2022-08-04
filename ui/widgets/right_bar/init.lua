@@ -6,6 +6,7 @@ local bt = require("beautiful")
 local gears = require("gears")
 local dpi = bt.xresources.apply_dpi
 
+local icon_widget = require("ui.widgets.iconbox")
 
 return function(s, bar_width, bar_height, bar_offset)
     -- create clock widget
@@ -23,70 +24,68 @@ return function(s, bar_width, bar_height, bar_offset)
     --     base_size = 0.8 * bar_height 
     -- }
 
+    local stray = wibox.widget
+    {
+        widget = wibox.container.constraint,
+        strategy = "max",
+        width = dpi(50, s),
+        {
+            widget = wibox.container.place,
+            {
+                widget = wibox.widget.systray,
+                base_size = dpi(20, s)
+            }
+        }
+    }
+
     local systray = wibox.widget({
         {
-            {
-                id = "icon",
-                image = bt.icon.menu_down,
-                widget = wibox.widget.imagebox
+            {   id = "icon",
+                widget = icon_widget(bt.icon.menu_down, true),
             },
             id = "container",
-            widget = wibox.container.place
+            widget = wibox.container.place,
         },
         widget = wibox.container.background,
     })
-    -- TODO: basic signal wrapper for a widget ?
-    systray.container.icon:connect_signal("mouse::enter", 
-        function(self, ...)
-            local image = self._private.image
-            self:set_image(gears.color.recolor_image(image, bt.border_focus))
-    end)
-    
-    systray.container.icon:connect_signal("mouse::leave", 
-        function(self, ...) 
-            self:set_image(bt.icon.menu_down)
-    end)
 
     local notification = wibox.widget({
         {
             id = "icon",
-            image = bt.icon.notification,
-            widget = wibox.widget.imagebox
+            widget = icon_widget(bt.icon.notification)
         },
         widget = wibox.container.place,
-        forced_height = dpi(15, s),
-        forced_width = dpi(15, s)
+        forced_height = dpi(13, s),
+        forced_width = dpi(13, s)
     })
 
     local microphone = wibox.widget({
         {
             id = "icon",
-            image = bt.icon.mic,
-            widget = wibox.widget.imagebox
+            widget = icon_widget(bt.icon.mic),
+            forced_height = dpi(17, s),
+            forced_width = dpi(17, s)
         },
         widget = wibox.container.place,
-        forced_height = dpi(18, s),
-        forced_width = dpi(18, s)
     })
 
     local volume = wibox.widget({
         {
             id = "icon",
-            image = bt.icon.vol_mid,
-            widget = wibox.widget.imagebox
+            widget = icon_widget(bt.icon.vol_mid)
         },
         widget = wibox.container.place,
-        forced_height = dpi(22, s),
-        forced_width = dpi(22, s)
+        forced_height = dpi(23, s),
+        forced_width = dpi(23, s)
     })
 
-    local actual_systray = wibox.widget({
-        {
-            id = "systray",
-            widget = wibox.widget.systray(false)
-        },
-        layout = wibox.layout.flex.horizontal,
-    })
+    -- local actual_systray = wibox.widget({
+    --     {
+    --         id = "systray",
+    --         widget = wibox.widget.systray(false)
+    --     },
+    --     layout = wibox.layout.flex.horizontal,
+    -- })
 
     s.right_bar = wibox({
         position = "top",
@@ -105,6 +104,7 @@ return function(s, bar_width, bar_height, bar_offset)
                     layout = wibox.layout.fixed.horizontal,
                     spacing = dpi(10, s),
                     systray,
+                    stray,
                     microphone,
                     volume,
                     clock,

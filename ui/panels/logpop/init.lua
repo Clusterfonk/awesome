@@ -25,7 +25,7 @@ local supsend_icon = icon_dir .. "suspend.svg"
 panel = { mt = {} }
 
 local function shutdown()
-    print("shutdown")
+    awful.spawn.with_shell("systemctl shutdown")
 end
 
 local function reboot()
@@ -46,7 +46,8 @@ end
 local function create_button(args, text)
     local button = button(args)
     button:connect_signal("mouse::enter", 
-    args.enter or function(b) 
+    args.enter or function(b)
+        text.point = {x=100, y=0}
         text:set_text(b.hover_text)
     end)
     button:connect_signal("mouse::leave", 
@@ -154,12 +155,11 @@ local function create_widget(self, s)
                 callback = supsend
             }, bottom_text),
             id = 'buttons',
-            spacing = dpi(10, s),
+            spacing = dpi(self.icon_spacing, s),
             layout = wibox.layout.fixed.horizontal
         }, 
         layout = wibox.container.place
-    }
-    
+    }    
     return wibox.widget {
         {
             {
@@ -167,11 +167,13 @@ local function create_widget(self, s)
                 layout = wibox.layout.align.horizontal,
             }, 
             {
-                bottom_text,
-                widget = wibox.container.place,
+                    bottom_text,
+                    layout = wibox.layout.manual,
+                    forced_width = dpi(100, s),
+                    forced_height = dpi(15, s),
             },
             layout = wibox.layout.fixed.vertical,
-            spacing = dpi(self.icon_spacing, s),
+            spacing = dpi(5, s),
         },
         widget = wibox.container.margin,
         margins = utable.dpi(self.widget_margins, s)
@@ -188,6 +190,7 @@ local function toggle(self)
         local s = awful.screen.focused()
         self:set_screen(s)
         self:set_widget(create_widget(self, s))
+        self.placement = awful.placement.centered
         self.keygrabber:start()
         self.visible = true
     end

@@ -3,14 +3,14 @@
 
 local logpop = require(... .. ".logpop")({
     widget_margins = {
-        left = 15,
-        right = 15,
+        left = 25,
+        right = 25,
         top = 25,
         bottom = 5,
     },
     icon_size = 40,
     icon_margin = 10,
-    icon_spacing = 22
+    icon_spacing = 15
 })
 
 return {

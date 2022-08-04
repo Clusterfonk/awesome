@@ -181,17 +181,14 @@ end
 local function toggle(self)
     if self.visible then
         self.keygrabber:stop()
-        self.visible = false
         self:set_widget(nil)
-        collectgarbage("collect")
     else
         local s = awful.screen.focused()
         self:set_screen(s)
         self:set_widget(create_widget(self, s))
-        self.placement = awful.placement.centered
         self.keygrabber:start()
-        self.visible = true
     end
+    self.visible = not self.visible
 end
 
 
@@ -220,8 +217,7 @@ function panel.new(args)
     gtable.crush(ret, panel, true)
     
     ret.keygrabber = create_keygrabber(ret)
-    ret:connect_signal("toggle", toggle, ret) 
-    ret:connect_signal("properity::bg_image", function() print("BG_IMAGE CHANGED") end)
+    ret:connect_signal("toggle", toggle, ret)
     return ret
 end
 

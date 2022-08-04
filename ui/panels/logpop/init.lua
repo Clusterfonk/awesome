@@ -191,7 +191,6 @@ local function toggle(self)
     self.visible = not self.visible
 end
 
-
 function panel.new(args)
     args = args or {}
     

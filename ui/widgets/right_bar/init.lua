@@ -10,7 +10,7 @@ local dpi = bt.xresources.apply_dpi
 return function(s, bar_width, bar_height, bar_offset)
     -- create clock widget
     local clock = wibox.widget {
-        format = '%A / %H:%M',
+        format = '%H:%M',
         widget = wibox.widget.textclock,
         font = bt.font_bold,
         screen = s,

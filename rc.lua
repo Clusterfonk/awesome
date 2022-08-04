@@ -13,7 +13,7 @@
 pcall(require, "luarocks.loader")
 local awful = require("awful")
 local gears = require("gears")
-local bt = require("bt")
+local bt = require("beautiful")
 
 
 ---------------------------------------------------------------
@@ -37,6 +37,7 @@ require("configuration")
 ---------------------------------------------------------------
 require("modules.sloppy-focus")
 require("modules.set_wallpaper")
+require("modules.center_mouse")
 
 ---------------------------------------------------------------
 -- => UI

@@ -8,4 +8,5 @@ return {
     notes = "alacritty -e vimwiki",
     launcher = "",
     snipregion = "snipregion",
+    toggle_headphone_speakers = "toggle-headphone-speakers",
 }

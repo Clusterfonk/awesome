@@ -201,7 +201,6 @@ function panel.new(args)
     panel.icon_spacing = args.icon_spacing or 5
     panel.widget_margins = args.widget_margins or {}
     
-    -- bg image either spawn 2 
     local ret = awful.popup({
         placement = awful.placement.centered,
         bg = args.bg or bt.bg_normal,

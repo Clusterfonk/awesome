@@ -2,12 +2,12 @@
 -- @author Clusterfonk <https://github.com/Clusterfonk>
 ---------------------------------------------------------------
 --  Sections:
---      -> Theme 
---      -> Configuration 
---      -> Modules
---      -> UI 
---      -> Garbage-Collection
---      -> Error-Handling
+--      -> Colors 
+--      -> General 
+--      -> Icons
+--      -> Notification
+--      -> Calendar
+--      -> Naughty
 ---------------------------------------------------------------
 local awful = require("awful")
 local gears = require("gears")
@@ -100,7 +100,7 @@ theme.taglist_bg_empty = colors.bw_0
 theme.taglist_bg_volatile = colors.bw_0
 theme.taglist_bg_focus = colors.bw_0
 theme.taglist_bg_urgent = colors.red_2
-theme.taglist_border_color = theme.taglist_fg_empty
+theme.taglist_border_color = colors.bw_2
 theme.taglist_border_width = 2
 theme.taglist_underline_height = 2
 
@@ -142,8 +142,8 @@ theme.icon = {}
 theme.icon.bell_normal = load_icon(icon_dir, "bell-normal.svg")
 theme.icon.notification = load_icon(icon_dir, "notification.svg")
 
-theme.icon.menu_up = load_icon(icon_dir, "menu-up.svg")
-theme.icon.menu_down = load_icon(icon_dir, "menu-down.svg")
+theme.icon.menu_left = load_icon(icon_dir, "menu_left.svg")
+theme.icon.menu_right = load_icon(icon_dir, "menu_right.svg")
 
 theme.icon.headphones = load_icon(icon_dir, "headphones.svg")
 theme.icon.vol_high = load_icon(icon_dir, "volume-high.svg")
@@ -155,7 +155,7 @@ theme.icon.mic_muted = load_icon(icon_dir, "microphone-muted.svg")
 
 -- systray
 theme.systray = {}
-theme.systray.icon_spacing = 4
+theme.systray_icon_spacing = 4
 
 -- TODO: notification theme settings might be not needed set naughty directly
 theme.notification_fg = theme.fg_normal
@@ -170,6 +170,11 @@ theme.notification_margin = 20
 theme.notification_shape =  function(cr, width, height)
                                 gears.shape.rounded_rect(cr, width, height, theme.border_radius or 0)
                             end
+
+-- calendar
+theme.calendar_day_focus_bg = theme.bg_urgent
+theme.calendar_current_date_fg = colors.bw_2
+theme.calendar_another_month_fg = colors.bw_2
 
 -- naughty
 naughty.config.padding = 15

@@ -21,7 +21,7 @@ awful.keyboard.append_global_keybindings({
 ---------------------------------------------------------------
 -- => Launch
 ---------------------------------------------------------------
-    --- Launcher <- TODO: no clue why but first entry never works
+    --- Launcher
 	awful.key({ MODKEY }, "o", function() awful.spawn(cmd.launcher) end,
 	          { description = "open launcher", group = "cmd" }),
 
@@ -46,10 +46,16 @@ awful.keyboard.append_global_keybindings({
         awful.spawn(cmd.snipregion) end,
               {description = "Select a region to clipboard", group = "cmd"}),
 
+    -- Toggle-Headphone-Speakers -- TODO: ^ doesnt work why ?
+    --awful.key({ MODKEY }, "^", function() 
+    --    awful.spawn(cmd.toggle_headphone_speakers) end,
+    --          {description = "Toggle between Headphone and Speakers", group = "cmd"}),
+
     -- logout panel
     awful.key({ MODKEY }, "Escape", function() 
         panels.exitscreen:emit_signal("toggle") end,
               {description = "toggle logout panel", group = "cmd"}),
+
 ---------------------------------------------------------------
 -- => Standard 
 ---------------------------------------------------------------
@@ -62,6 +68,22 @@ awful.keyboard.append_global_keybindings({
     -- quit
     awful.key({ MODKEY, SHIFT   }, "q", awesome.quit,
               {description = "quit awesome", group = "standard"}),
+            
+---------------------------------------------------------------
+-- => Audio
+---------------------------------------------------------------
+    -- next
+    awful.key({ }, "XF86AudioNext", function() awful.spawn.with_shell("playerctl next") end,
+              {description = "Play next", group = "Audio"}),
+    -- prev 
+    awful.key({ }, "XF86AudioPrev", function() awful.spawn.with_shell("playerctl previous") end,
+              {description = "Play prev", group = "Audio"}),
+    -- play / pause
+    awful.key({ }, "XF86AudioPlay", function() awful.spawn.with_shell("playerctl play-pause") end,
+              {description = "Play or Pause", group = "Audio"}),
+    -- stop
+    awful.key({ }, "XF86AudioStop", function() awful.spawn.with_shell("playerctl stop") end,
+              {description = "Stop", group = "Audio"}),
 
 ---------------------------------------------------------------
 -- Layout Navigation

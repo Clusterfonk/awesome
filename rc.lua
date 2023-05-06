@@ -47,7 +47,6 @@ require("ui")
 ---------------------------------------------------------------
 -- => Garbage-Collection
 ---------------------------------------------------------------
-collectgarbage("setpause", 110)
 collectgarbage("setstepmul", 1000)
 gears.timer({
     timeout = 1,

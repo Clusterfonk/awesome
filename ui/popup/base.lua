@@ -105,8 +105,8 @@ function _widget_popup.new(args)
     end
 
     local hide_widget = function() ret:hide() end
-    local left = awful.button({ }, awful.button.names.LEFT, left_hide)
-    local right = awful.button({ }, awful.button.names.RIGHT, right_hide)
+    local left = awful.button({ }, awful.button.names.LEFT, hide_widget)
+    local right = awful.button({ }, awful.button.names.RIGHT, hide_widget)
     local hide_except_on_self = function(w, _, _, button) 
         if w ~= ret then -- MAYBE: could get a list of widgets that dont clear it ?
             if button == 1 or button == 3 then
@@ -129,8 +129,8 @@ function _widget_popup.new(args)
         function(w)
             if w.visible then
                 for _, button in pairs({left, right}) do
-                    awful.mouse.append_client_mousebinding(button)
                     awful.mouse.append_global_mousebindings(button)
+                    awful.mouse.append_client_mousebinding(button)
                 end    
                 wibox.connect_signal("button::press", hide_except_on_self)
             end

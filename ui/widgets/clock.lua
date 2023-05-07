@@ -14,8 +14,10 @@ function _clock:focus()
     local span = string.format("<span foreground='%s'>", self.focus_color)
     self.markup = span .. self.text .. "</span>" 
 
-    self._private.old_wibox = mouse.current_wibox
-    self._private.old_wibox.cursor = "hand2"
+    if self._private.old_wibox then
+        self._private.old_wibox = mouse.current_wibox
+        self._private.old_wibox.cursor = "hand2"
+    end
 end
 
 function _clock:unfocus()

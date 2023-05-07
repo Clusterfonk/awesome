@@ -90,7 +90,6 @@ function _widget_popup.new(args)
     end)
 
     local hide_on_click = function()
-        print("hey")
         if ret.visible then
             ret:hide()
         end

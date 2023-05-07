@@ -89,56 +89,49 @@ function _widget_popup.new(args)
         ret.widget:set_widget(nil)
     end)
 
-    ret._private.hide_anim:connect_signal("started", 
-    function() 
-        ret._private.show_anim:stop()
-    end)
-
-    local function left_hide()
-        print("left mouse hide")
-        ret:hide()
+    local hide_on_click = function()
+        print("hey")
+        if ret.visible then
+            ret:hide()
+        end
     end
 
-    local function right_hide()
-        print("right mouse hide")
-        ret:hide()
-    end
-
-    local hide_widget = function() ret:hide() end
-    local left = awful.button({ }, awful.button.names.LEFT, hide_widget)
-    local right = awful.button({ }, awful.button.names.RIGHT, hide_widget)
-    local hide_except_on_self = function(w, _, _, button) 
-        if w ~= ret then -- MAYBE: could get a list of widgets that dont clear it ?
-            if button == 1 or button == 3 then
-                ret:hide() 
+    local hide_except_on_self = function(w, _, _, button)
+        if w ~= ret then
+            if button == awful.button.names.LEFT 
+            or button == awful.button.names.RIGHT then
+                ret:hide()
             end
-        end 
-    end 
-    
-    ret._private.hide_anim:connect_signal("started", function()
-        ret._private.keygrabber:stop()
-        for _, button in pairs({left, right}) do
-            awful.mouse.remove_global_mousebinding(button)
-            awful.mouse.remove_client_mousebinding(button)
-        end            
-        wibox.disconnect_signal("button::press", hide_except_on_self)
-    end)
+        end
+    end
 
-    local root = require("awful.root")
+    local lbutton = awful.button({}, awful.button.names.LEFT, hide_on_click)
+    local rbutton = awful.button({}, awful.button.names.RIGHT, hide_on_click)
+    -- TODO: mousebindings are not being removed
+    root.buttons(awful.util.table.join(lbutton, rbutton))
+    
     ret:connect_signal("property::visible", 
         function(w)
             if w.visible then
-                for _, button in pairs({left, right}) do
-                    awful.mouse.append_global_mousebindings(button)
-                    awful.mouse.append_client_mousebinding(button)
-                end    
+                awful.mouse.append_client_mousebindings({lbutton, rbutton})
                 wibox.connect_signal("button::press", hide_except_on_self)
             end
         end)
 
+    ret._private.hide_anim:connect_signal("started", 
+    function() 
+        ret._private.show_anim:stop()
+        awful.mouse.remove_client_mousebinding(lbutton)
+        awful.mouse.remove_client_mousebinding(rbutton)
+        wibox.disconnect_signal("button::press", hide_except_on_self)
+    end)
+
+    ret._private.hide_anim:connect_signal("started", function()
+        ret._private.keygrabber:stop()
+    end)
+
     ret._private.keygrabber = awful.keygrabber {
-        allowed_keys = {},
-        stop_callback = hide_widget
+        keypressed_callback = hide_on_click
     }
 
     return ret

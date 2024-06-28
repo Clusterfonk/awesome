@@ -46,7 +46,7 @@ local function date_widget(s, date, is_current, is_another_month)
 end
 
 local function month_year_text(s) -- TODO: same spacing regardless of text
-    local month_year = textbox({ 
+    local month_year = textbox({
         text = os.date("%B %Y"),
         font = bt.font_name,
         size = 16,

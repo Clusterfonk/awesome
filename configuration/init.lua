@@ -2,7 +2,7 @@
 -- @author Clusterfonk <https://github.com/Clusterfonk>
 require(... .. ".keys.defaults")
 
-require(... .. ".keys.global")
+require(... .. ".keys.qwerty")
 require(... .. ".mouse")
 
 require(... .. ".clients")

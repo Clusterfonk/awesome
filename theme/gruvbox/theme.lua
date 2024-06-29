@@ -2,8 +2,8 @@
 -- @author Clusterfonk <https://github.com/Clusterfonk>
 ---------------------------------------------------------------
 --  Sections:
---      -> Colors 
---      -> General 
+--      -> Colors
+--      -> General
 --      -> Icons
 --      -> Notification
 --      -> Calendar
@@ -17,7 +17,7 @@ local wibox = require("wibox")
 
 
 local colors = { }
-colors.black_1          = "#282828"
+colors.black_1          = "#302302f"
 colors.black_2          = "#928374"
 colors.red_1            = "#cc241d"
 colors.red_2            = "#fb4934"
@@ -37,7 +37,7 @@ colors.orange_1         = "#d65d0e"
 colors.orange_2         = "#fe8019"
 
 colors.bw_0_h           = "#1d2021"
-colors.bw_0             = "#282828"
+colors.bw_0             = "#32302f"
 colors.bw_0_s           = "#32302f"
 colors.bw_1             = "#3c3836"
 colors.bw_2             = "#504945"
@@ -117,7 +117,7 @@ theme.hotkeys_shape =   function(cr, width, height)
 -- prompt
 theme.prompt_bg = colors.bw_2
 theme.prompt_fg = theme.fg_normal
-theme.bg_systray = theme.tasklist_bg_normal        
+theme.bg_systray = theme.tasklist_bg_normal
 
 -- snap
 theme.snap_bg = theme.border_focus
@@ -126,7 +126,7 @@ theme.snap_shape =  function(cr, w, h)
                     end
 
 -- Icons
-local function load_icon(dir, filename) 
+local function load_icon(dir, filename)
     local lgi_cairo_surface = gears.surface.load_silently(dir .. filename)
     return gears.color.recolor_image(lgi_cairo_surface, theme.fg_normal)
 end

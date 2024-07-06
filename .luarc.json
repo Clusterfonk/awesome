@@ -1,0 +1,11 @@
+{
+  "runtime.version": "LuaJIT",
+  "runtime.path": [
+    "lua/?.lua",
+    "lua/?/rc.lua"
+  ],
+  "diagnostics.globals": ["awesome"],
+  "workspace.checkThirdParty": false,
+  "workspace.library": [
+  ]
+}

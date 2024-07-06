@@ -52,7 +52,7 @@ function _widget_popup.new(args)
         border_color = bt.border_normal,
         border_width = dpi(2, s),
         ontop = true,
-        visible = false,        
+        visible = false,
         widget = {},
     })
 
@@ -60,7 +60,7 @@ function _widget_popup.new(args)
     gtable.crush(ret, _widget_popup, true)
 
     ret:connect_signal("request::show", ret.show, ret)
-    
+
     ret._private.show_anim = animation:new {
         easing = animation.easing.outExpo,
         duration = 0.6,
@@ -70,11 +70,11 @@ function _widget_popup.new(args)
     }
 
     ret._private.show_anim:connect_signal("started", function()
-        ret._private.hide_anim:stop() 
+        ret._private.hide_anim:stop()
         ret.visible = true
         ret._private.keygrabber:start()
     end)
-    
+
     ret._private.hide_anim = animation:new {
         easing = animation.easing.inExpo,
         duration = 0.3,
@@ -83,8 +83,8 @@ function _widget_popup.new(args)
         end
     }
 
-    ret._private.hide_anim:connect_signal("ended", 
-    function() 
+    ret._private.hide_anim:connect_signal("ended",
+    function()
         ret.visible = false
         ret.widget:set_widget(nil)
     end)
@@ -97,7 +97,7 @@ function _widget_popup.new(args)
 
     local hide_except_on_self = function(w, _, _, button)
         if w ~= ret then
-            if button == awful.button.names.LEFT 
+            if button == awful.button.names.LEFT
             or button == awful.button.names.RIGHT then
                 ret:hide()
             end
@@ -108,8 +108,8 @@ function _widget_popup.new(args)
     local rbutton = awful.button({}, awful.button.names.RIGHT, hide_on_click)
     -- TODO: mousebindings are not being removed
     root.buttons(awful.util.table.join(lbutton, rbutton))
-    
-    ret:connect_signal("property::visible", 
+
+    ret:connect_signal("property::visible",
         function(w)
             if w.visible then
                 awful.mouse.append_client_mousebindings({lbutton, rbutton})
@@ -117,8 +117,8 @@ function _widget_popup.new(args)
             end
         end)
 
-    ret._private.hide_anim:connect_signal("started", 
-    function() 
+    ret._private.hide_anim:connect_signal("started",
+    function()
         ret._private.show_anim:stop()
         awful.mouse.remove_client_mousebinding(lbutton)
         awful.mouse.remove_client_mousebinding(rbutton)

@@ -5,7 +5,7 @@ return {
     terminal = "alacritty",
     text_editor = "alacritty -e nvim",
     web_browser = "brave",
-    notes = "alacritty -e nvim -c 'VimwikiIndex'",
+    notes = "notes",
     launcher = "",
     snipregion = "snipregion",
     toggle_headphone_speakers = "toggle-headphone-speakers",

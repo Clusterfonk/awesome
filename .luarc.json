@@ -1,11 +1,16 @@
 {
-  "runtime.version": "LuaJIT",
+  "runtime.version": "Lua 5.4",
   "runtime.path": [
     "lua/?.lua",
     "lua/?/rc.lua"
   ],
-  "diagnostics.globals": ["awesome"],
+  "diagnostics.globals": ["awesome",
+        "root",
+        "mouse"],
   "workspace.checkThirdParty": false,
   "workspace.library": [
-  ]
+  ],
+    "diagnostics.disable": [
+        "lowercase-global"
+    ]
 }

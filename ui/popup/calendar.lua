@@ -28,7 +28,7 @@ end
 local function date_widget(s, date, is_current, is_another_month)
     local fg = bt.fg_normal
     if is_current then
-        fg = bt.calendar_current_date_fg 
+        fg = bt.calendar_current_date_fg
     elseif is_another_month then
         fg = bt.calendar_another_month_fg
     end
@@ -52,11 +52,11 @@ local function month_year_text(s) -- TODO: same spacing regardless of text
         size = 16,
     })
     month_year.date = os.date("*t")
-    
+
     local function set_date(month_year, summand)
         local time = os.time{
             year = month_year.date.year,
-            month = month_year.date.month + summand, 
+            month = month_year.date.month + summand,
             day=1}
         month_year:set_text(os.date("%B %Y", time))
         month_year.date = os.date("*t", time)
@@ -66,7 +66,7 @@ local function month_year_text(s) -- TODO: same spacing regardless of text
     local left = iconbox({
         icon = bt.icon.menu_left,
         size = 10,
-        on_press = function() 
+        on_press = function()
             set_date(month_year, -1)
         end
         })
@@ -74,15 +74,15 @@ local function month_year_text(s) -- TODO: same spacing regardless of text
         local right = iconbox({
         icon = bt.icon.menu_right,
         size = 10,
-        on_press = function() 
+        on_press = function()
             set_date(month_year, 1)
         end
     })
 
     return wibox.widget({
-        { 
+        {
             {
-                {   
+                {
                     widget = left,
                 },
                 widget = wibox.container.place,
@@ -91,14 +91,14 @@ local function month_year_text(s) -- TODO: same spacing regardless of text
 
             },
             {
-                {   
+                {
                     id = "month_year",
                     widget = month_year,
                 },
                 widget = wibox.container.place
             },
             {
-                {   
+                {
                     widget = right
                 },
                 widget = wibox.container.place,
@@ -127,7 +127,7 @@ local function weekdays_grid(s, spacing, weekdays)
         layout = wibox.layout.grid,
         forced_num_rows = 1,
         forced_num_cols = 7,
-        spacing = spacing, 
+        spacing = spacing,
         expand = true
     })
     for _, day in pairs(weekdays) do
@@ -168,19 +168,19 @@ end
 function _calendar_popup:create_widget(s)
     grid_spacing = dpi(5, s)
     wd_grid = weekdays_grid(s, grid_spacing, self._private.weekdays)
-    
+
     d_grid = days_grid(s, grid_spacing)
     month_year = month_year_text(s)
-    
+
     local my = month_year:get_children_by_id("month_year")[1]
-    my:connect_signal("date_changed", 
+    my:connect_signal("date_changed",
         function(my)
             self:populate_days_grid(s, my.date.month, my.date.year, d_grid)
         end
     )
     self:populate_days_grid(s, my.date.month, my.date.year, d_grid)
-    ret = wibox.widget({ -- TODO: bg 
-        {   
+    ret = wibox.widget({ -- TODO: bg
+        {
             month_year,
             {
                 wd_grid,

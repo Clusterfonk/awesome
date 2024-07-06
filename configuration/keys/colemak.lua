@@ -29,12 +29,16 @@ awful.keyboard.append_global_keybindings({
 	          { description = "open terminal", group = "cmd" }),
 
     --- Editor
-	awful.key({ MODKEY, SHIFT }, "e", function() awful.spawn(cmd.text_editor) end,
-	          { description = "open editor", group = "cmd" }),
+	awful.key({ MODKEY, SHIFT }, "t", function() awful.spawn(cmd.text_editor) end,
+	          { description = "open text editor", group = "cmd" }),
 
     --- Web browser
-	awful.key({ MODKEY, SHIFT }, "w", function() awful.spawn(cmd.web_browser) end,
+	awful.key({ MODKEY, SHIFT }, "b", function() awful.spawn(cmd.web_browser) end,
 	          { description = "open web browser", group = "cmd" }),
+
+    -- Notes
+    awful.key({ MODKEY, SHIFT }, "w", function() awful.spawn(cmd.notes) end,
+        {description = "open vimwiki", group = "cmd"}),
 
     -- Menubar <- TODO: replace with launcher
     awful.key({ MODKEY }, "p", function() menubar.show() end,

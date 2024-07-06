@@ -3,20 +3,18 @@
 local awful = require("awful")
 local wibox = require("wibox")
 local bt = require("beautiful")
-local gears = require("gears")
-local animation = require("modules.animation")
 local dpi = bt.xresources.apply_dpi
 
-local animation = require("modules.animation")
 local icon_widget = require("ui.widgets.iconbox") -- probably gone once all widgets placed
-local clock = require("ui.widgets.clock")
+local clock_widget = require("ui.widgets.clock")
 local systray = require(... .. ".systray")
 
 
 return function(s, bar_width, bar_height, bar_offset)
-    local clock = clock({
+    local clock = clock_widget({
         screen = s,
-        format = "%H:%M",
+        format = "%H:%M:%S",
+        refresh = 1,
         font = bt.font_bold,
         width = bar_width,
         bar_height = bar_height,
@@ -30,7 +28,7 @@ return function(s, bar_width, bar_height, bar_offset)
         },
         widget = wibox.container.place
     })
-    
+
     local microphone = wibox.widget({
         {
             id = "icon",
@@ -38,7 +36,7 @@ return function(s, bar_width, bar_height, bar_offset)
         },
         widget = wibox.container.place,
     })
-    
+
     local volume = wibox.widget({
         {
             id = "icon",
@@ -46,9 +44,9 @@ return function(s, bar_width, bar_height, bar_offset)
         },
         widget = wibox.container.place
     })
-    
+
     local switch_out_widget = wibox.widget({
-        {   
+        {
                 widget = volume
         },
         widget = wibox.container.background
@@ -62,17 +60,17 @@ return function(s, bar_width, bar_height, bar_offset)
             forced_height = dpi(bt.taglist_border_width, s)
         }
     })
-    
+
     s.info_bar = wibox({
         position = "top",
         screen   = s,
         width    = bar_width,
         border_width = dpi(bt.taglist_border_width, s),
         border_color = bt.taglist_border_color,
-        height = bar_height, 
+        height = bar_height,
         visible = true,
-        widget   = 
-        {       
+        widget   =
+        {
             {
                 {
                     {
@@ -100,27 +98,11 @@ return function(s, bar_width, bar_height, bar_offset)
             },
             layout = wibox.layout.fixed.vertical
         }})
-        
-        local show_anim = animation:new {
-            easing = animation.easing.outBounce,
-            duration = 1.5,
-            update = function(self, pos)
-                s.info_bar.height = pos
-            end
-        }
 
-        local hide_anim = animation:new {
-            easing = animation.easing.linear,
-            duration = 0.4,
-            update = function(self, pos)
-                s.info_bar.height = pos
-            end
-        }
-        
         awful.placement.align(s.info_bar, {position = "top_left", margins = {top = bar_offset, left = dpi(bt.useless_gap, s) * 2}})
-        
+
         s.info_bar:struts({
             top = bar_height + 2*dpi(bt.taglist_border_width) + bar_offset
         })
     end
-    
+

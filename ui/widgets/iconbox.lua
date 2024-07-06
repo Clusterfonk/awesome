@@ -31,7 +31,7 @@ end
 function iconbox:set_icon(icon)
     self._private.icon_focus = gcolor.recolor_image(icon, self._private.fg_focus)
     self._private.icon_normal = gcolor.recolor_image(icon, self._private.fg_normal)
-    
+
     if self.in_focus then
         self:set_image(self._private.icon_focus)
     else
@@ -54,20 +54,20 @@ end
 --
 function iconbox.new(args)
     args = args or {}
-    
+
     local ret = widget.imagebox(args.icon, args.resize_allowed, args.clip_shape)
     gtable.crush(ret, iconbox, true)
-    
+
     if args.size then
         ret.forced_height = args.size
         ret.forced_width = args.size
     end
 
-    ret._private.fg_normal = args.fg_normal or bt.fg_normal 
+    ret._private.fg_normal = args.fg_normal or bt.fg_normal
     ret._private.fg_focus = args.fg_focus or bt.border_focus
     ret._private.icon_normal = gcolor.recolor_image(args.icon, ret._private.fg_normal)
     ret._private.icon_focus = gcolor.recolor_image(args.icon, ret._private.fg_focus)
-    
+
     ret.in_focus = false
     ret:connect_signal("mouse::enter", iconbox.focus)
     ret:connect_signal("mouse::leave", iconbox.unfocus)

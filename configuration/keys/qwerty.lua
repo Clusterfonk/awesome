@@ -11,7 +11,6 @@
 local awful = require("awful")
 local hotkeys_popup = require("awful.hotkeys_popup")
 local menubar = require("menubar")
-local gtable = require("gears.table")
 
 local cmd = require("configuration.defaults.commands")
 local panels = require("ui.panels")
@@ -22,14 +21,14 @@ awful.keyboard.append_global_keybindings({
 -- => Launch
 ---------------------------------------------------------------
     --- Launcher
-	awful.key({ MODKEY }, "o", function() awful.spawn(cmd.launcher) end,
+	awful.key({ MODKEY, SHIFT }, "o", function() awful.spawn(cmd.launcher) end,
 	          { description = "open launcher", group = "cmd" }),
 
     --- Terminal
 	awful.key({ MODKEY, SHIFT }, "Return", function() awful.spawn(cmd.terminal) end,
 	          { description = "open terminal", group = "cmd" }),
 
-    --- Editor 
+    --- Editor
 	awful.key({ MODKEY, SHIFT }, "e", function() awful.spawn(cmd.text_editor) end,
 	          { description = "open editor", group = "cmd" }),
 
@@ -42,25 +41,25 @@ awful.keyboard.append_global_keybindings({
               {description = "show the menubar", group = "cmd"}),
 
     -- Snipregion
-    awful.key({ MODKEY }, "s", function() 
+    awful.key({ MODKEY }, "s", function()
         awful.spawn(cmd.snipregion) end,
               {description = "Select a region to clipboard", group = "cmd"}),
 
-    -- Toggle-Headphone-Speakers -- TODO: ^ doesnt work why ?
-    --awful.key({ MODKEY }, "^", function() 
-    --    awful.spawn(cmd.toggle_headphone_speakers) end,
-    --          {description = "Toggle between Headphone and Speakers", group = "cmd"}),
+    -- Toggle-Headphone-Speakers
+    awful.key({ MODKEY }, "F1", function()
+        awful.spawn(cmd.toggle_headphone_speakers) end,
+              {description = "Toggle between Headphone and Speakers", group = "cmd"}),
 
     -- logout panel
-    awful.key({ MODKEY }, "Escape", function() 
+    awful.key({ MODKEY }, "Escape", function()
         panels.exitscreen:emit_signal("toggle") end,
               {description = "toggle logout panel", group = "cmd"}),
 
 ---------------------------------------------------------------
--- => Standard 
+-- => Standard
 ---------------------------------------------------------------
     -- help
-    awful.key({ MODKEY, CTRL, SHIFT }, "s",      hotkeys_popup.show_help,
+    awful.key({ MODKEY, CTRL, SHIFT }, "s", hotkeys_popup.show_help,
               {description="show help", group="standard"}),
     --- restart
     awful.key({ MODKEY, CTRL }, "r", awesome.restart,
@@ -68,14 +67,14 @@ awful.keyboard.append_global_keybindings({
     -- quit
     awful.key({ MODKEY, SHIFT   }, "q", awesome.quit,
               {description = "quit awesome", group = "standard"}),
-            
+
 ---------------------------------------------------------------
 -- => Audio
 ---------------------------------------------------------------
     -- next
     awful.key({ }, "XF86AudioNext", function() awful.spawn.with_shell("playerctl next") end,
               {description = "Play next", group = "Audio"}),
-    -- prev 
+    -- prev
     awful.key({ }, "XF86AudioPrev", function() awful.spawn.with_shell("playerctl previous") end,
               {description = "Play prev", group = "Audio"}),
     -- play / pause
@@ -88,7 +87,7 @@ awful.keyboard.append_global_keybindings({
 ---------------------------------------------------------------
 -- Layout Navigation
 ---------------------------------------------------------------
-    awful.key({ MODKEY,           }, "Tab", function () 
+    awful.key({ MODKEY,           }, "Tab", function ()
         awful.tag.history.restore()
     end,
               {description = "go back", group = "tag"}),

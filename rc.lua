@@ -2,16 +2,15 @@
 --      @author clusterfonk
 ---------------------------------------------------------------
 --  Sections:
---      -> Theme 
+--      -> Theme
 --      -> Autostart
---      -> Configuration 
+--      -> Configuration
 --      -> Modules
---      -> UI 
+--      -> UI
 --      -> Garbage-Collection
 --      -> Error-Handling
 ---------------------------------------------------------------
 pcall(require, "luarocks.loader")
-local awful = require("awful")
 local gears = require("gears")
 local bt = require("beautiful")
 

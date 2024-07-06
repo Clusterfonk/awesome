@@ -3,9 +3,9 @@
 
 return {
     terminal = "alacritty",
-    text_editor = "alacritty -e vim",
+    text_editor = "alacritty -e nvim",
     web_browser = "brave",
-    notes = "alacritty -e vimwiki",
+    notes = "alacritty -e nvim -c 'VimwikiIndex'",
     launcher = "",
     snipregion = "snipregion",
     toggle_headphone_speakers = "toggle-headphone-speakers",

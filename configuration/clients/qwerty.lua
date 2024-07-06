@@ -16,11 +16,11 @@ client.connect_signal("request::default_keybindings", function()
 
         --- Toggle floating
         awful.key({ MODKEY, SHIFT }, "space", awful.client.floating.toggle,
-                  {description = "toggle floating", group = "client"}), 
-        
+                  {description = "toggle floating", group = "client"}),
+
         -- Kill or minimize to systray
-        awful.key({ MODKEY, SHIFT   }, "c",      
-        function (c) 
+        awful.key({ MODKEY, SHIFT   }, "c",
+        function (c)
             for _, prog in pairs(minimize_list) do
                 if c.name:find("(" .. prog .. ")") then
                     c.minimized = true
@@ -30,8 +30,8 @@ client.connect_signal("request::default_keybindings", function()
             c:kill()
         end,
                   {description = "close", group = "client"}),
-        
-        awful.key({ MODKEY, CTRL }, "Return", 
+
+        awful.key({ MODKEY, CTRL }, "Return",
         function (c) c:swap(awful.client.getmaster()) end,
                   {description = "move to master", group = "client"}),
 
@@ -58,9 +58,9 @@ client.connect_signal("request::default_keybindings", function()
         {description = "(un)maximize", group = "client"}),
 
     --- Center window
-    awful.key({ MODKEY, }, "c", 
-        function() 
-            awful.placement.centered(c, { honor_workarea = true, honor_padding = true })
+    awful.key({ MODKEY, }, "c",
+        function()
+            awful.placement.centered(c , { honor_workarea = true, honor_padding = true })
         end),
 })
 end)

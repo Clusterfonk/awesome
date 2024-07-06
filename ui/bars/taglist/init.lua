@@ -19,13 +19,13 @@ return function(s, bar_width, bar_height, bar_offset)
         }
     })
 
-    local function left_half_filter(s)
+    local function left_half_filter()
         return function(t)
             return t.index <= (#s.tags / 2)
         end
     end
-    
-    local function right_half_filter(s)
+
+    local function right_half_filter()
         return function(t)
             return t.index > (#s.tags / 2)
         end
@@ -34,10 +34,10 @@ return function(s, bar_width, bar_height, bar_offset)
     local tag_template = template(s, bar_width, bar_height)
     -- create partial taglists
     s.taglist = {
-        left_half = partial_taglist(s, left_half_filter(s), tag_template),
-        right_half = partial_taglist(s, right_half_filter(s), tag_template)
-    }  
-    
+        left_half = partial_taglist(s, left_half_filter(), tag_template),
+        right_half = partial_taglist(s, right_half_filter(), tag_template)
+    }
+
     --create the bar
     s.taglist_bar = wibox({
         index = "taglist_bar",

@@ -13,10 +13,10 @@ awful.screen.connect_for_each_screen(function(s)
     local bar_height = dpi(24, s)
 	local bar_offset = dpi(5, s)
 
+    --TODO: probably want them to build like all the widgets new()
 	taglist_bar(s, taglist_bar_width, bar_height, bar_offset)
 
-    local info_bar_width = dpi(250, s)
-    info_bar(s, info_bar_width, bar_height, bar_offset)
+    info_bar(s, bar_height, bar_offset)
 	if s.index == SECONDARY_SCREEN then
         -- placeholder for info bar
 	end

@@ -16,42 +16,42 @@ local naughty = require("naughty")
 local wibox = require("wibox")
 
 
-local colors = { }
-colors.black_1          = "#302302f"
-colors.black_2          = "#928374"
-colors.red_1            = "#cc241d"
-colors.red_2            = "#fb4934"
-colors.green_1          = "#98971a"
-colors.green_2          = "#b8bb26"
-colors.yellow_1         = "#d79921"
-colors.yellow_2         = "#fabd2f"
-colors.blue_1           = "#458588"
-colors.blue_2           = "#83a598"
-colors.purple_1         = "#b16286"
-colors.purple_2         = "#d3869b"
-colors.aqua_1           = "#689d6a"
-colors.aqua_2           = "#8ec07c"
-colors.white_1          = "#a89984"
-colors.white_2          = "#ebdbb2"
-colors.orange_1         = "#d65d0e"
-colors.orange_2         = "#fe8019"
+local colors    = {}
+colors.black_1  = "#302302f"
+colors.black_2  = "#928374"
+colors.red_1    = "#cc241d"
+colors.red_2    = "#fb4934"
+colors.green_1  = "#98971a"
+colors.green_2  = "#b8bb26"
+colors.yellow_1 = "#d79921"
+colors.yellow_2 = "#fabd2f"
+colors.blue_1   = "#458588"
+colors.blue_2   = "#83a598"
+colors.purple_1 = "#b16286"
+colors.purple_2 = "#d3869b"
+colors.aqua_1   = "#689d6a"
+colors.aqua_2   = "#8ec07c"
+colors.white_1  = "#a89984"
+colors.white_2  = "#ebdbb2"
+colors.orange_1 = "#d65d0e"
+colors.orange_2 = "#fe8019"
 
-colors.bw_0_h           = "#1d2021"
-colors.bw_0             = "#32302f"
-colors.bw_0_s           = "#32302f"
-colors.bw_1             = "#3c3836"
-colors.bw_2             = "#504945"
-colors.bw_3             = "#665c54"
-colors.bw_4             = "#7c6f64"
-colors.bw_5             = "#928374"
-colors.bw_6             = "#a89984"
-colors.bw_7             = "#bdae93"
-colors.bw_8             = "#d5c4a1"
-colors.bw_9             = "#ebdbb2"
-colors.bw_10            = "#fbf1c7"
+colors.bw_0_h   = "#1d2021"
+colors.bw_0     = "#32302f"
+colors.bw_0_s   = "#32302f"
+colors.bw_1     = "#3c3836"
+colors.bw_2     = "#504945"
+colors.bw_3     = "#665c54"
+colors.bw_4     = "#7c6f64"
+colors.bw_5     = "#928374"
+colors.bw_6     = "#a89984"
+colors.bw_7     = "#bdae93"
+colors.bw_8     = "#d5c4a1"
+colors.bw_9     = "#ebdbb2"
+colors.bw_10    = "#fbf1c7"
 
-local theme = { colors=colors }
-local root_dir = gfs.get_configuration_dir()
+local theme     = { colors = colors }
+local root_dir  = gfs.get_configuration_dir()
 local theme_dir = root_dir .. "theme/gruvbox/"
 theme.wallpaper = theme_dir .. "/wallpaper.png"
 
@@ -69,9 +69,9 @@ end
 theme.font_name = "Fira Mono"
 theme.font_size = "11"
 theme.font = theme:create_font()
-theme.font_bold = theme:create_font({emphasis = "Bold"})
-theme.font_italic = theme:create_font({emphasis = "Italic"})
-theme.font_bold_italic = theme:create_font({emphasis = "Bold Italic"})
+theme.font_bold = theme:create_font({ emphasis = "Bold" })
+theme.font_italic = theme:create_font({ emphasis = "Italic" })
+theme.font_bold_italic = theme:create_font({ emphasis = "Bold Italic" })
 
 -- border
 theme.border_width = 1
@@ -111,9 +111,9 @@ theme.titlebar_enabled = false
 theme.hotkeys_border_width = 30
 theme.hotkeys_border_color = colors.bw_0
 theme.hotkeys_group_margin = 30
-theme.hotkeys_shape =   function(cr, width, height)
-                            gears.shape.rounded_rect(cr, width, height, 20)
-                        end
+theme.hotkeys_shape = function(cr, width, height)
+    gears.shape.rounded_rect(cr, width, height, 20)
+end
 -- prompt
 theme.prompt_bg = colors.bw_2
 theme.prompt_fg = theme.fg_normal
@@ -121,9 +121,9 @@ theme.bg_systray = theme.tasklist_bg_normal
 
 -- snap
 theme.snap_bg = theme.border_focus
-theme.snap_shape =  function(cr, w, h)
-                        gears.shape.rounded_rect(cr, w, h, theme.border_radius or 0)
-                    end
+theme.snap_shape = function(cr, w, h)
+    gears.shape.rounded_rect(cr, w, h, theme.border_radius or 0)
+end
 
 -- Icons
 local function load_icon(dir, filename)
@@ -137,53 +137,53 @@ theme.layout_floating = load_icon(layout_dir, "floating.png")
 theme.layout_tile = load_icon(layout_dir, "tile.png")
 
 
-local icon_dir = theme_dir .. "icons/"
-theme.icon = {}
-theme.icon.bell_normal = load_icon(icon_dir, "bell-normal.svg")
-theme.icon.notification = load_icon(icon_dir, "notification.svg")
+local icon_dir                       = theme_dir .. "icons/"
+theme.icon                           = {}
+theme.icon.bell_normal               = load_icon(icon_dir, "bell-normal.svg")
+theme.icon.notification              = load_icon(icon_dir, "notification.svg")
 
-theme.icon.menu_left = load_icon(icon_dir, "menu_left.svg")
-theme.icon.menu_right = load_icon(icon_dir, "menu_right.svg")
+theme.icon.menu_left                 = load_icon(icon_dir, "menu_left.svg")
+theme.icon.menu_right                = load_icon(icon_dir, "menu_right.svg")
 
-theme.icon.headphones = load_icon(icon_dir, "headphones.svg")
-theme.icon.vol_high = load_icon(icon_dir, "volume-high.svg")
-theme.icon.vol_mid = load_icon(icon_dir, "volume-mid.svg")
-theme.icon.vol_low = load_icon(icon_dir, "volume-low.svg")
-theme.icon.vol_muted = load_icon(icon_dir, "volume-muted.svg")
-theme.icon.mic = load_icon(icon_dir, "microphone.svg")
-theme.icon.mic_muted = load_icon(icon_dir, "microphone-muted.svg")
+theme.icon.headphones                = load_icon(icon_dir, "headphones.svg")
+theme.icon.vol_high                  = load_icon(icon_dir, "volume-high.svg")
+theme.icon.vol_mid                   = load_icon(icon_dir, "volume-mid.svg")
+theme.icon.vol_low                   = load_icon(icon_dir, "volume-low.svg")
+theme.icon.vol_muted                 = load_icon(icon_dir, "volume-muted.svg")
+theme.icon.mic                       = load_icon(icon_dir, "microphone.svg")
+theme.icon.mic_muted                 = load_icon(icon_dir, "microphone-muted.svg")
 
 -- systray
-theme.systray = {}
-theme.systray_icon_spacing = 4
+theme.systray                        = {}
+theme.systray_icon_spacing           = 4
 
 -- TODO: notification theme settings might be not needed set naughty directly
-theme.notification_fg = theme.fg_normal
-theme.notification_bg = theme.bg_normal
-theme.notification_border_color = theme.border_normal
-theme.notification_border_width = theme.border_width
-theme.notification_icon_size = 80
+theme.notification_fg                = theme.fg_normal
+theme.notification_bg                = theme.bg_normal
+theme.notification_border_color      = theme.border_normal
+theme.notification_border_width      = theme.border_width
+theme.notification_icon_size         = 80
 
-theme.notification_max_width = 600
-theme.notification_max_height = 400
-theme.notification_margin = 20
-theme.notification_shape =  function(cr, width, height)
-                                gears.shape.rounded_rect(cr, width, height, theme.border_radius or 0)
-                            end
+theme.notification_max_width         = 600
+theme.notification_max_height        = 400
+theme.notification_margin            = 20
+theme.notification_shape             = function(cr, width, height)
+    gears.shape.rounded_rect(cr, width, height, theme.border_radius or 0)
+end
 
 -- calendar
-theme.calendar_day_focus_bg = theme.bg_urgent
-theme.calendar_current_date_fg = colors.bw_2
-theme.calendar_another_month_fg = colors.bw_2
+theme.calendar_day_focus_bg          = theme.bg_urgent
+theme.calendar_current_date_fg       = colors.bw_2
+theme.calendar_another_month_fg      = colors.bw_2
 
 -- naughty
-naughty.config.padding = 15
-naughty.config.spacing = 10
-naughty.config.defaults.timeout = 5
-naughty.config.defaults.margin = theme.notification_margin
+naughty.config.padding               = 15
+naughty.config.spacing               = 10
+naughty.config.defaults.timeout      = 5
+naughty.config.defaults.margin       = theme.notification_margin
 naughty.config.defaults.border_width = theme.notification_border_width
 -- TODO needed ?
-naughty.config.presets.normal = {
+naughty.config.presets.normal        = {
     font = theme.font,
     fg = theme.notification_fg,
     bg = theme.notification_bg,
@@ -191,18 +191,18 @@ naughty.config.presets.normal = {
     margin = theme.notification_margin,
 }
 
-naughty.config.presets.low                      = naughty.config.presets.normal
-naughty.config.presets.ok                       = naughty.config.presets.normal
-naughty.config.presets.info                     = naughty.config.presets.normal
-naughty.config.presets.warn                     = naughty.config.presets.normal
+naughty.config.presets.low           = naughty.config.presets.normal
+naughty.config.presets.ok            = naughty.config.presets.normal
+naughty.config.presets.info          = naughty.config.presets.normal
+naughty.config.presets.warn          = naughty.config.presets.normal
 
-naughty.config.presets.critical                 = {
-                                                      font         = theme.font,
-                                                      fg           = colors.red_2,
-                                                      bg           = theme.notification_bg,
-                                                      border_width = theme.notification_border_width,
-                                                      margin       = theme.notification_margin,
-                                                      timeout      = 0,
-                                                  }
+naughty.config.presets.critical      = {
+    font         = theme.font,
+    fg           = colors.red_2,
+    bg           = theme.notification_bg,
+    border_width = theme.notification_border_width,
+    margin       = theme.notification_margin,
+    timeout      = 0,
+}
 
 return theme

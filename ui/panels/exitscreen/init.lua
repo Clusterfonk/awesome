@@ -4,10 +4,8 @@ local setmetatable = setmetatable
 local awful = require("awful")
 local bt = require("beautiful")
 local wibox = require("wibox")
-local gears = require("gears")
 local gfs = require("gears.filesystem")
 local gtable = require("gears.table")
-local keygrabber = awful.keygrabber
 local dpi = bt.xresources.apply_dpi
 
 local button = require(... .. ".button")
@@ -20,7 +18,7 @@ local shutdown_icon = icon_dir .. "shutdown.svg"
 local reboot_icon = icon_dir .. "reboot.svg"
 local logout_icon = icon_dir .. "logout.svg"
 local lock_icon = icon_dir .. "lock.svg"
-local supsend_icon = icon_dir .. "suspend.svg" 
+local supsend_icon = icon_dir .. "suspend.svg"
 
 panel = { mt = {} }
 
@@ -45,13 +43,13 @@ end
 
 local function create_button(args, text)
     local button = button(args)
-    button:connect_signal("mouse::enter", 
+    button:connect_signal("mouse::enter",
     args.enter or function(b)
         text.point = {x=100, y=0}
         text:set_text(b.hover_text)
     end)
-    button:connect_signal("mouse::leave", 
-    args.leave or function(b) 
+    button:connect_signal("mouse::leave",
+    args.leave or function(b)
         text:set_text(" ")
     end)
     return button
@@ -63,17 +61,17 @@ local function create_keygrabber(self)
             awful.key{
                 modifiers = {},
                 key = "Escape",
-                on_press = 
-                function() 
-                    self:emit_signal("toggle") 
+                on_press =
+                function()
+                    self:emit_signal("toggle")
                 end
             },
             awful.key{
                 modifiers = {"Mod1"},
                 key = "Escape",
-                on_press = 
-                function() 
-                    self:emit_signal("toggle") 
+                on_press =
+                function()
+                    self:emit_signal("toggle")
                 end
             },
             awful.key{
@@ -102,18 +100,18 @@ local function create_keygrabber(self)
                 on_press = suspend
             },
         }
-    } 
+    }
 end
 
-local function create_widget(self, s)    
+local function create_widget(self, s)
     local bottom_text = wibox.widget {
         text = " ",
         font = bt.font_bold,
         widget = wibox.widget.textbox,
     }
-    
+
     local icon_buttons = {
-        { 
+        {
             create_button({
                 icon = shutdown_icon,
                 hover_text = "shutdown",
@@ -157,15 +155,15 @@ local function create_widget(self, s)
             id = 'buttons',
             spacing = dpi(self.icon_spacing, s),
             layout = wibox.layout.fixed.horizontal
-        }, 
+        },
         layout = wibox.container.place
-    }    
+    }
     return wibox.widget {
         {
             {
                 icon_buttons,
                 layout = wibox.layout.align.horizontal,
-            }, 
+            },
             {
                     bottom_text,
                     layout = wibox.container.place
@@ -193,14 +191,14 @@ end
 
 function panel.new(args)
     args = args or {}
-    
+
     panel.accent = args.accent or bt.bg_focus
     panel.fg = args.fg or bt.fg_normal
     panel.icon_size = args.icon_size or 15
     panel.icon_margin = args.icon_margin or {}
     panel.icon_spacing = args.icon_spacing or 5
     panel.widget_margins = args.widget_margins or {}
-    
+
     local ret = awful.popup({
         placement = awful.placement.centered,
         bg = args.bg or bt.bg_normal,
@@ -208,12 +206,12 @@ function panel.new(args)
         border_color = bt.border_normal,
         border_width = dpi(2, s),
         ontop = true,
-        visible = false,        
+        visible = false,
         widget = {}
     })
     ret:set_widget(nil)
     gtable.crush(ret, panel, true)
-    
+
     ret.keygrabber = create_keygrabber(ret)
     ret:connect_signal("toggle", toggle, ret)
     return ret

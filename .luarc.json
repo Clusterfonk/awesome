@@ -6,7 +6,8 @@
   ],
   "diagnostics.globals": ["awesome",
         "root",
-        "mouse"],
+        "mouse",
+        "client"],
   "workspace.checkThirdParty": false,
   "workspace.library": [
   ],

@@ -6,19 +6,20 @@ local wibox = require("wibox")
 local bt = require("beautiful")
 local dpi = bt.xresources.apply_dpi
 
-local clock = require ("ui.widgets.clock")
+local clock = require("ui.widgets.clock")
 
-return function(s, width, height, strut_offset)
+
+return function(s, height, strut_offset)
+    -- NOTE: space at the end fixed the problem
     local clock_widget = clock {
-        format = "%H:%M",
+        format = " %H:%M ",
         font = bt.font_bold,
     }
 
     s.info_bar = awful.popup {
         screen = s,
         ontop = true,
-        maximum_width = width,
-        maximum_height = height,
+        height = height,
         border_width = dpi(bt.taglist_border_width, s),
         border_color = bt.taglist_border_color,
         bg = bt.colors.background,
@@ -30,16 +31,55 @@ return function(s, width, height, strut_offset)
                 layout = wibox.layout.fixed.horizontal,
                 spacing = dpi(10, s),
                 forced_height = height,
-                clock_widget
+                clock_widget,
+                clock {
+                    format = "%H:%M",
+                    font = bt.font_bold
+                },
+                clock {
+                    format = "%H:%M",
+                    font = bt.font_bold
+                },
+                clock {
+                    format = "%H:%M",
+                    font = bt.font_bold
+                },
+                clock {
+                    format = "%H:%M",
+                    font = bt.font_bold
+                },
+                clock {
+                    format = "%H:%M",
+                    font = bt.font_bold
+                },
             }
         }
     }
+
     awful.placement.align(s.info_bar,
         {
             position = "top_left",
-            margins = {top = strut_offset, left = dpi(bt.useless_gap, s) * 2}
+            margins = { top = strut_offset, left = dpi(bt.useless_gap, s) * 2 }
         })
-    s.info_bar:struts{
-        top = height + 2*dpi(bt.taglist_border_width, s) + strut_offset
+    s.info_bar:struts {
+        top = height + 2 * dpi(bt.taglist_border_width, s) + strut_offset
     }
+
+    client.connect_signal("focus", function(client)
+        if client.fullscreen then
+            s.info_bar.visible = false
+        end
+    end)
+
+    client.connect_signal("property::fullscreen", function(client)
+        if client.fullscreen then
+            s.info_bar.visible = false
+        else
+            any_fullscreen = false
+            for _, c in pairs(s.clients) do
+                any_fullscreen = any_fullscreen or c.fullscreen
+            end
+            s.info_bar.visible = not any_fullscreen
+        end
+    end)
 end

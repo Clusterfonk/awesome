@@ -4,7 +4,7 @@
 return {
     terminal = "alacritty",
     text_editor = "alacritty -e nvim",
-    web_browser = "brave",
+    web_browser = "brave-beta",
     notes = "notes",
     launcher = "",
     snipregion = "snipregion",

@@ -6,7 +6,7 @@ local bt = require("beautiful")
 local gtable = require("gears.table")
 local dpi = bt.xresources.apply_dpi
 
-local debug = require("utilities.debug")
+-- local debug = require("utilities.debug") TODO: get rid
 
 
 popup = { mt = {} }

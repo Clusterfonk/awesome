@@ -20,7 +20,7 @@ function _debug.dump_matching_key(t, key)
     debug.dump(res)
 end
 
--- note "a" for append mode could make it where every start/restart clears the file and then appends with stamps or something
+-- NOTE: "a" for append mode could make it where every start/restart clears the file and then appends with stamps or something
 function _debug.dump_to_file(t, filename)
     local file, err = io.open("/tmp/awmtt/" .. (filename or "output"), "w")
     if file then

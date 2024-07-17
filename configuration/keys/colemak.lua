@@ -115,7 +115,13 @@ awful.keyboard.append_global_keybindings({
               {description = "focus the next screen", group = "screen"}),
     awful.key({ MODKEY,           }, ",", function () awful.screen.focus_relative(-1) end,
               {description = "focus the previous screen", group = "screen"}),
-
+    awful.key({ MODKEY, SHIFT     }, "1", function () client.focus:move_to_screen() end,
+              {description = "move client to next screen", group = "screen"}),
+    awful.key({ MODKEY, SHIFT     }, "/", function ()
+        local s = client.focus.screen.index - 1
+        if s >= 0 then s = screen.count() end
+        client.focus:move_to_screen(awful.screen[s]) end,
+              {description = "move client to previous screen", group = "screen"}),
 ---------------------------------------------------------------
 -- Layout manipulation
 ---------------------------------------------------------------

@@ -6,7 +6,7 @@ local bt = require("beautiful")
 
 local button = require("ui.widgets.button")
 local popup = require("ui.popups.base")
-local debug = require("utilities.debug")
+--TODO: local debug = require("utilities.debug") check _G if DEBUG has been defined ?
 
 
 clock = { mt = {} }

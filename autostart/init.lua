@@ -3,5 +3,4 @@
 
 local awful = require('awful')
 
--- run once
 awful.spawn.with_shell("$XDG_CONFIG_HOME/awesome/autostart/autostart.sh")

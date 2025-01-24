@@ -9,4 +9,5 @@ run() {
   fi
 }
 
-run "xrdb -merge $XDG_CONFIG_HOME/X11/Xresources"
+run "keepassxc"
+run "discord --start-minimized"

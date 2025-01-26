@@ -36,7 +36,6 @@ awful.keyboard.append_global_keybindings({
 	awful.key({ MODKEY, SHIFT }, "w", function() awful.spawn(cmd.web_browser) end,
 	          { description = "open web browser", group = "cmd" }),
 
-    -- Menubar <- TODO: replace with launcher
     awful.key({ MODKEY }, "p", function() menubar.show() end,
               {description = "show the menubar", group = "cmd"}),
 

@@ -133,8 +133,9 @@ end
 
 -- layout icons
 local layout_dir = theme_dir .. "layouts/"
-theme.layout_floating = load_icon(layout_dir, "floating.png")
 theme.layout_tile = load_icon(layout_dir, "tile.png")
+theme.layout_fairh = load_icon(layout_dir, "fairh.png")
+theme.layout_floating = load_icon(layout_dir, "floating.png")
 
 
 local icon_dir                       = theme_dir .. "icons/"
@@ -172,9 +173,12 @@ theme.notification_shape             = function(cr, width, height)
 end
 
 -- calendar
-theme.calendar_day_focus_bg          = theme.bg_urgent
-theme.calendar_current_date_fg       = colors.bw_2
-theme.calendar_another_month_fg      = colors.bw_2
+theme.calendar                       = {}
+theme.calendar.header_font           = theme:create_font({ emphasis = "Bold", size = 12 })
+theme.calendar.grid_font             = theme:create_font({ size = 12})
+theme.calendar.day_focus_bg          = theme.bg_urgent
+theme.calendar.day_fg                = theme.fg_normal
+theme.calendar.day_off_fg            = colors.bw_2
 
 -- naughty
 naughty.config.padding               = 15

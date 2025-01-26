@@ -22,10 +22,6 @@ client.connect_signal("request::default_keybindings", function()
             end,
             { description = 'toggle fullscreen', group = 'client' }),
 
-        --- Toggle floating
-        awful.key({ MODKEY, SHIFT }, "space", awful.client.floating.toggle,
-            { description = "toggle floating", group = "client" }),
-
         -- Kill or minimize to systray
         awful.key({ MODKEY, SHIFT }, "c",
             function(c)

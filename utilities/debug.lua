@@ -1,3 +1,5 @@
+-- @license APGL-3.0 <https://www.gnu.org/licenses/>
+-- @author Clusterfonk <https://github.com/Clusterfonk>
 local naughty = require("naughty")
 local debug = require("gears.debug")
 local gtable = require("gears.table")
@@ -11,8 +13,8 @@ naughty.notify({
 
 _debug = { mt = {} }
 
-function _debug.dump(t)
-    debug.dump(t)
+function _debug.dump(t, tag, d)
+    debug.dump(t, tag, d)
 end
 
 function _debug.dump_matching_key(t, key)
@@ -20,7 +22,6 @@ function _debug.dump_matching_key(t, key)
     debug.dump(res)
 end
 
--- NOTE: "a" for append mode could make it where every start/restart clears the file and then appends with stamps or something
 function _debug.dump_to_file(t, filename)
     local file, err = io.open("/tmp/awmtt/" .. (filename or "output"), "w")
     if file then

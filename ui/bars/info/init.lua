@@ -1,6 +1,5 @@
 -- @license APGL-3.0 <https://www.gnu.org/licenses/>
 -- @author Clusterfonk <https://github.com/Clusterfonk>
-
 local awful = require("awful")
 local wibox = require("wibox")
 local bt = require("beautiful")
@@ -10,10 +9,15 @@ local clock = require("ui.widgets.clock")
 
 
 return function(s, height, strut_offset)
-    -- NOTE: space at the end fixed the problem
+    local geometry = {top = strut_offset, left = dpi(bt.useless_gap,s) * 2}
+    geometry.bottom = geometry.top + height + 2 * dpi(bt.taglist_border_width, s)
+
     local clock_widget = clock {
+        screen = s,
         format = " %H:%M ",
         font = bt.font_bold,
+        top = geometry.bottom + 2 * bt.useless_gap,
+        left = geometry.left
     }
 
     s.info_bar = awful.popup {
@@ -32,26 +36,6 @@ return function(s, height, strut_offset)
                 spacing = dpi(10, s),
                 forced_height = height,
                 clock_widget,
-                clock {
-                    format = "%H:%M",
-                    font = bt.font_bold
-                },
-                clock {
-                    format = "%H:%M",
-                    font = bt.font_bold
-                },
-                clock {
-                    format = "%H:%M",
-                    font = bt.font_bold
-                },
-                clock {
-                    format = "%H:%M",
-                    font = bt.font_bold
-                },
-                clock {
-                    format = "%H:%M",
-                    font = bt.font_bold
-                },
             }
         }
     }
@@ -59,11 +43,12 @@ return function(s, height, strut_offset)
     awful.placement.align(s.info_bar,
         {
             position = "top_left",
-            margins = { top = strut_offset, left = dpi(bt.useless_gap, s) * 2 }
+            margins = { top = geometry.top, left = geometry.left }
         })
-    s.info_bar:struts {
-        top = height + 2 * dpi(bt.taglist_border_width, s) + strut_offset
-    }
+    -- TODO: might be useless yeet it
+   -- s.info_bar:struts {
+   --     top = geometry.bottom
+   -- }
 
     client.connect_signal("focus", function(client)
         if client.fullscreen then

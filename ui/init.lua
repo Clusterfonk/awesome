@@ -18,6 +18,5 @@ awful.screen.connect_for_each_screen(function(s)
 
     info_bar(s, bar_height, bar_offset)
 	if s.index == SECONDARY_SCREEN then
-        -- placeholder for info bar
 	end
 end)

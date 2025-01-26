@@ -150,7 +150,7 @@ local function create_widget(self, s)
                 size = dpi(self.icon_size, s),
                 margins = dpi(self.icon_margin, s),
                 bg_focus = bt.colors.blue_2,
-                callback = supsend
+                callback = suspend
             }, bottom_text),
             id = 'buttons',
             spacing = dpi(self.icon_spacing, s),
@@ -204,7 +204,7 @@ function panel.new(args)
         bg = args.bg or bt.bg_normal,
         fg = args.fg or bt.fg_normal,
         border_color = bt.border_normal,
-        border_width = dpi(2, s),
+        border_width = dpi(2),
         ontop = true,
         visible = false,
         widget = {}

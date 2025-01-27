@@ -158,7 +158,6 @@ theme.icon.mic_muted                 = load_icon(icon_dir, "microphone-muted.svg
 theme.systray                        = {}
 theme.systray_icon_spacing           = 4
 
--- TODO: notification theme settings might be not needed set naughty directly
 theme.notification_fg                = theme.fg_normal
 theme.notification_bg                = theme.bg_normal
 theme.notification_border_color      = theme.border_normal
@@ -179,6 +178,7 @@ theme.calendar.grid_font             = theme:create_font({ size = 12})
 theme.calendar.day_focus_bg          = theme.bg_urgent
 theme.calendar.day_fg                = theme.fg_normal
 theme.calendar.day_off_fg            = colors.bw_2
+theme.calendar.months_font           = theme:create_font({ size = 8})
 
 -- naughty
 naughty.config.padding               = 15

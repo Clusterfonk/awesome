@@ -8,22 +8,17 @@ local dpi = bt.xresources.apply_dpi
 
 popup = { mt = {} }
 
-function popup:create_widget()
-end
-
 function popup:show()
-    if self:get_widget() == nil then
-        self:create_widget()
-        --self.auto_hide_timer:again()
+    if not self.visible then
+        self.auto_hide_timer:again()
+        self.visible = true
     end
-    self.visible = true
 end
 
 function popup:hide()
-    if self:get_widget() ~= nil then
-        self:set_widget(nil)
+    if self.visible then
+        self.visible = false
     end
-    self.visible = false
 end
 
 local function new(args)
@@ -35,7 +30,7 @@ local function new(args)
         border_width = dpi(2),
         ontop = true,
         visible = false,
-        widget = {}
+        widget = args.widget or {}
     }
     ret:set_widget(nil)
     local gtimer = require "gears.timer"

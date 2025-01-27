@@ -45,7 +45,7 @@ return function(s, height, strut_offset)
             position = "top_left",
             margins = { top = geometry.top, left = geometry.left }
         })
-    -- TODO: might be useless yeet it
+   -- TODO: might be useless yeet it
    -- s.info_bar:struts {
    --     top = geometry.bottom
    -- }

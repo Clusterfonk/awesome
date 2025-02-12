@@ -10,6 +10,7 @@ popup = { mt = {} }
 
 function popup:show()
     if not self.visible then
+        self.auto_hide_timer.timeout = 1
         self.auto_hide_timer:again()
         self.visible = true
     end
@@ -35,7 +36,7 @@ local function new(args)
     ret:set_widget(nil)
     local gtimer = require "gears.timer"
     ret.auto_hide_timer = gtimer({
-            timeout = 0.5,
+            timeout = 1,
             single_shot = true,
             callback = function()
                 ret:emit_signal("popup::hide")
@@ -45,6 +46,7 @@ local function new(args)
     awful.placement.top_left(ret, {margins = {top = args.top, left = args.left}})
 
     ret:connect_signal("mouse::leave", function()
+        ret.auto_hide_timer.timeout = 0.4
         ret.auto_hide_timer:again()
 	end)
 

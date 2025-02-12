@@ -15,13 +15,17 @@ local month_lut = {
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
 }
+local month_short_lut = {
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+}
 
-local function years_widget(name)
+local function year_widget(self, name)
     return wibox.widget {
         {
             widget = wibox.widget.textbox,
             text = name,
-            font = bt.calendar.months_font,
+            font = bt.calendar.grid_font,
             halign = "center",
             valign = "center"
         },
@@ -32,18 +36,52 @@ local function years_widget(name)
     }
 end
 
-local function years_grid(year)
+
+local function month_widget(self, month)
+    local text = wibox.widget {
+        widget = wibox.widget.textbox,
+        text = month,
+        font = bt.calendar.grid_font,
+        halign  = "center",
+        valign = "center",
+    }
+
+    local btext = wibox.container.background(text)
+
+    local widget = wibox.widget {
+        {
+            widget = btext
+        },
+        shape = gshape.circle,
+        forced_height = dpi(15),
+        forced_width = dpi(15),
+        widget = wibox.container.background
+    }
+
+    self:connect_signal(month .. "::updated", function(self, date, is_current)
+        text:set_text(date)
+        if is_current == true then
+            widget.bg = bt.calendar.day_focus_bg
+            btext:set_fg(bt.calendar.day_fg)
+        else
+            btext:set_fg(bt.calendar.day_fg)
+        end
+    end)
+
+    return widget
+end
+
+local function years_grid(self, year)
     local years = {}
     local start_year = year - 14
     local end_year = year + 5
     for y = start_year, end_year do
-        table.insert(years, years_widget(y))
+        table.insert(years, month_widget(self, y))
     end
 
     return wibox.widget {
         layout = wibox.layout.grid,
-        id = "months",
-        forced_num_rows = 3,
+        forced_num_rows = 5,
         forced_num_cols = 4,
         homogenous = true,
         expand = true,
@@ -52,36 +90,19 @@ local function years_grid(year)
     }
 end
 
-local function month_widget(name)
-    return wibox.widget {
-        {
-            widget = wibox.widget.textbox,
-            text = name,
-            font = bt.calendar.months_font,
-            halign = "center",
-            valign = "center"
-        },
-        forced_height = dpi(15),
-        forced_width = dpi(15),
-        shape = gshape.circle,
-        widget = wibox.container.background
-    }
-end
-
-local function months_grid()
+local function months_grid(self)
     local months = {}
-    for i, m in pairs(month_lut) do
-        months[i] = month_widget(m)
+    for i, m in pairs(month_short_lut) do
+        months[i] = month_widget(self, m)
     end
 
     return wibox.widget {
         layout = wibox.layout.grid,
-        id = "months",
-        forced_num_rows = 3,
+        forced_num_rows = 2,
         forced_num_cols = 4,
         homogenous = true,
         expand = true,
-        spacing = dpi(5),
+        spacing = dpi(20),
         table.unpack(months)
     }
 end
@@ -99,6 +120,7 @@ local function day_name_widget(name)
         shape = gshape.circle,
         widget = wibox.container.background
     }
+
 end
 
 local function days_grid()
@@ -154,8 +176,8 @@ local function day_widget(self, day)
     return widget
 end
 
-local function create_years(month_h, year)
-    local yg = years_grid(year)
+local function create_years(self, month_h, year)
+    local yg = years_grid(self, year)
 
     return wibox.widget {
         {
@@ -173,8 +195,8 @@ local function create_years(month_h, year)
     }
 end
 
-local function create_months(year_h)
-    local mg = months_grid()
+local function create_months(self, year_h)
+    local mg = months_grid(self)
 
     return wibox.widget {
         {
@@ -255,12 +277,22 @@ function calendar:set_date(date)
         self:emit_signal(index .. "::updated", day, false, true)
         index = index + 1
     end
+
+    for month = 1, 12 do
+        local is_crt_month = month == date.month
+        local month_name = month_short_lut[month]
+        self:emit_signal(month_name .. "::updated", month_name, is_crt_month)
+    end
+
+    for year = date.year - 14, date.year + 5 do
+        local is_crt_year = year == date.year
+        self:emit_signal(year .. "::updated", year, is_crt_year)
+    end
 end
 
 local function new(args)
     local ret = base(args)
     gtable.crush(ret, calendar, true)
-
 
     local month_button = button {
         widget = wibox.widget {
@@ -274,7 +306,6 @@ local function new(args)
         month_button:get_widget():set_text(month_lut[m])
     end)
 
-
     local year_button = button {
         widget = wibox.widget {
             id = "header_year",
@@ -286,7 +317,6 @@ local function new(args)
     ret:connect_signal("header_year::updated", function(self, y)
         year_button:get_widget():set_text(y)
     end)
-
 
     local header_w = wibox.widget {
         {
@@ -301,8 +331,8 @@ local function new(args)
     }
 
     local cal_w = create_calendar(ret, header_w)
-    local months_w = create_months(year_button)
-    local years_w = create_years(month_button, os.date("*t").year)
+    local months_w = create_months(ret, year_button)
+    local years_w = create_years(ret, month_button, os.date("*t").year)
 
     ret:set_widget(wibox.widget {
         cal_w,
@@ -322,6 +352,28 @@ local function new(args)
 
     ret:connect_signal("popup::hide", function()
         ret:get_widget():raise_widget(cal_w)
+    end)
+
+    months_w:connect_signal("button::press", function(self, lx, ly, btn, mods, mode)
+        if btn == 3 then
+            ret:get_widget():raise_widget(cal_w)
+        end
+    end)
+
+    years_w:connect_signal("button::press", function(self, lx, ly, btn, mods, mode)
+        if btn == 3 then
+            ret:get_widget():raise_widget(cal_w)
+        end
+    end)
+
+    cal_w:connect_signal("button::press", function(self, lx, ly, btn, mods, mode)
+        if btn == 4 then
+            --local m = month_button:get_children()
+            --for _, c in pairs(m) do
+            --    print(c:get_text())
+            --end
+        elseif btn == 5 then
+        end
     end)
 
     ret:set_date(os.date("*t"))

@@ -178,7 +178,6 @@ theme.calendar.grid_font             = theme:create_font({ size = 12})
 theme.calendar.day_focus_bg          = theme.bg_urgent
 theme.calendar.day_fg                = theme.fg_normal
 theme.calendar.day_off_fg            = colors.bw_2
-theme.calendar.months_font           = theme:create_font({ size = 8})
 
 -- naughty
 naughty.config.padding               = 15

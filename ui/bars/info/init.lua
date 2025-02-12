@@ -14,7 +14,7 @@ return function(s, height, strut_offset)
 
     local clock_widget = clock {
         screen = s,
-        format = " %H:%M ",
+        format = "  %d %b %H:%M ", -- spaces prevent color bugging out
         font = bt.font_bold,
         top = geometry.bottom + 2 * bt.useless_gap,
         left = geometry.left
@@ -45,10 +45,6 @@ return function(s, height, strut_offset)
             position = "top_left",
             margins = { top = geometry.top, left = geometry.left }
         })
-   -- TODO: might be useless yeet it
-   -- s.info_bar:struts {
-   --     top = geometry.bottom
-   -- }
 
     client.connect_signal("focus", function(client)
         if client.fullscreen then

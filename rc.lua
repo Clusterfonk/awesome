@@ -33,9 +33,10 @@ require("configuration")
 ---------------------------------------------------------------
 -- => Modules
 ---------------------------------------------------------------
-require("modules.sloppy-focus")
 require("modules.set_wallpaper")
+require("modules.sloppy-focus")
 require("modules.center_mouse")
+require("modules.autofocus")
 
 ---------------------------------------------------------------
 -- => UI

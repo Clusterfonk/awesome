@@ -8,8 +8,9 @@ local dpi = bt.xresources.apply_dpi
 local template = require(... .. ".tag_template")
 local partial_taglist = require(... .. ".partial_taglist")
 
-
-return function(s, bar_width, bar_height, bar_offset)
+-- s, bar_width, bar_height, bar_offset
+return function(args)
+    local s = args.screen
     -- create layoutbox
     s.layoutbox = awful.widget.layoutbox({
         screen = s,
@@ -31,7 +32,7 @@ return function(s, bar_width, bar_height, bar_offset)
         end
     end
 
-    local tag_template = template(s, bar_width, bar_height)
+    local tag_template = template(s, args.width, args.height)
     -- create partial taglists
     s.taglist = {
         left_half = partial_taglist(s, left_half_filter(), tag_template),
@@ -43,11 +44,11 @@ return function(s, bar_width, bar_height, bar_offset)
         index = "taglist_bar",
         screen   = s,
         stretch  = false,
-        width    = bar_width,
+        width    = args.width,
         border_width = dpi(bt.taglist_border_width, s),
         border_color = bt.taglist_border_color,
         bg = bt.taglist_bg_normal,
-        height = bar_height,
+        height = args.height,
         visible = true,
         widget   = {
             {
@@ -66,9 +67,9 @@ return function(s, bar_width, bar_height, bar_offset)
         }
     })
 
-    awful.placement.align(s.taglist_bar, {position = "top", margins = {top = bar_offset}})
+    awful.placement.align(s.taglist_bar, {position = "top", margins = {top = args.strut_offset}})
 
     s.taglist_bar:struts({
-        top = bar_height + 2*dpi(bt.taglist_border_width) + bar_offset
+        top = args.height + 2*dpi(bt.taglist_border_width) + args.strut_offset
     })
 end

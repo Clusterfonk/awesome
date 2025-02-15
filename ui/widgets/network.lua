@@ -43,4 +43,3 @@ function network.mt:__call(...)
 end
 
 return setmetatable(network, network.mt)
-

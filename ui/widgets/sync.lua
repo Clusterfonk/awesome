@@ -43,4 +43,3 @@ function sync.mt:__call(...)
 end
 
 return setmetatable(sync, sync.mt)
-

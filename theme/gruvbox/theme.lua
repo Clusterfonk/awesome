@@ -66,7 +66,7 @@ function theme:create_font(args)
     return theme.font_name .. " " .. args.size
 end
 
-theme.font_name = "Fira Mono"
+theme.font_name = "FiraCodeNerdFont"
 theme.font_size = "11"
 theme.font = theme:create_font()
 theme.font_bold = theme:create_font({ emphasis = "Bold" })
@@ -138,68 +138,80 @@ theme.layout_fairh = load_icon(layout_dir, "fairh.png")
 theme.layout_floating = load_icon(layout_dir, "floating.png")
 
 
-local icon_dir                       = theme_dir .. "icons/"
-theme.icon                           = {}
-theme.icon.bell_normal               = load_icon(icon_dir, "bell-normal.svg")
-theme.icon.notification              = load_icon(icon_dir, "notification.svg")
+local icon_dir                      = theme_dir .. "icons/"
+theme.icon                          = {}
+theme.icon.notification             = load_icon(icon_dir, "notification.svg")
+theme.icon.notification_muted       = load_icon(icon_dir, "notification-muted.svg")
 
-theme.icon.menu_left                 = load_icon(icon_dir, "menu_left.svg")
-theme.icon.menu_right                = load_icon(icon_dir, "menu_right.svg")
+theme.icon.menu_up                  = load_icon(icon_dir, "menu-up.svg")
+theme.icon.menu_down                = load_icon(icon_dir, "menu-down.svg")
 
-theme.icon.headphones                = load_icon(icon_dir, "headphones.svg")
-theme.icon.vol_high                  = load_icon(icon_dir, "volume-high.svg")
-theme.icon.vol_mid                   = load_icon(icon_dir, "volume-mid.svg")
-theme.icon.vol_low                   = load_icon(icon_dir, "volume-low.svg")
-theme.icon.vol_muted                 = load_icon(icon_dir, "volume-muted.svg")
-theme.icon.mic                       = load_icon(icon_dir, "microphone.svg")
-theme.icon.mic_muted                 = load_icon(icon_dir, "microphone-muted.svg")
+theme.icon.speaker                  = load_icon(icon_dir, "speaker.svg")
+theme.icon.headphones               = load_icon(icon_dir, "headphones.svg")
+theme.icon.vol_high                 = load_icon(icon_dir, "volume-high.svg")
+theme.icon.vol_mid                  = load_icon(icon_dir, "volume-mid.svg")
+theme.icon.vol_low                  = load_icon(icon_dir, "volume-low.svg")
+theme.icon.vol_muted                = load_icon(icon_dir, "volume-muted.svg")
+theme.icon.mic                      = load_icon(icon_dir, "microphone.svg")
+theme.icon.mic_muted                = load_icon(icon_dir, "microphone-muted.svg")
+
+theme.icon.ethernet                 = load_icon(icon_dir, "ethernet.svg")
+theme.icon.wlan                     = load_icon(icon_dir, "wlan.svg")
+
+theme.icon.sync_ok                  = load_icon(icon_dir, "sync-ok.svg")
+theme.icon.sync_notif               = load_icon(icon_dir, "sync-notif.svg")
+
 
 -- systray
-theme.systray                        = {}
-theme.systray_icon_spacing           = 4
+theme.systray                       = {}
+theme.systray_icon_spacing          = 4
 
-theme.notification_fg                = theme.fg_normal
-theme.notification_bg                = theme.bg_normal
-theme.notification_border_color      = theme.border_normal
-theme.notification_border_width      = theme.border_width
-theme.notification_icon_size         = 80
+theme.notification_fg               = theme.fg_normal
+theme.notification_bg               = theme.bg_normal
+theme.notification_border_color     = theme.border_normal
+theme.notification_border_width     = theme.border_width
+theme.notification_icon_size        = 80
 
-theme.notification_max_width         = 600
-theme.notification_max_height        = 400
-theme.notification_margin            = 20
-theme.notification_shape             = function(cr, width, height)
+theme.notification_max_width        = 600
+theme.notification_max_height       = 400
+theme.notification_margin           = 20
+theme.notification_shape            = function(cr, width, height)
     gears.shape.rounded_rect(cr, width, height, theme.border_radius or 0)
 end
 
+-- clock
+theme.clock = {}
+theme.clock.font = theme:create_font({ size = 10, emphasis = "SemiBold"})
+
 -- calendar
-theme.calendar                       = {}
-theme.calendar.header_font           = theme:create_font({ emphasis = "Bold", size = 12 })
-theme.calendar.grid_font             = theme:create_font({ size = 12})
-theme.calendar.day_focus_bg          = theme.bg_urgent
-theme.calendar.day_fg                = theme.fg_normal
-theme.calendar.day_off_fg            = colors.bw_2
+theme.calendar                      = {}
+theme.calendar.header_font          = theme:create_font({ emphasis = "Bold", size = 12 })
+theme.calendar.grid_font            = theme:create_font({ size = 12})
+theme.calendar.day_focus_bg         = theme.bg_urgent
+theme.calendar.day_fg               = theme.fg_normal
+theme.calendar.day_off_fg           = colors.bw_2
 
 -- naughty
-naughty.config.padding               = 15
-naughty.config.spacing               = 10
-naughty.config.defaults.timeout      = 5
-naughty.config.defaults.margin       = theme.notification_margin
-naughty.config.defaults.border_width = theme.notification_border_width
+naughty.config.padding              = 15
+naughty.config.spacing              = 10
+naughty.config.defaults.timeout     = 5
+naughty.config.defaults.margin      = theme.notification_margin
+naughty.config.defaults.border_width= theme.notification_border_width
 -- TODO needed ?
-naughty.config.presets.normal        = {
+naughty.config.presets.normal       = {
     font = theme.font,
     fg = theme.notification_fg,
     bg = theme.notification_bg,
-    border_width = theme.notification_border_width,
-    margin = theme.notification_margin,
+    border_width = theme.notificatio_border_width,
+    margin = theme.notification_margn,
 }
 
-naughty.config.presets.low           = naughty.config.presets.normal
-naughty.config.presets.ok            = naughty.config.presets.normal
-naughty.config.presets.info          = naughty.config.presets.normal
-naughty.config.presets.warn          = naughty.config.presets.normal
+naughty.config.presets.low          = naughty.config.presets.normal
+naughty.config.presets.ok           = naughty.config.presets.normal
+naughty.config.presets.info         = naughty.config.presets.normal
+naughty.config.presets.warn         = naughty.config.presets.normal
 
-naughty.config.presets.critical      = {
+naughty.config.presets.critical     = {
     font         = theme.font,
     fg           = colors.red_2,
     bg           = theme.notification_bg,

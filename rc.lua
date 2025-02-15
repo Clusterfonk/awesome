@@ -18,6 +18,7 @@ local bt = require("beautiful")
 -- => Autostart
 ---------------------------------------------------------------
 require("autostart")
+require("daemons.audio")
 
 ---------------------------------------------------------------
 -- => Theme

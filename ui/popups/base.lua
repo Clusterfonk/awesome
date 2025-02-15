@@ -54,8 +54,8 @@ local function new(args)
 		ret.auto_hide_timer:stop()
 	end)
 
-    ret:connect_signal("popup::show", function() ret:show() end)
-    ret:connect_signal("popup::hide", function() ret:hide() end)
+    ret:connect_signal("popup::show", function(self) self:show() end)
+    ret:connect_signal("popup::hide", function(self) self:hide() end)
 
     gtable.crush(ret, popup, true)
 

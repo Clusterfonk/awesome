@@ -2,7 +2,6 @@
 -- @author Clusterfonk <https://github.com/Clusterfonk>
 local wibox = require("wibox")
 local gtable = require("gears.table")
-local bt = require("beautiful")
 
 local button = require("ui.widgets.button")
 local calendar = require("ui.popups.calendar")
@@ -26,19 +25,11 @@ local function new(args)
         }
     }
 
-    local widget = wibox.widget {
-        widget = wibox.container.margin,
-        margins = bt.useless_gap,
-        {
-            widget = button_widget
-        }
-    }
-
     button_widget.popup = calendar(args)
     button_widget:connect_signal("button::lmb_press", on_lmb_press)
 
-    gtable.crush(widget, clock, true)
-    return widget
+    gtable.crush(button_widget, clock, true)
+    return button_widget
 end
 
 function clock.mt:__call(...)

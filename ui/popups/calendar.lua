@@ -335,13 +335,13 @@ local function new(args)
     local months_w = create_months(ret, year_button)
     local years_w = create_years(ret, month_button, os.date("*t").year)
 
-    ret:set_widget(wibox.widget {
+    ret:setup {
         cal_w,
         months_w,
         years_w,
         top_only = true,
         layout = wibox.layout.stack
-    })
+    }
 
     month_button:connect_signal("button::lmb_press", function()
         ret:get_widget():raise_widget(months_w)
@@ -355,30 +355,23 @@ local function new(args)
         ret:get_widget():raise_widget(cal_w)
     end)
 
-    months_w:connect_signal("button::press", function(self, lx, ly, btn, mods, mode)
+    months_w:connect_signal("button::press", function(_, _, _, btn)
         if btn == 3 then
             ret:get_widget():raise_widget(cal_w)
         end
     end)
 
-    years_w:connect_signal("button::press", function(self, lx, ly, btn, mods, mode)
+    years_w:connect_signal("button::press", function(_, _, _, btn)
         if btn == 3 then
             ret:get_widget():raise_widget(cal_w)
         end
     end)
 
-    cal_w:connect_signal("button::press", function(self, lx, ly, btn, mods, mode)
-        if btn == 4 then
-            --local m = month_button:get_children()
-            --for _, c in pairs(m) do
-            --    print(c:get_text())
-            --end
-        elseif btn == 5 then
-        end
+    cal_w:connect_signal("button::press", function(_, _, _, btn)
+        -- TODO: add scroll support
     end)
 
     ret:set_date(os.date("*t"))
-
     return ret
 end
 

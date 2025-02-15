@@ -3,8 +3,9 @@
 local awful = require("awful")
 local dpi = require("beautiful").xresources.apply_dpi
 
-local taglist_bar = require(... .. ".bars.taglist")
-local info_bar = require(... .. ".bars.info")
+local taglist_bar = require("ui.bars.taglist")
+local time_bar = require("ui.bars.time")
+local info_bar = require("ui.bars.info")
 
 
 local SECONDARY_SCREEN <const> = 2
@@ -20,6 +21,11 @@ awful.screen.connect_for_each_screen(function(s)
         width = taglist_bar_width,
         strut_offset = bar_offset
     }
+    time_bar {
+        screen = s,
+        height = bar_height,
+        strut_offset = bar_offset
+    }
 
     info_bar {
         screen = s,
@@ -29,11 +35,10 @@ awful.screen.connect_for_each_screen(function(s)
 
 	if s.index == SECONDARY_SCREEN then
 	end
-
 end)
 
 awful.mouse.append_global_mousebindings({
     awful.button({}, 1, function()
-        mouse.screen.info_bar:emit_signal("clear::popups")
+        mouse.screen.time_bar:emit_signal("clear::popups")
     end)
 })

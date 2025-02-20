@@ -28,7 +28,7 @@ return function(args)
         screen = s,
         height = args.height,
         margins = {left = bt.useless_gap},
-        color = bt.colors.aqua_1,
+        --color = bt.colors.aqua_1,
         placement = placement
     }
     local microphone_w = microphone {
@@ -61,7 +61,7 @@ return function(args)
         border_color = bt.taglist_border_color,
         minimum_height = args.height,
         maximum_height = args.height,
-        bg = bt.colors.background,
+        bg = bt.bg_normal,
         widget = {
             layout = wibox.layout.fixed.horizontal,
             spacing = 2 * bt.useless_gap,

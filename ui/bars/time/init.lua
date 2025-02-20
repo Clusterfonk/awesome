@@ -33,7 +33,7 @@ return function(args)
         border_color = bt.taglist_border_color,
         minimum_height = args.height,
         maximum_height = args.height,
-        bg = bt.colors.background,
+        bg = bt.bg_normal,
         widget = {
             layout = wibox.layout.fixed.horizontal,
             clock_widget,

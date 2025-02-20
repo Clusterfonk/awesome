@@ -11,8 +11,8 @@
 --      -> UI
 ---------------------------------------------------------------
 pcall(require, "luarocks.loader")
-local gears = require("gears")
 local bt = require("beautiful")
+local gfilesystem = require("gears.filesystem")
 
 local capi = {
     awesome = awesome
@@ -50,35 +50,59 @@ gtimer.start_new(5, function()
 end)
 
 ---------------------------------------------------------------
+-- => Theme
+---------------------------------------------------------------
+local theme_dir = gfilesystem.get_configuration_dir() .. "theme/gruvbox"
+bt.init(theme_dir .. "/theme.lua")
+
+---------------------------------------------------------------
 -- => Error Handling
 ---------------------------------------------------------------
 local naughty = require("naughty")
+
 if capi.awesome.startup_errors then
-    naughty.notify({ preset = naughty.config.presets.critical,
-                     title = "Errors during startup!",
-                     text = capi.awesome.startup_errors })
+    naughty.notification {
+        preset = naughty.config.presets.critical,
+        title = 'ERROR!',
+        app_name = 'System Notification',
+        message = capi.awesome.startup_errors,
+        icon = theme_dir .. '/icons/error.svg',
+    }
 end
 
--- Handle runtime errors after startup
-do
-    local in_error = false
-    capi.awesome.connect_signal("debug::error", function (err)
-        -- Make sure we don't go into an endless error loop
-        if in_error then return end
-        in_error = true
+local in_error = false
+capi.awesome.connect_signal('debug::error', function(err)
+    if in_error then return end
+    in_error = true
 
-        naughty.notify({ preset = naughty.config.presets.critical,
-                         title = "Error!",
-                         text = tostring(err) })
-        in_error = false
-    end)
-end
+    naughty.notification {
+        preset = naughty.config.presets.critical,
+        title = 'ERROR',
+        app_name = 'System Notification',
+        message = tostring(err),
+        icon = theme_dir .. 'icons/bug.svg',
+    }
 
----------------------------------------------------------------
--- => Theme
----------------------------------------------------------------
-local theme_dir = gears.filesystem.get_configuration_dir() .. "theme/gruvbox/"
-bt.init(theme_dir .. "theme.lua")
+    -- TODO: same errors show on already notification -> put the spam into log file
+    gtimer {
+        timeout = 3,
+        autostart = true,
+        single_shot = true,
+        callback = function()
+            in_error = false
+        end,
+    }
+end)
+
+capi.awesome.connect_signal('debug::deprecation', function(err)
+    naughty.notification {
+        preset = naughty.config.presets.critical,
+        title = 'DEPRECATION',
+        app_name = 'System Notification',
+        message = tostring(err),
+        icon = theme_dir .. 'icons/deprecation.svg',
+    }
+end)
 
 ---------------------------------------------------------------
 -- => Autostart

@@ -10,10 +10,9 @@ tag_template = { mt = {} }
 
 function tag_template.new(s, bar_width, bar_height)
     local font_size = bar_height / 2
-    bt.taglist_font = bt:create_font({emphasis="Bold", size=font_size})
-    
+
     local available_space = (bar_width / 2) - (bar_height / 2)
- 
+
     local n_tags = #s.tags / 2
     local spaces = ((n_tags - 1) * 2) + 2
 
@@ -25,7 +24,7 @@ function tag_template.new(s, bar_width, bar_height)
     return {
     {
         {
-            {  
+            {
                 layout = wibox.layout.fixed.vertical,
                 spacing = -underline_height/2,
                 {
@@ -55,13 +54,13 @@ function tag_template.new(s, bar_width, bar_height)
     id = "background_role",
     widget = wibox.container.background,
     create_callback = function(self, tag, index, tags)
-        tag:connect_signal("request::select", 
-            function() 
+        tag:connect_signal("request::select",
+            function()
                 self:get_children_by_id("underline")[1].bg = bt.taglist_fg_focus
         end)
 
-        tag:connect_signal("request::deselect", 
-            function() 
+        tag:connect_signal("request::deselect",
+            function()
                 self:get_children_by_id("underline")[1].bg = bt.taglist_bg_normal
         end)
 

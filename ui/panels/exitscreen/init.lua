@@ -121,7 +121,7 @@ local function create_widget(self, s)
                 hover_text = "shutdown",
                 size = dpi(self.icon_size, s),
                 margins = dpi(self.icon_margin, s),
-                bg_focus = bt.colors.red_2,
+                bg_focus = bt.exitscreen_shutdown,
                 callback = shutdown
             }, bottom_text),
             create_button({
@@ -129,7 +129,7 @@ local function create_widget(self, s)
                 hover_text = "reboot",
                 size = dpi(self.icon_size, s),
                 margins = dpi(self.icon_margin, s),
-                bg_focus = bt.colors.yellow_2,
+                bg_focus = bt.exitscreen_reboot,
                 callback = reboot
             }, bottom_text),
             create_button({
@@ -137,7 +137,7 @@ local function create_widget(self, s)
                 hover_text = "logout",
                 size = dpi(self.icon_size, s),
                 margins = dpi(self.icon_margin, s),
-                bg_focus = bt.colors.green_2,
+                bg_focus = bt.exitscreen_logout,
                 callback = logout
             }, bottom_text),
             create_button({
@@ -145,7 +145,7 @@ local function create_widget(self, s)
                 hover_text = "lock",
                 size = dpi(self.icon_size, s),
                 margins = dpi(self.icon_margin, s),
-                bg_focus = bt.colors.aqua_2,
+                bg_focus = bt.exitscreen_lock,
                 callback = lock
             }, bottom_text),
             create_button({
@@ -153,7 +153,7 @@ local function create_widget(self, s)
                 hover_text = "suspend",
                 size = dpi(self.icon_size, s),
                 margins = dpi(self.icon_margin, s),
-                bg_focus = bt.colors.blue_2,
+                bg_focus = bt.exitscreen_suspend,
                 callback = suspend
             }, bottom_text),
             id = 'buttons',

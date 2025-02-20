@@ -18,10 +18,10 @@ local SECONDARY_SCREEN <const> = 2
 awful.screen.connect_for_each_screen(function(s)
     local taglist_bar_width = dpi(350, s)
     local bar_height = dpi(24, s)
-	local bar_offset = dpi(5, s)
+	local bar_offset = bt.useless_gap
 
-    local geometry = {top = bar_offset, side = dpi(bt.useless_gap,s) * 2}
-    geometry.bottom = geometry.top + bar_height + 2 * dpi(bt.taglist_border_width, s)
+    local geometry = {top = bar_offset, side = bt.useless_gap * 2}
+    geometry.bottom = geometry.top + bar_height + 2 * bt.taglist_border_width
 
 	taglist_bar {
         screen = s,

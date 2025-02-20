@@ -23,9 +23,9 @@ Welcome to my AwesomeWM config! This repo contains my personalized setup for the
 
 Feel free to tweak the configuration to your liking. The configuration is modular, so you can easily add or remove components without affecting the rest of the setup.
 
-- **Themes**: Located in `themes/`, you can switch themes by modifying the `theme.lua` file.
-- **Widgets**: Custom widgets can be found in `widgets/`.
-- **Keybindings**: Keybindings are defined in `keys.lua`.
+- **Themes**: Located in `theme/`, you can switch themes by modifying the `theme.lua` file.
+- **Widgets**: Custom widgets can be found in `ui/widgets/`.
+- **Keybindings**: Keybindings are defined in `configuration/keys/`.
 
 ## Screenshots
 

@@ -4,9 +4,14 @@ local permissions = require "awful.permissions"
 require "awful.autofocus"
 
 
+local capi = {
+    awesome = awesome,
+    screen = screen
+}
+
 permissions.add_activate_filter(function(c)
-    if awesome.startup then
-        return c.screen == screen.primary
+    if capi.awesome.startup then
+        return c.screen == capi.screen.primary
     end
     return true
 end, "screen.focus")

@@ -33,7 +33,7 @@ local function on_press(self, lx, ly, btn, mode, mods)
     end
 end
 
-local function new(args)
+function button.new(args)
     local widget = wibox.container.background {
         widget = args.widget,
     }
@@ -52,7 +52,7 @@ local function new(args)
 end
 
 function button.mt:__call(...)
-    return new(...)
+    return button.new(...)
 end
 
 return setmetatable(button, button.mt)

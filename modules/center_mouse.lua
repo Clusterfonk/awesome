@@ -3,8 +3,13 @@
 local awful = require("awful")
 
 
-awesome.connect_signal("startup", function()
-    local s = screen.primary
+local capi = {
+    awesome = awesome,
+    screen = screen
+}
+
+capi.awesome.connect_signal("startup", function()
+    local s = capi.screen.primary
     awful.screen.focus(s)
     awful.placement.centered(mouse, s)
 end)

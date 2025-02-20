@@ -125,6 +125,15 @@ theme.snap_shape = function(cr, w, h)
     gears.shape.rounded_rect(cr, w, h, theme.border_radius or 0)
 end
 
+-- progressbar
+theme.progress = {}
+theme.progressbar_bg = theme.bg_normal
+theme.progressbar_fg = colors.purple_1
+theme.progressbar_border_color = colors.bw_2
+theme.progressbar_border_width = 0
+theme.progressbar_bar_border_color = colors.bw_1
+theme.progressbar_bar_border_width = theme.border_width
+
 -- Icons
 local function load_icon(dir, filename)
     local lgi_cairo_surface = gears.surface.load_silently(dir .. filename)
@@ -161,23 +170,9 @@ theme.icon.wlan                     = load_icon(icon_dir, "wlan.svg")
 theme.icon.sync_ok                  = load_icon(icon_dir, "sync-ok.svg")
 theme.icon.sync_notif               = load_icon(icon_dir, "sync-notif.svg")
 
-
 -- systray
 theme.systray                       = {}
-theme.systray_icon_spacing          = 4
-
-theme.notification_fg               = theme.fg_normal
-theme.notification_bg               = theme.bg_normal
-theme.notification_border_color     = theme.border_normal
-theme.notification_border_width     = theme.border_width
-theme.notification_icon_size        = 80
-
-theme.notification_max_width        = 600
-theme.notification_max_height       = 400
-theme.notification_margin           = 20
-theme.notification_shape            = function(cr, width, height)
-    gears.shape.rounded_rect(cr, width, height, theme.border_radius or 0)
-end
+theme.systray_icon_spacing          = 2 * theme.useless_gap
 
 -- clock
 theme.clock = {}
@@ -192,6 +187,23 @@ theme.calendar.day_fg               = theme.fg_normal
 theme.calendar.day_off_fg           = colors.bw_2
 
 -- naughty
+theme.notification_fg               = theme.fg_normal
+theme.notification_bg               = theme.bg_normal
+theme.notification_border_color     = theme.border_normal
+theme.notification_border_width     = theme.border_width
+theme.notification_icon_size        = 40
+
+theme.notification_title_font       = theme:create_font({ emphasis = "Bold", size = 14})
+theme.notification_message_font     = theme.font
+theme.notification_header_font      = theme:create_font({ emphasis = "Bold", size = 12})
+
+theme.notification_max_width        = 380
+theme.notification_max_height       = 80
+theme.notification_margin           = 20
+theme.notification_shape            = function(cr, width, height)
+    gears.shape.rounded_rect(cr, width, height, theme.border_radius or 0)
+end
+
 naughty.config.padding              = 15
 naughty.config.spacing              = 10
 naughty.config.defaults.timeout     = 5

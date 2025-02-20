@@ -14,11 +14,16 @@ pcall(require, "luarocks.loader")
 local gears = require("gears")
 local bt = require("beautiful")
 
+local capi = {
+    awesome = awesome
+}
+
 ---------------------------------------------------------------
 -- => Autostart
 ---------------------------------------------------------------
 require("autostart")
-require("daemons.audio")
+--require("daemons.audio")
+--require("daemons.networkd")
 
 ---------------------------------------------------------------
 -- => Theme
@@ -61,16 +66,16 @@ gears.timer({
 -- => Error Handling
 ---------------------------------------------------------------
 local naughty = require("naughty")
-if awesome.startup_errors then
+if capi.awesome.startup_errors then
     naughty.notify({ preset = naughty.config.presets.critical,
                      title = "Errors during startup!",
-                     text = awesome.startup_errors })
+                     text = capi.awesome.startup_errors })
 end
 
 -- Handle runtime errors after startup
 do
     local in_error = false
-    awesome.connect_signal("debug::error", function (err)
+    capi.awesome.connect_signal("debug::error", function (err)
         -- Make sure we don't go into an endless error loop
         if in_error then return end
         in_error = true

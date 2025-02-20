@@ -10,11 +10,11 @@ local calendar = require("ui.popups.calendar")
 clock = { mt = {} }
 
 local function on_lmb_press(self)
-    self.popup:emit_signal("popup::show")
+    self.popup:show()
 end
 
-local function new(args)
-    local button_widget = button {
+function clock.new(args)
+    local ret = button {
         screen = args.screen,
         normal_color = args.normal_color,
         focus_color = args.focus_color,
@@ -25,15 +25,15 @@ local function new(args)
         }
     }
 
-    button_widget.popup = calendar(args)
-    button_widget:connect_signal("button::lmb_press", on_lmb_press)
+    ret.popup = calendar(args)
+    ret:connect_signal("button::lmb_press", on_lmb_press)
 
-    gtable.crush(button_widget, clock, true)
-    return button_widget
+    gtable.crush(ret, clock, true)
+    return ret
 end
 
 function clock.mt:__call(...)
-    return new(...)
+    return clock.new(...)
 end
 
 return setmetatable(clock, clock.mt)

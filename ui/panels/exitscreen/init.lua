@@ -12,6 +12,10 @@ local button = require(... .. ".button")
 local utable = require("utilities.table")
 
 
+local capi = {
+    awesome = awesome
+}
+
 local root_dir = gfs.get_configuration_dir() .. (...):gsub("%.", "/") .. "/"
 local icon_dir = root_dir .. "icons/"
 local shutdown_icon = icon_dir .. "shutdown.svg"
@@ -31,7 +35,7 @@ local function reboot()
 end
 
 local function logout()
-    awesome.quit()
+    capi.awesome.quit()
 end
 
 local function lock()
@@ -172,7 +176,7 @@ local function create_widget(self, s)
             spacing = dpi(5, s),
         },
         widget = wibox.container.margin,
-        margins = utable.dpi(self.widget_margins, s)
+        margins = self.widget_margins
     }
 end
 
@@ -203,12 +207,15 @@ function panel.new(args)
         placement = awful.placement.centered,
         bg = args.bg or bt.bg_normal,
         fg = args.fg or bt.fg_normal,
-        border_color = bt.border_normal,
+        border_color = bt.bg_urgent,
         border_width = dpi(2),
         ontop = true,
         visible = false,
         widget = {}
     })
+
+    ret.classname = "exitscreen"
+    ret.name = "exitscreen"
     ret:set_widget(nil)
     gtable.crush(ret, panel, true)
 

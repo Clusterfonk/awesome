@@ -7,18 +7,20 @@ local bt = require("beautiful")
 local dpi = bt.xresources.apply_dpi
 
 local ibutton = require("ui.widgets.ibutton")
+local center = require("ui.popups.notification_center")
 
 
 notification = { mt = {} }
 
-local function on_lmb_press(self, _, _, btn)
+local function on_press(self, _, _, btn, mods)
     if btn == 1 then
-        print("pressed notification widget")
+        self.popup:show()
     end
 end
 
-local function new(args)
-    local button_widget = ibutton {
+-- TODO: add icon for when there are new ones
+function notification.new(args)
+    local ret = ibutton {
         normal_color = args.normal_color,
         focus_color = args.focus_color,
         margins = args.margins,
@@ -32,14 +34,15 @@ local function new(args)
         }
     }
 
-    button_widget:connect_signal("button::press", on_lmb_press)
+    ret.popup = center(args)
+    ret:connect_signal("button::press", on_press)
 
-    gtable.crush(button_widget, notification, true)
-    return button_widget
+    gtable.crush(ret, notification, true)
+    return ret
 end
 
 function notification.mt:__call(...)
-    return new(...)
+    return notification.new(...)
 end
 
 return setmetatable(notification, notification.mt)

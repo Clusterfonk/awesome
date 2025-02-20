@@ -46,4 +46,3 @@ ruled.client.connect_signal("request::rules", function()
 		properties = { floating = true },
 	})
 end)
-

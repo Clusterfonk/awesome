@@ -9,17 +9,21 @@ local clock = require("ui.widgets.clock")
 
 return function(args)
     local s = args.screen
+    local geo = args.geometry
 
-    local geometry = {top = args.strut_offset, left = dpi(bt.useless_gap,s) * 2}
-    geometry.bottom = geometry.top + args.height + 2 * dpi(bt.taglist_border_width, s)
+
+    local function placement(widget)
+        return awful.placement.top_left(widget,
+            {
+                margins = {top = geo.bottom + 2 * bt.useless_gap, left = geo.side}
+            })
+    end
 
     local clock_widget = clock {
         screen = s,
         format = " %d %b %H:%M ", -- spaces prevent colors bugging out
         font = bt.clock.font,
-        -- popup location
-        top = geometry.bottom + 2 * bt.useless_gap,
-        left = geometry.left
+        placement = placement
     }
 
     s.time_bar = awful.popup {
@@ -33,14 +37,14 @@ return function(args)
         widget = {
             layout = wibox.layout.fixed.horizontal,
             clock_widget,
-        }
+        },
+        placement = function(widget)
+            return awful.placement.top_left(widget,
+                {
+                    margins = { top = geo.top, left = geo.side}
+                })
+        end
     }
-
-    awful.placement.align(s.time_bar,
-        {
-            position = "top_left",
-            margins = { top = geometry.top, left = geometry.left }
-        })
 
     client.connect_signal("property::fullscreen", function(client)
         if s ~= client.screen then

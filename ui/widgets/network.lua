@@ -17,8 +17,8 @@ local function on_lmb_press(self, _, _, btn)
     end
 end
 
-local function new(args)
-    local button_widget = ibutton {
+function network.new(args)
+    local ret = ibutton {
         normal_color = args.normal_color,
         focus_color = args.focus_color,
         margins = args.margins,
@@ -32,14 +32,14 @@ local function new(args)
         }
     }
 
-    button_widget:connect_signal("button::press", on_lmb_press)
+    ret:connect_signal("button::press", on_lmb_press)
 
-    gtable.crush(button_widget, network, true)
-    return button_widget
+    gtable.crush(ret, network, true)
+    return ret
 end
 
 function network.mt:__call(...)
-    return new(...)
+    return network.new(...)
 end
 
 return setmetatable(network, network.mt)

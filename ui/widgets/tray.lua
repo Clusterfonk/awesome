@@ -7,18 +7,22 @@ local bt = require("beautiful")
 local dpi = bt.xresources.apply_dpi
 
 local ibutton = require("ui.widgets.ibutton")
+local popup = require("ui.popups.systray")
 
+local capi = {
+    awesome = awesome
+}
 
-systray = { mt = {} }
+tray = { mt = {} }
 
-local function on_lmb_press(self, _, _, btn)
-    if btn == 1 then
-        print("pressed systray widget")
+local function on_lmb_press(self)
+    if capi.awesome.systray() > 0 then
+        self.popup:show()
     end
 end
 
-local function new(args)
-    local button_widget = ibutton {
+function tray.new(args)
+    local ret = ibutton {
         normal_color = args.normal_color,
         focus_color = args.focus_color,
         margins = args.margins,
@@ -32,14 +36,15 @@ local function new(args)
         }
     }
 
-    button_widget:connect_signal("button::press", on_lmb_press)
+    ret.popup = popup(args)
+    ret:connect_signal("button::press", on_lmb_press)
 
-    gtable.crush(button_widget, systray, true)
-    return button_widget
+    gtable.crush(ret, tray, true)
+    return ret
 end
 
-function systray.mt:__call(...)
-    return new(...)
+function tray.mt:__call(...)
+    return tray.new(...)
 end
 
-return setmetatable(systray, systray.mt)
+return setmetatable(tray, tray.mt)

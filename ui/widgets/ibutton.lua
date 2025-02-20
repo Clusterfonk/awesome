@@ -23,7 +23,7 @@ local function on_leave(self)
     mouse.set_cursor("left_ptr")
 end
 
-local function new(args)
+function ibutton.new(args)
     local widget = wibox.widget {
         screen = args.screen,
         normal_color = args.normal_color,
@@ -55,7 +55,7 @@ local function new(args)
 end
 
 function ibutton.mt:__call(...)
-    return new(...)
+    return ibutton.new(...)
 end
 
 return setmetatable(ibutton, ibutton.mt)

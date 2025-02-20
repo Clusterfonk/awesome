@@ -291,7 +291,8 @@ function calendar:set_date(date)
     end
 end
 
-local function new(args)
+function calendar.new(args)
+    -- TODO: create base after creating it all and then pass it to base
     local ret = base(args)
     gtable.crush(ret, calendar, true)
 
@@ -376,7 +377,7 @@ local function new(args)
 end
 
 function calendar.mt:__call(...)
-    return new(...)
+    return calendar.new(...)
 end
 
 return setmetatable(calendar, calendar.mt)

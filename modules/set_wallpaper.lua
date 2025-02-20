@@ -5,7 +5,11 @@ local wibox = require("wibox")
 local bt = require("beautiful")
 
 
-screen.connect_signal("request::wallpaper", function(s)
+local capi = {
+    screen = screen
+}
+
+capi.screen.connect_signal("request::wallpaper", function(s)
     awful.wallpaper {
         screen = s,
         widget = {

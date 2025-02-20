@@ -64,13 +64,6 @@ awful.keyboard.append_global_keybindings({
     -- help
     awful.key({ MODKEY, CTRL, SHIFT }, "h",      hotkeys_popup.show_help,
               {description="show help", group="standard"}),
-    --- restart
-    awful.key({ MODKEY, CTRL        }, "r", awesome.restart,
-              {description = "reload awesome", group = "standard"}),
-    -- quit
-    awful.key({ MODKEY, SHIFT       }, "q", awesome.quit,
-              {description = "quit awesome", group = "standard"}),
-
 ---------------------------------------------------------------
 -- => Audio
 ---------------------------------------------------------------

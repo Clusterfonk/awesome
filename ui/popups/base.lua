@@ -2,6 +2,7 @@
 -- @author Clusterfonk <https://github.com/Clusterfonk>
 local awful = require("awful")
 local bt = require("beautiful")
+local gtimer = require("gears.timer")
 local gtable = require("gears.table")
 local dpi = bt.xresources.apply_dpi
 
@@ -9,9 +10,9 @@ local dpi = bt.xresources.apply_dpi
 popup = { mt = {} }
 
 function popup:show()
+    self.auto_hide_timer.timeout = self._private.timeout
+    self.auto_hide_timer:again()
     if not self.visible then
-        self.auto_hide_timer.timeout = 1
-        self.auto_hide_timer:again()
         self.visible = true
     end
 end
@@ -22,48 +23,47 @@ function popup:hide()
     end
 end
 
-local function new(args)
+function popup.new(args)
     local ret = awful.popup {
         screen = args.screen,
-        bg = bt.bg_normal,
-        fg = bt.fg_normal,
+        bg = args.bg or bt.bg_normal,
+        fg = args.fg or bt.fg_normal,
         border_color = bt.border_normal,
-        border_width = dpi(2),
+        border_width = args.border_width or dpi(2),
         ontop = true,
         visible = false,
+        placement = args.placement or {},
         widget = args.widget or {}
     }
-    ret:set_widget(nil)
-    local gtimer = require "gears.timer"
+
+    ret._private.timeout = args.timeout or 1
+
     ret.auto_hide_timer = gtimer({
-            timeout = 1,
+            timeout = args.timeout or 1,
             single_shot = true,
             callback = function()
                 ret:emit_signal("popup::hide")
             end,
     })
 
-    awful.placement.top_left(ret, {margins = {top = args.top, left = args.left}})
-
-    ret:connect_signal("mouse::leave", function()
-        ret.auto_hide_timer.timeout = 0.4
-        ret.auto_hide_timer:again()
+    ret:connect_signal("mouse::leave", function(self)
+        self.auto_hide_timer.timeout = 0.4
+        self.auto_hide_timer:again()
 	end)
 
-	ret:connect_signal("mouse::enter", function()
-		ret.auto_hide_timer:stop()
+	ret:connect_signal("mouse::enter", function(self)
+		self.auto_hide_timer:stop()
 	end)
 
     ret:connect_signal("popup::show", function(self) self:show() end)
     ret:connect_signal("popup::hide", function(self) self:hide() end)
 
     gtable.crush(ret, popup, true)
-
     return ret
 end
 
 function popup.mt:__call(...)
-    return new(...)
+    return popup.new(...)
 end
 
 return setmetatable(popup, popup.mt)

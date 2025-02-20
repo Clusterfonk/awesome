@@ -8,6 +8,7 @@ local taglist_bar = require("ui.bars.taglist")
 local time_bar = require("ui.bars.time")
 local info_bar = require("ui.bars.info")
 
+
 local capi = {
     mouse = mouse
 }

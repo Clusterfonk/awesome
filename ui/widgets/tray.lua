@@ -9,6 +9,7 @@ local dpi = bt.xresources.apply_dpi
 local ibutton = require("ui.widgets.ibutton")
 local popup = require("ui.popups.systray")
 
+
 local capi = {
     awesome = awesome
 }

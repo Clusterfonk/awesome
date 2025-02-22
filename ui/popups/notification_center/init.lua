@@ -127,31 +127,35 @@ function center.new(args)
     ret:connect_signal("button::press", on_press)
 
     -- WARNING: using request::display somehow stops drawing normal notifications
-    naughty.connect_signal("added", function(n)
-        if n.app_name == "" then n.app_name = "System Notification" end
-        n.widget = nil
-        ret._private.list:append(n, os.time())
-        ret:request_add()
-    end)
+    --naughty.connect_signal("added", function(n)
+    --    if n.app_name == "" then n.app_name = "System Notification" end
+    --    n.widget = nil
+    --    ret._private.list:append(n, os.time())
+    --    ret:request_add()
+    --end)
 
-    --naughty.notify({ title = "first" .. " Achtung!", icon = bt.icon.mic_muted, app_icon = bt.icon.ethernet,
-    --    message = "small", timeout = 0 })
-
-    --TEST:
-    local gti = 1
-    local gtimer = require("gears.timer")
-    gtimer {
-        timeout = 1,
-        call_now = true,
-        autostart = true,
-        callback = function()
-            if gti <= 10 then
-                naughty.notify({ title = gti .. " Achtung!", icon = bt.icon.mic_muted, app_icon = bt.icon.ethernet,
-                    message = "help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help ", timeout = 0 })
-                gti = gti + 1
+    if DEBUG then
+        --TEST:
+        local gti = 1
+        local gtimer = require("gears.timer")
+        gtimer {
+            timeout = 2,
+            call_now = true,
+            autostart = true,
+            callback = function()
+                if gti <= 10 then
+                    naughty.notification {
+                        text = "help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help help ",
+                        title = gti .. " Achtung!",
+                        icon = bt.icon.mic_muted,
+                        app_icon = bt.icon.ethernet,
+                        preset = naughty.config.presets.info
+                    }
+                    gti = gti + 1
+                end
             end
-        end
-    }
+        }
+    end
     return ret
 end
 

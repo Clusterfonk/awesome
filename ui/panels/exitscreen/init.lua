@@ -9,7 +9,6 @@ local gtable = require("gears.table")
 local dpi = bt.xresources.apply_dpi
 
 local button = require(... .. ".button")
-local utable = require("utilities.table")
 
 
 local capi = {

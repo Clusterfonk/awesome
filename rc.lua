@@ -3,6 +3,7 @@
 ---------------------------------------------------------------
 --  Sections:
 --      -> Garbage-Collection
+--      -> Debug
 --      -> Error-Handling
 --      -> Theme
 --      -> Autostart
@@ -13,6 +14,7 @@
 pcall(require, "luarocks.loader")
 local bt = require("beautiful")
 local gfilesystem = require("gears.filesystem")
+
 
 local capi = {
     awesome = awesome
@@ -50,6 +52,13 @@ gtimer.start_new(5, function()
 end)
 
 ---------------------------------------------------------------
+-- => Debug
+---------------------------------------------------------------
+if os.getenv("AWMTT_DEBUG") then
+    DEBUG = true
+end
+
+---------------------------------------------------------------
 -- => Theme
 ---------------------------------------------------------------
 local theme_dir = gfilesystem.get_configuration_dir() .. "theme/gruvbox"
@@ -83,7 +92,6 @@ capi.awesome.connect_signal('debug::error', function(err)
         icon = theme_dir .. 'icons/bug.svg',
     }
 
-    -- TODO: same errors show on already notification -> put the spam into log file
     gtimer {
         timeout = 3,
         autostart = true,

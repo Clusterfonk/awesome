@@ -7,6 +7,7 @@ local dpi = bt.xresources.apply_dpi
 
 local clock = require("ui.widgets.clock")
 
+
 return function(args)
     local s = args.screen
     local geo = args.geometry
@@ -19,14 +20,14 @@ return function(args)
             })
     end
 
-    local clock_widget = clock {
+    clock_widget = clock {
         screen = s,
         format = " %d %b %H:%M ", -- spaces prevent colors bugging out
         font = bt.clock.font,
         placement = placement
     }
 
-    s.time_bar = awful.popup {
+    local time_bar = awful.popup {
         screen = s,
         ontop = true,
         border_width = dpi(bt.taglist_border_width, s),
@@ -55,10 +56,10 @@ return function(args)
         for _, c in pairs(s.clients) do
             has_fullscreen_clients = has_fullscreen_clients or c.fullscreen
         end
-        s.time_bar.visible = not has_fullscreen_clients
+        time_bar.visible = not has_fullscreen_clients
     end)
 
-    s.time_bar:connect_signal("clear::popups", function()
+    time_bar:connect_signal("clear::popups", function()
         clock_widget.popup:emit_signal("popup::hide")
     end)
 
@@ -67,4 +68,7 @@ return function(args)
             clock_widget.popup:emit_signal("popup::hide")
         end
     end)
+
+    return time_bar
 end
+

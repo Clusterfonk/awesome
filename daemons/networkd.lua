@@ -1,7 +1,7 @@
 local lgi = require 'lgi'
 local GLib = lgi.GLib
 local Gio = lgi.Gio
-local debug = require("utilities.debug")
+--local debug = require("util.debug")
 
 -- Connect to the system bus
 local bus = Gio.bus_get_sync(Gio.BusType.SYSTEM)

@@ -4,7 +4,7 @@ local wibox = require("wibox")
 local gtable = require("gears.table")
 local bt = require("beautiful")
 
-local mouse = require("utilities.mouse")
+local mouse = require("util.mouse")
 
 
 local button = { mt = {} }

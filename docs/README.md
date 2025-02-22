@@ -5,6 +5,10 @@ Welcome to my AwesomeWM config! This repo contains my personalized setup for the
 ## Features
 
 - **Gruvbox-Theme**:
+- **Bars**: Containers that hold and organize widgets
+- **Popups**: Temporary UI elements usually clicking on certain widgets.
+- **Panels**: Semi-persistent Popups
+- **Widgets**: Small, reusable UI elements that display information and provide interactivity.
 - **Colemak-dh**:
 
 ## Installation

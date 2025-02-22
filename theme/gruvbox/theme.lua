@@ -200,9 +200,12 @@ theme.notification_border_width     = theme.border_width
 theme.notification_border_color     = theme.border_normal
 --theme.notification_opacity
 theme.notification_icon_size        = dpi(40)
-theme.notification_width            = dpi(380)
+theme.notification_width            = dpi(100)
 theme.notification_height           = dpi(150)
 theme.notification_margin           = dpi(20)
+theme.notification_spacing          = theme.useless_gap
+theme.notification_max_width        = dpi(444) - theme.useless_gap
+theme.notification_max_height       = dpi(30) -- GET it from bars
 theme.notification_shape            = function(cr, width, height)
     gears.shape.rounded_rect(cr, width, height, theme.border_radius or 0)
 end
@@ -212,33 +215,17 @@ theme.notification_title_font       = theme:create_font({ emphasis = "Bold", siz
 theme.notification_message_font     = theme.font
 theme.notification_header_font      = theme:create_font({ emphasis = "Bold", size = 12})
 
--- TODO: need manual placing top = 1* side = 2* useless_gap
-naughty.config.padding              = 2 * theme.useless_gap
-naughty.config.spacing              = 2 * theme.useless_gap
-naughty.config.defaults.timeout     = 5
-naughty.config.defaults.margin      = theme.notification_margin
-naughty.config.defaults.border_width= theme.notification_border_width
-
-
-naughty.config.presets.low          = naughty.config.presets.normal
-naughty.config.presets.ok           = naughty.config.presets.normal
-naughty.config.presets.info         = naughty.config.presets.normal
-naughty.config.presets.warn         = naughty.config.presets.normal
+-- naughty.config
+naughty.config.spacing = 2 * theme.useless_gap
 
 naughty.config.defaults = {
-    --timeout = 5,
-    --text = "",
-    --screen = awful.screen.focused()
-    --ontop = true,
     margin = theme.notification_margin,
-    border_width = theme.notification_border_width,
-    --position = "top_right"
+    border_width = theme.taglist_border_width,
 }
 
 naughty.config.presets.normal = {
     fg      = theme.notification_fg,
 }
-
 
 naughty.config.presets.ok = {
     fg      = colors.green_2,
@@ -264,7 +251,6 @@ naughty.config.presets.critical = {
     fg      = colors.red_2,
     timeout = 0,
 }
-
 
 -- exitscreen
 theme.exitscreen_shutdown = colors.red_2

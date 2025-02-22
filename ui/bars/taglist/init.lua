@@ -39,8 +39,7 @@ return function(args)
         right_half = partial_taglist(s, right_half_filter(), tag_template)
     }
 
-    --create the bar
-    s.taglist_bar = wibox({
+    local taglist_bar = wibox({
         index = "taglist_bar",
         screen   = s,
         stretch  = false,
@@ -67,9 +66,11 @@ return function(args)
         }
     })
 
-    awful.placement.align(s.taglist_bar, {position = "top", margins = {top = args.strut_offset}})
+    awful.placement.align(taglist_bar, {position = "top", margins = {top = args.strut_offset}})
 
-    s.taglist_bar:struts({
+    taglist_bar:struts({
         top = args.height + 2*dpi(bt.taglist_border_width) + args.strut_offset
     })
+
+    return taglist_bar
 end

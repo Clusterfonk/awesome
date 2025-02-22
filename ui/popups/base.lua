@@ -29,7 +29,7 @@ function popup.new(args)
         bg = args.bg or bt.bg_normal,
         fg = args.fg or bt.fg_normal,
         border_color = bt.border_normal,
-        border_width = args.border_width or dpi(2),
+        border_width = args.border_width or dpi(2, args.screen),
         ontop = true,
         visible = false,
         placement = args.placement or {},

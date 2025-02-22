@@ -9,7 +9,7 @@ local audio = require("ui.widgets.audio")
 local microphone = require("ui.widgets.microphone")
 local network = require("ui.widgets.network")
 local sync = require("ui.widgets.sync")
-local notification = require("ui.widgets.notification")
+local notify = require("ui.widgets.notify")
 local tray = require("ui.widgets.tray")
 
 
@@ -42,7 +42,7 @@ return function(args)
     local sync_w = sync {
         height = args.height
     }
-    local notification_w = notification {
+    local notify_w = notify {
         screen = s,
         height = args.height,
         placement = placement,
@@ -54,7 +54,7 @@ return function(args)
         placement = placement
     }
 
-    s.info_bar = awful.popup {
+    local info_bar = awful.popup {
         screen = s,
         ontop = true,
         border_width = dpi(bt.taglist_border_width, s),
@@ -69,7 +69,7 @@ return function(args)
             microphone_w,
             network_w,
             sync_w,
-            notification_w,
+            notify_w,
             systray_w
         },
         placement = function(c)
@@ -86,10 +86,10 @@ return function(args)
         for _, c in pairs(s.clients) do
             has_fullscreen_clients = has_fullscreen_clients or c.fullscreen
         end
-        s.info_bar.visible = not has_fullscreen_clients
+        info_bar.visible = not has_fullscreen_clients
     end)
 
-    s.info_bar:connect_signal("clear::popups", function()
+    info_bar:connect_signal("clear::popups", function()
         --audio_w:emit_signal("popup::hide")
         --microphone_w:emit_signal("popup::hide")
         --network_w:emit_signal("popup::hide")
@@ -108,4 +108,6 @@ return function(args)
             --systray_w:emit_signal("popup::hide")
         end
     end)
+
+    return info_bar
 end

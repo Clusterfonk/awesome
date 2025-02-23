@@ -3,4 +3,5 @@
 
 require(... .. ".colemak")
 require(... .. ".rules")
-require(... .. ".signal")
+require(... .. ".fullscreen")
+require(... .. ".sloppy-focus")

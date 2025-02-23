@@ -2,6 +2,16 @@
 -- @author Clusterfonk <https://github.com/Clusterfonk>
 local awful = require("awful")
 
+local keys = require("configuration.keys.defaults")
+
+
+local capi = {
+    awesome = awesome,
+    screen = screen,
+    mouse = mouse
+}
+
+local MODKEY <const> = keys.alt
 
 client.connect_signal("request::default_mousebindings", function()
     awful.mouse.append_client_mousebindings({
@@ -19,3 +29,11 @@ client.connect_signal("request::default_mousebindings", function()
         end),
     })
 end)
+
+local function center_mouse()
+    local s = capi.screen.primary
+    awful.screen.focus(s)
+    awful.placement.centered(capi.mouse, s)
+end
+
+capi.awesome.connect_signal("startup", center_mouse)

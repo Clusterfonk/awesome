@@ -8,6 +8,7 @@ local dpi = bt.xresources.apply_dpi
 
 tag_template = { mt = {} }
 
+-- TODO: redo this without setting the width of it and let it all take place like they need
 function tag_template.new(s, bar_width, bar_height)
     local font_size = bar_height / 2
 
@@ -17,7 +18,7 @@ function tag_template.new(s, bar_width, bar_height)
     local spaces = ((n_tags - 1) * 2) + 2
 
     local tab_ocupied_space = n_tags *font_size * 1.6
-    local available_space = available_space - tab_ocupied_space
+    available_space = available_space - tab_ocupied_space
     local tag_spacing = available_space / spaces
     local underline_height = dpi(bt.taglist_underline_height, s)
 

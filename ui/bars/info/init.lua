@@ -12,6 +12,11 @@ local sync = require("ui.widgets.sync")
 local notify = require("ui.widgets.notify")
 local tray = require("ui.widgets.tray")
 
+local capi = {
+    client = client,
+    screen = screen
+}
+
 
 return function(args)
     local s = args.screen
@@ -77,17 +82,11 @@ return function(args)
         end,
     }
 
-    client.connect_signal("property::fullscreen", function(client)
-        if s ~= client.screen then
-            return
+    local function redraw_bar()
+        if info_bar.visible then
+            info_bar:emit_signal("widget::redraw_needed")
         end
-
-        has_fullscreen_clients = false
-        for _, c in pairs(s.clients) do
-            has_fullscreen_clients = has_fullscreen_clients or c.fullscreen
-        end
-        info_bar.visible = not has_fullscreen_clients
-    end)
+    end
 
     info_bar:connect_signal("clear::popups", function()
         --audio_w:emit_signal("popup::hide")
@@ -98,7 +97,7 @@ return function(args)
         --systray_w:emit_signal("popup::hide")
     end)
 
-    client.connect_signal("button::press", function(_, _, _, button)
+    capi.client.connect_signal("button::press", function(_, _, _, button)
         if button == 1 then
             --audio_w:emit_signal("popup::hide")
             --microphone_w:emit_signal("popup::hide")
@@ -109,5 +108,50 @@ return function(args)
         end
     end)
 
+    local function hide_popups_on_lbutton(_, _, _, button)
+        if button == 1 then
+            audio_w.popup:emit_signal("popup::hide")
+        end
+    end
+
+    s:connect_signal("fullscreen_changed", function(_, has_fullscreen)
+        if info_bar then
+            info_bar.visible = not has_fullscreen
+        end
+    end)
+    s:connect_signal("property::geometry", redraw_bar)
+    capi.client.connect_signal("button::press", hide_popups_on_lbutton)
+
+    s:connect_signal("removed", function(screen)
+        capi.client.disconnect_signal("button::press", hide_popups_on_lbutton)
+        -- TODO: have it all in a list then iterate
+        info_bar.visible = false
+        audio_w.visible = false
+        microphone_w.visible = false
+        network_w.visible = false
+        sync_w.visible = false
+        notify_w.visible = false
+        systray_w.visible = false
+
+        info_bar = nil
+        audio_w = nil
+        microphone_w = nil
+        network_w = nil
+        sync_w = nil
+        notify_w = nil
+        systray_w = nil
+        -- TODO: might need to emit signals to let popups know ?
+    end)
+
+    if DEBUG then
+        local debug =require("util.debug")
+        debug.attach_finalizer(info_bar, "info_bar")
+        debug.attach_finalizer(audio_w, "audio_w")
+        debug.attach_finalizer(microphone_w, "microphone_w")
+        debug.attach_finalizer(network_w, "audio_w")
+        debug.attach_finalizer(sync_w, "sync_w")
+        debug.attach_finalizer(notify_w, "notify_w")
+        debug.attach_finalizer(systray_w, "systray_w")
+    end
     return info_bar
 end

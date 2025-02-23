@@ -7,24 +7,27 @@ local dpi = bt.xresources.apply_dpi
 
 local clock = require("ui.widgets.clock")
 
+local capi = {
+    client = client
+}
+
 
 return function(args)
     local s = args.screen
     local geo = args.geometry
 
-
-    local function placement(widget)
+    local function popup_placement(widget)
         return awful.placement.top_left(widget,
             {
                 margins = {top = geo.bottom + 2 * bt.useless_gap, left = geo.side}
             })
     end
 
-    clock_widget = clock {
+    local clock_widget = clock {
         screen = s,
         format = " %d %b %H:%M ", -- spaces prevent colors bugging out
         font = bt.clock.font,
-        placement = placement
+        placement = popup_placement
     }
 
     local time_bar = awful.popup {
@@ -39,36 +42,50 @@ return function(args)
             layout = wibox.layout.fixed.horizontal,
             clock_widget,
         },
-        placement = function(widget)
-            return awful.placement.top_left(widget,
-                {
-                    margins = { top = geo.top, left = geo.side}
-                })
-        end
+        placement = function(c)
+            awful.placement.top_left(c, { margins = {top = geo.top, left = geo.side}})
+        end,
     }
 
-    client.connect_signal("property::fullscreen", function(client)
-        if s ~= client.screen then
-            return
+    local function redraw_bar()
+        if time_bar.visible then
+            time_bar:emit_signal("widget::redraw_needed")
         end
+    end
 
-        has_fullscreen_clients = false
-        for _, c in pairs(s.clients) do
-            has_fullscreen_clients = has_fullscreen_clients or c.fullscreen
+    local function hide_popups_on_lbutton(_, _, _, button)
+        if button == 1 then
+            clock_widget.popup:emit_signal("popup::hide")
         end
-        time_bar.visible = not has_fullscreen_clients
+    end
+
+    s:connect_signal("fullscreen_changed", function(_, has_fullscreen)
+        if time_bar then
+            time_bar.visible = not has_fullscreen
+        end
     end)
 
     time_bar:connect_signal("clear::popups", function()
         clock_widget.popup:emit_signal("popup::hide")
     end)
 
-    client.connect_signal("button::press", function(_, _, _, button)
-        if button == 1 then
-            clock_widget.popup:emit_signal("popup::hide")
-        end
+    s:connect_signal("property::geometry", redraw_bar)
+    capi.client.connect_signal("button::press", hide_popups_on_lbutton)
+
+    s:connect_signal("removed", function(screen)
+        capi.client.disconnect_signal("button::press", hide_popups_on_lbutton)
+        time_bar.visible = false
+        clock_widget.visible = false
+        time_bar = nil
+        clock_widget = nil
+        -- TODO: might need to emit signals to let popups know ?
     end)
 
+    if DEBUG then
+        local debug =require("util.debug")
+        debug.attach_finalizer(time_bar, "time_bar")
+        debug.attach_finalizer(clock_widget, "clock_widget")
+    end
     return time_bar
 end
 

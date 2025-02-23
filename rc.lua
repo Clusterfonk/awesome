@@ -8,8 +8,7 @@
 --      -> Theme
 --      -> Autostart
 --      -> Configuration
---      -> Modules
---      -> UI
+--      -> Userinterface
 ---------------------------------------------------------------
 pcall(require, "luarocks.loader")
 local bt = require("beautiful")
@@ -122,17 +121,16 @@ require("autostart")
 ---------------------------------------------------------------
 -- => Configuration
 ---------------------------------------------------------------
-require("configuration")
+require("configuration.keys.colemak")
+require("configuration.mouse")
+
+require("configuration.clients")
+require("configuration.screens")
+
+require("configuration.layout")
+require("configuration.tags")
 
 ---------------------------------------------------------------
--- => Modules
----------------------------------------------------------------
-require("modules.set_wallpaper")
-require("modules.sloppy-focus")
-require("modules.center_mouse")
-require("modules.autofocus")
-
----------------------------------------------------------------
--- => UI
+-- => Userinterface
 ---------------------------------------------------------------
 require("ui")

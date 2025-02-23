@@ -6,6 +6,7 @@ require(... .. ".keys.colemak")
 require(... .. ".mouse")
 
 require(... .. ".clients")
+require(... .. ".screens")
 
 require(... .. ".layout")
 

@@ -11,7 +11,14 @@
 local awful = require("awful")
 
 local minimize_list = require("configuration.clients.minimize")
+local keys = require("configuration.keys.defaults")
 
+local SHIFT = keys.shift
+local CTRL = keys.ctrl
+local SUPER = keys.super
+local ALT = keys.alt
+
+local MODKEY = keys.alt
 
 client.connect_signal("request::default_keybindings", function()
     awful.keyboard.append_client_keybindings({

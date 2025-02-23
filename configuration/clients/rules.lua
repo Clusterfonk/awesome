@@ -13,12 +13,11 @@ ruled.client.connect_signal("request::rules", function()
 		properties = {
 			raise = true,
 			size_hints_honor = false,
-			honor_workarea = true,
-			honor_padding = true,
 			screen = awful.screen.preferred,
 			focus = awful.client.focus.filter,
 			titlebars_enabled = beautiful.titlebar_enabled,
 			placement = awful.placement.no_overlap + awful.placement.no_offscreen,
+            previous_tag = nil
 		},
         {
             id = "tasklist_order",

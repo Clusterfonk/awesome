@@ -11,8 +11,9 @@ local partial_taglist = require(... .. ".partial_taglist")
 -- s, bar_width, bar_height, bar_offset
 return function(args)
     local s = args.screen
+
     -- create layoutbox
-    s.layoutbox = awful.widget.layoutbox({
+    local layoutbox = awful.widget.layoutbox({
         screen = s,
         buttons = {
             awful.button({ }, 1, function () awful.layout.inc( 1) end),
@@ -32,14 +33,14 @@ return function(args)
         end
     end
 
-    local tag_template = template(s, args.width, args.height)
     -- create partial taglists
-    s.taglist = {
+    local tag_template = template(s, args.width, args.height)
+    local taglist = {
         left_half = partial_taglist(s, left_half_filter(), tag_template),
         right_half = partial_taglist(s, right_half_filter(), tag_template)
     }
 
-    local taglist_bar = wibox({
+    local taglist_bar = awful.popup {
         index = "taglist_bar",
         screen   = s,
         stretch  = false,
@@ -51,26 +52,49 @@ return function(args)
         visible = true,
         widget   = {
             {
+                {
+                    layout = wibox.layout.align.horizontal,
+                    taglist.left_half,
+                },
+                {
+                    layout = wibox.layout.align.horizontal,
+                    layoutbox,
+                },
+                {
+                    layout = wibox.layout.align.horizontal,
+                    taglist.right_half,
+                },
                 layout = wibox.layout.align.horizontal,
-                s.taglist.left_half,
             },
-            {
-                layout = wibox.layout.align.horizontal,
-                s.layoutbox,
-            },
-            {
-                layout = wibox.layout.align.horizontal,
-                s.taglist.right_half,
-            },
-            layout = wibox.layout.align.horizontal,
-        }
-    })
+            widget = wibox.container.constraint,
+            strategy = "exact",
+            width = args.width,
+            height = args.height
+        },
+        placement = function(wdg)
+            awful.placement.align(wdg , {position = "top", margins = {top = args.strut_offset}})
+        end
+    }
+    taglist_bar:struts({top = taglist_bar:geometry().height + 2 * bt.useless_gap})
 
-    awful.placement.align(taglist_bar, {position = "top", margins = {top = args.strut_offset}})
+    local function redraw_bar()
+        if taglist_bar.visible then
+            taglist_bar:emit_signal("widget::redraw_needed")
+        end
+    end
 
-    taglist_bar:struts({
-        top = args.height + 2*dpi(bt.taglist_border_width) + args.strut_offset
-    })
+    s:connect_signal("property::geometry", redraw_bar)
+    --s:connect_signal("client::fullscreen_changed", function(has_fullscreen)
+    --    taglist_bar.visible = not has_fullscreen
+    --end)
+
+
+    s:connect_signal("removed", function(screen)
+        taglist_bar.visible = false
+        taglist_bar = nil
+    end)
+
+
 
     return taglist_bar
 end

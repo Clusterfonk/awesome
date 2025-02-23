@@ -12,6 +12,7 @@ local awful = require("awful")
 local hotkeys_popup = require("awful.hotkeys_popup")
 local menubar = require("menubar")
 
+local keys = require("configuration.keys.defaults")
 local cmd = require("configuration.defaults.commands")
 local panels = require("ui.panels")
 
@@ -19,6 +20,13 @@ local panels = require("ui.panels")
 local capi = {
     awesome = awesome
 }
+
+local SHIFT = keys.shift
+local CTRL = keys.ctrl
+local SUPER = keys.super
+local ALT = keys.alt
+local MODKEY = keys.alt
+
 
 awful.keyboard.append_global_keybindings({
 ---------------------------------------------------------------
@@ -138,9 +146,7 @@ awful.keyboard.append_global_keybindings({
                   local c = awful.client.restore()
                   -- Focus restored client
                   if c then
-                    c:emit_signal(
-                        "request::activate", "key.unminimize", {raise = true}
-                    )
+                    c:emit_signal("request::activate", "key.unminimize", {raise = true})
                   end
               end,
               {description = "restore all minimized", group = "client"}),
@@ -153,11 +159,13 @@ awful.keyboard.append_global_keybindings({
         keygroup    = "numrow",
         description = "only view tag",
         group       = "tags",
-        on_press    = function (index)
+        on_press    = function (num)
+            print("yep works")
             local screen = awful.screen.focused()
-            local tag = screen.tags[index]
-            if tag then
-                tag:view_only()
+            for _, t in pairs(screen.tags) do
+                if t.name == tostring(num) then
+                    return t:view_only()
+                end
             end
         end,
     },
@@ -168,12 +176,13 @@ awful.keyboard.append_global_keybindings({
 		keygroup = "numrow",
 		description = "move focused client to tag",
 		group = "tags",
-		on_press = function(index)
+		on_press = function(num)
 			if client.focus then
-				local tag = client.focus.screen.tags[index]
-				if tag then
-					client.focus:move_to_tag(tag)
-				end
+                for _, t in pairs(client.focus.screen.tags) do
+                    if t.name == tostring(num) then
+                        return client.focus:move_to_tag(t)
+                    end
+                end
 			end
 		end,
 	}),

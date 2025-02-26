@@ -160,7 +160,6 @@ awful.keyboard.append_global_keybindings({
         description = "only view tag",
         group       = "tags",
         on_press    = function (num)
-            print("yep works")
             local screen = awful.screen.focused()
             for _, t in pairs(screen.tags) do
                 if t.name == tostring(num) then

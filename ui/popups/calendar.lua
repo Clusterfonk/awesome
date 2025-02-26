@@ -3,14 +3,16 @@
 local wibox = require("wibox")
 local gtable = require("gears.table")
 local gshape = require("gears.shape")
+local gtimer = require("gears.timer")
 local bt = require("beautiful")
 local dpi = bt.xresources.apply_dpi
 
-local button= require("ui.widgets.button")
+local button = require("ui.widgets.button")
 local base = require("ui.popups.base")
 
 
 calendar = { mt = {} }
+setmetatable(calendar, { __index = popup })
 
 local month_lut = {
     "January", "February", "March", "April", "May", "June",
@@ -21,363 +23,437 @@ local month_short_lut = {
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 }
 
-local function year_widget(self, name)
+local weekdays = { "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa" }
+
+function calendar.destroy(self)
+    if self.midnight_timer then
+        self.midnight_timer:stop()
+        self.midnight_timer = nil
+    end
+
+    self._parent.destroy(self)
+    calendar.instance = nil
+
+    -- TODO: call function of the garbage collector -> will reset
+    gtimer.delayed_call(function()
+        collectgarbage("collect")
+        collectgarbage("collect")
+    end)
+end
+
+-- Function to calculate the number of seconds until midnight
+local function seconds_until_midnight()
+    local now = os.date("*t") -- Get the current time as a table
+
+    local midnight = os.time {
+        year = now.year,
+        month = now.month,
+        day = now.day + 1, -- Next day
+        hour = 0,
+        min = 0,
+        sec = 0
+    }
+
+    return midnight - os.time({
+        year = now.year,
+        month = now.month,
+        day = now.day,
+        hour = now.hour,
+        min = now.min,
+        sec = now.sec
+    })
+end
+
+-- Function to set up the midnight timer
+local function setup_midnight_timer(calendar)
+    local timeout = seconds_until_midnight()
+
+    calendar.midnight_timer = gtimer {
+        timeout = timeout,
+        autostart = true,
+        call_now = false,
+        one_shot = true,
+        callback = function()
+            calendar:set_date(os.date("*t"))
+            setup_midnight_timer(calendar) -- keeps a reference to calendar (upvalue)
+        end
+    }
+end
+
+-- Template for creating widgets
+local function create_widget_template(text, height, width)
     return wibox.widget {
         {
+            id = "textbox",
             widget = wibox.widget.textbox,
-            text = name,
+            text = text,
             font = bt.calendar.grid_font,
             halign = "center",
-            valign = "center"
+            valign = "center",
         },
-        forced_height = dpi(15),
-        forced_width = dpi(15),
         shape = gshape.circle,
+        forced_height = dpi(height),
+        forced_width = dpi(width),
         widget = wibox.container.background
     }
 end
 
+-- Day widget
+local function day(self, d)
+    local widget = create_widget_template(d, 25, 25)
 
-local function month_widget(self, month)
-    local text = wibox.widget {
-        widget = wibox.widget.textbox,
-        text = month,
-        font = bt.calendar.grid_font,
-        halign  = "center",
-        valign = "center",
-    }
-
-    local btext = wibox.container.background(text)
-
-    local widget = wibox.widget {
-        {
-            widget = btext
-        },
-        shape = gshape.circle,
-        forced_height = dpi(15),
-        forced_width = dpi(15),
-        widget = wibox.container.background
-    }
-
-    self:connect_signal(month .. "::updated", function(self, date, is_current)
-        text:set_text(date)
-        if is_current == true then
+    self:connect_signal(d .. "::day_updated", function(_, date, is_current, is_off_month)
+        local tb = widget:get_children_by_id("textbox")[1]
+        tb:set_text(date)
+        if is_current then
             widget.bg = bt.calendar.day_focus_bg
-            btext:set_fg(bt.calendar.day_fg)
+            widget.fg = bt.calendar.day_fg
+        elseif is_off_month then
+            widget.bg = bt.bg_normal
+            widget.fg = bt.calendar.day_off_fg
         else
-            btext:set_fg(bt.calendar.day_fg)
+            widget.bg = bt.bg_normal
+            widget.fg = bt.calendar.day_fg
         end
     end)
 
     return widget
 end
 
-local function years_grid(self, year)
-    local years = {}
-    local start_year = year - 14
-    local end_year = year + 5
-    for y = start_year, end_year do
-        table.insert(years, month_widget(self, y))
-    end
+-- Month widget
+local function month(self, m)
+    local widget = create_widget_template(m, 15, 15)
 
-    return wibox.widget {
-        layout = wibox.layout.grid,
-        forced_num_rows = 5,
-        forced_num_cols = 4,
-        homogenous = true,
-        expand = true,
-        spacing = dpi(5),
-        table.unpack(years)
-    }
-end
-
-local function months_grid(self)
-    local months = {}
-    for i, m in pairs(month_short_lut) do
-        months[i] = month_widget(self, m)
-    end
-
-    return wibox.widget {
-        layout = wibox.layout.grid,
-        forced_num_rows = 2,
-        forced_num_cols = 4,
-        homogenous = true,
-        expand = true,
-        spacing = dpi(20),
-        table.unpack(months)
-    }
-end
-
-local function day_name_widget(name)
-    return wibox.widget {
-        {
-            widget = wibox.widget.textbox,
-            text = name,
-            halign = "center",
-            valign = "center"
-        },
-        forced_height = dpi(25),
-        forced_width = dpi(25),
-        shape = gshape.circle,
-        widget = wibox.container.background
-    }
-
-end
-
-local function days_grid()
-    return wibox.widget {
-        layout = wibox.layout.grid,
-        id = "days",
-        forced_num_rows = 6,
-        forced_num_cols = 7,
-        homogenous = true,
-        spacing = dpi(5),
-        day_name_widget "Su",
-        day_name_widget "Mo",
-        day_name_widget "Tu",
-        day_name_widget "We",
-        day_name_widget "Th",
-        day_name_widget "Fr",
-        day_name_widget "Sa"
-    }
-end
-
-local function day_widget(self, day)
-    local text = wibox.widget {
-        widget = wibox.widget.textbox,
-        text = day,
-        font = bt.calendar.grid_font,
-        halign  = "center",
-        valign = "center",
-    }
-    local btext = wibox.container.background(text)
-
-    local widget = wibox.widget {
-        {
-            widget = btext
-        },
-        shape = gshape.circle,
-        forced_height = dpi(25),
-        forced_width = dpi(25),
-        widget = wibox.container.background
-    }
-
-    self:connect_signal(day .. "::updated", function(self, date, is_current, is_off_month)
-        text:set_text(date)
-        if is_current == true then
+    self:connect_signal(m .. "::month_updated", function(_, date, is_current)
+        widget:get_children_by_id("textbox")[1]:set_text(date)
+        if is_current then
             widget.bg = bt.calendar.day_focus_bg
-            btext:set_fg(bt.calendar.day_fg)
-        elseif is_off_month == true then
-            btext:set_fg(bt.calendar.day_off_fg)
+            widget.fg = bt.calendar.day_fg
         else
-            btext:set_fg(bt.calendar.day_fg)
+            widget.fg = bt.calendar.day_fg
         end
     end)
 
     return widget
 end
 
-local function create_years(self, month_h, year)
-    local yg = years_grid(self, year)
+-- Year widget
+local function year(self, y)
+    local widget = create_widget_template(y, 15, 15)
 
+    self:connect_signal(y .. "::year_updated", function(_, date, is_current)
+        widget:get_children_by_id("textbox")[1]:set_text(date)
+        if is_current then
+            widget.bg = bt.calendar.day_focus_bg
+            widget.fg = bt.calendar.day_fg
+        else
+            widget.fg = bt.calendar.day_fg
+        end
+    end)
+
+    return widget
+end
+
+-- Generic grid creation
+local function create_grid(widgets, rows, cols, spacing)
     return wibox.widget {
-        {
-            {
-                widget = wibox.container.margin(month_h, 10, 10, 5, 5)
-            },
-            valign = "center",
-            halign = "center",
-            widget = wibox.container.place
-        },
-        {
-            widget = wibox.container.margin(yg, 10, 10, 5, 5)
-        },
-        layout = wibox.layout.align.vertical
+        id = "grid",
+        layout = wibox.layout.grid,
+        forced_num_rows = rows,
+        forced_num_cols = cols,
+        homogenous = true,
+        expand = true,
+        spacing = spacing,
+        table.unpack(widgets)
     }
 end
 
-local function create_months(self, year_h)
-    local mg = months_grid(self)
+local function create_day_grid(self)
+    days = {}
+    for _, w in ipairs(weekdays) do
+        table.insert(days, create_widget_template(w, 25, 25))
+    end
 
-    return wibox.widget {
-        {
-            {
-                widget = wibox.container.margin(year_h, 10, 10, 5, 5)
-            },
-            valign = "center",
-            halign = "center",
-            widget = wibox.container.place
-        },
-        {
-            widget = wibox.container.margin(mg, 10, 10, 5, 5)
-        },
-        layout = wibox.layout.align.vertical
-    }
+    for d = 1, 42 do
+        table.insert(days, day(self, d))
+    end
+    return create_grid(days, 7, 7, dpi(5))
 end
 
-local function create_calendar(self, header_w)
-    local dg = days_grid()
-
-    local w = wibox.widget {
-        {
-            widget=wibox.container.margin(header_w, 10, 10, 5, 5)
-        },
-        {
-            widget=wibox.container.margin(dg, 10, 10, 5, 5)
-        },
-        layout = wibox.layout.align.vertical
-    }
-
-    for day = 1, 42 do
-        dg:get_children_by_id("days")[1]:add(day_widget(self, day))
+local function create_month_grid(self)
+    local widgets = {}
+    for _, m in ipairs(month_short_lut) do
+        table.insert(widgets, month(self, m))
     end
-
-    return w
+    return create_grid(widgets, 3, 4, dpi(20))
 end
 
-
-function calendar:set_date(date)
-    self:emit_signal("header_month::updated", date.month)
-    self:emit_signal("header_year::updated", date.year)
-
-    local first_day = os.date("*t", os.time{
-        year = date.year,
-        month = date.month,
-        day = 1
-    })
-
-    local last_day = os.date("*t", os.time {
-        year = date.year,
-        month = date.month + 1,
-        day = 0
-    })
-    local month_days = last_day.day
-
-    local index = 1
-    local days_to_add_at_month_start = first_day.wday - 1
-    local days_to_add_at_month_end = 42 - last_day.day - days_to_add_at_month_start
-
-    local previous_month_last_day = os.date("*t", os.time{
-        year = date.year,
-        month = date.month,
-        day = 0}). day
-    for day = previous_month_last_day - days_to_add_at_month_start, previous_month_last_day - 1 do
-        self:emit_signal(index .. "::updated", day, false, true)
-        index = index + 1
+local function create_year_grid(self)
+    local widgets = {}
+    local current_year = os.date("*t").year
+    for y = current_year - 14, current_year + 5 do
+        table.insert(widgets, year(self, y))
     end
-
-    local current_date = os.date("*t")
-    for day = 1, month_days do
-        local is_current = day == current_date.day and date.month == current_date.month
-        and date.year == current_date.year
-        self:emit_signal(index .. "::updated", day, is_current, false)
-        index = index + 1
-    end
-
-    for day = 1, days_to_add_at_month_end do
-        self:emit_signal(index .. "::updated", day, false, true)
-        index = index + 1
-    end
-
-    for month = 1, 12 do
-        local is_crt_month = month == date.month
-        local month_name = month_short_lut[month]
-        self:emit_signal(month_name .. "::updated", month_name, is_crt_month)
-    end
-
-    for year = date.year - 14, date.year + 5 do
-        local is_crt_year = year == date.year
-        self:emit_signal(year .. "::updated", year, is_crt_year)
-    end
+    return create_grid(widgets, 3, 4, dpi(5))
 end
 
-function calendar.new(args)
-    -- TODO: create base after creating it all and then pass it to base
-    local ret = base(args)
-    gtable.crush(ret, calendar, true)
-
-    local month_button = button {
+local function create_header(self)
+    local header_month = button {
         widget = wibox.widget {
             id = "header_month",
             widget = wibox.widget.textbox,
             font = bt.calendar.header_font,
         }
     }
-
-    ret:connect_signal("header_month::updated", function(self, m)
-        month_button:get_widget():set_text(month_lut[m])
-    end)
-
-    local year_button = button {
+    local header_year = button {
         widget = wibox.widget {
             id = "header_year",
             widget = wibox.widget.textbox,
             font = bt.calendar.header_font,
         }
     }
-
-    ret:connect_signal("header_year::updated", function(self, y)
-        year_button:get_widget():set_text(y)
+    self:connect_signal("header_month::updated", function(_, m)
+        header_month:get_widget():set_text(month_lut[m])
+    end)
+    self:connect_signal("header_year::updated", function(_, y)
+        header_year:get_widget():set_text(y)
     end)
 
-    local header_w = wibox.widget {
-        {
-            month_button,
-            year_button,
-            spacing = dpi(10),
-            layout = wibox.layout.fixed.horizontal
-        },
-        valign = "center",
-        halign = "center",
-        widget = wibox.container.place
-    }
+    header_month:connect_signal("button::press", function(_, _, _, btn) -- TODO: move to header const.
+        if btn == 1 then
+            local w = self.widget:get_children_by_id("month_view")[1]
+            self.widget:raise_widget(w)
+        end
+    end)
 
-    local cal_w = create_calendar(ret, header_w)
-    local months_w = create_months(ret, year_button)
-    local years_w = create_years(ret, month_button, os.date("*t").year)
+    header_year:connect_signal("button::press", function(_, _, _, btn)
+        if btn == 1 then
+            local w = self.widget:get_children_by_id("year_view")[1]
+            self.widget:raise_widget(w)
+        end
+    end)
+    return { header_month, header_year }
+end
 
-    ret:setup {
-        cal_w,
-        months_w,
-        years_w,
+local function is_leap_year(year)
+    return (year % 4 == 0 and year % 100 ~= 0) or (year % 400 == 0)
+end
+
+local function get_days_in_month(year, month)
+    if month == 2 then
+        return is_leap_year(year) and 29 or 28
+    elseif month == 4 or month == 6 or month == 9 or month == 11 then
+        return 30
+    else
+        return 31
+    end
+end
+
+-- Zeller's Congruence
+-- 0 = Saturday, 1 = Sunday, ..., 6 = Friday
+local function get_day_of_week(y, m, d)
+    if m < 3 then
+        m = m + 12
+        y = y - 1
+    end
+    local k = y % 100
+    local j = y // 100
+    return (d + ((13 * (m + 1)) // 5) + k + (k // 4) + (j // 4) + (5 * j)) % 7
+end
+
+local function update_days(self, date)
+    local current_date = os.date("*t")
+    local total_days_in_month = get_days_in_month(date.year, date.month)
+    local first_day_of_week = get_day_of_week(1, date.month, date.year)
+    local days_from_previous_month = (first_day_of_week - 1) % 7
+    local days_from_next_month = 42 - (total_days_in_month + days_from_previous_month)
+
+    local cell_index = 1
+
+    -- Days from the previous month
+    local previous_month_days = get_days_in_month(date.year, date.month - 1)
+    for previous_month_day = previous_month_days - days_from_previous_month + 1, previous_month_days do
+        self:emit_signal(cell_index .. "::day_updated", previous_month_day, false, true)
+        cell_index = cell_index + 1
+    end
+
+    -- Days in the current month
+    for current_month_day = 1, total_days_in_month do
+        local is_current_day = current_month_day == current_date.day and date.month == current_date.month and date.year == current_date.year
+        self:emit_signal(cell_index .. "::day_updated", current_month_day, is_current_day, false)
+        cell_index = cell_index + 1
+    end
+
+    -- Days from the next month
+    for next_month_day = 1, days_from_next_month do
+        self:emit_signal(cell_index .. "::day_updated", next_month_day, false, true)
+        cell_index = cell_index + 1
+    end
+end
+
+-- Update months and years
+local function update_months_years(self, date)
+    for m = 1, 12 do
+        local is_crt_month = m == date.month
+        local month_name = month_short_lut[m]
+        self:emit_signal(month_name .. "::month_updated", month_name, is_crt_month)
+    end
+
+    for y = date.year - 14, date.year + 5 do
+        local is_crt_year = y == date.year
+        self:emit_signal(y .. "::year_updated", y, is_crt_year)
+    end
+end
+
+-- Set the current date
+function calendar:set_date(date)
+    self:emit_signal("header_month::updated", date.month)
+    self:emit_signal("header_year::updated", date.year) -- TODO: might be able to combine
+    update_days(self, date)
+    update_months_years(self, date)
+end
+
+function calendar.new(args)
+    args = args or {}
+    args.destroy_timeout = 30
+    local ret = base(args)
+    rawset(ret, "_parent", { destroy = ret.destroy })
+    gtable.crush(ret, calendar, true)
+
+    local header = create_header(ret)
+
+    ret.widget = wibox.widget.base.make_widget_declarative {
+        layout = wibox.layout.stack,
         top_only = true,
-        layout = wibox.layout.stack
+        {
+            id = "main_view",
+            widget = wibox.container.background
+                {
+                    layout = wibox.layout.align.vertical,
+                    {
+                        widget = wibox.container.margin,
+                        margins = { left = 10, right = 10, top = 5, bottom = 5 },
+                        {
+                            widget = wibox.container.place,
+                            valign = "center",
+                            halign = "center",
+                            {
+                                layout = wibox.layout.fixed.horizontal,
+                                spacing = dpi(10),
+                                table.unpack(header)
+                            }
+                        }
+                    },
+                    {
+                        widget = wibox.container.margin,
+                        margins = { left = 10, right = 10, top = 5, bottom = 5 },
+                        {
+                            widget = create_day_grid(ret)
+                        },
+                    }
+                }
+        },
+        {
+            -- month view
+            id = "month_view",
+            widget = wibox.container.background
+                {
+                    layout = wibox.layout.align.vertical,
+                    {
+                        widget = wibox.container.place,
+                        valign = "center",
+                        halign = "center",
+                        {
+                            widget = wibox.container.margin,
+                            margins = { left = 10, right = 10, top = 5, bottom = 5 },
+                            {
+                                widget = header[2]     -- year_header
+                            },
+                        },
+                    },
+                    {
+                        widget = wibox.container.margin,
+                        margins = { left = 10, right = 10, top = 5, bottom = 5 },
+                        {
+                            widget = create_month_grid(ret)
+                        }
+                    }
+                }
+        },
+        {
+            -- year view
+            id = "year_view",
+            widget = wibox.container.background
+                {
+                    layout = wibox.layout.align.vertical,
+                    {
+                        widget = wibox.container.place,
+                        valign = "center",
+                        halign = "center",
+                        {
+                            widget = wibox.container.margin,
+                            margins = { left = 10, right = 10, top = 5, bottom = 5 },
+                            {
+                                widget = header[1]     -- month_header
+                            },
+                        },
+                    },
+                    {
+                        widget = wibox.container.margin,
+                        margins = { left = 10, right = 10, top = 5, bottom = 5 },
+                        {
+                            widget = create_year_grid(ret)
+                        }
+                    }
+                }
+        }
     }
 
-    month_button:connect_signal("button::lmb_press", function()
-        ret:get_widget():raise_widget(months_w)
-    end)
-
-    year_button:connect_signal("button::lmb_press", function()
-        ret:get_widget():raise_widget(years_w)
-    end)
+    local month_view = ret.widget:get_children_by_id("month_view")[1]
+    local year_view = ret.widget:get_children_by_id("year_view")[1]
 
     ret:connect_signal("popup::hide", function()
-        ret:get_widget():raise_widget(cal_w)
+        local w = ret.widget:get_children_by_id("main_view")[1]
+        ret.widget:raise_widget(w)
     end)
 
-    months_w:connect_signal("button::press", function(_, _, _, btn)
+
+    month_view:connect_signal("button::press", function(_, _, _, btn)
         if btn == 3 then
-            ret:get_widget():raise_widget(cal_w)
+            local w = ret.widget:get_children_by_id("main_view")[1]
+            ret.widget:raise_widget(w)
         end
     end)
 
-    years_w:connect_signal("button::press", function(_, _, _, btn)
+    year_view:connect_signal("button::press", function(_, _, _, btn)
         if btn == 3 then
-            ret:get_widget():raise_widget(cal_w)
+            local w = ret.widget:get_children_by_id("main_view")[1]
+            ret.widget:raise_widget(w)
         end
     end)
 
-    cal_w:connect_signal("button::press", function(_, _, _, btn)
+    ret:connect_signal("button::press", function(self, _, _, btn)
         -- TODO: add scroll support
     end)
 
     ret:set_date(os.date("*t"))
+    setup_midnight_timer(ret)
+
+    if DEBUG then
+        local debug = require("util.debug")
+        debug.attach_finalizer(ret, "calendar")
+    end
     return ret
 end
 
 function calendar.mt:__call(...)
-    return calendar.new(...)
+    if calendar.instance then
+        print("instance already exists")
+        return calendar.instance
+    end
+    print("new instance")
+    calendar.instance = calendar.new(...)
+    return calendar.instance
 end
 
 return setmetatable(calendar, calendar.mt)

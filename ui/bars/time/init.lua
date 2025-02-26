@@ -16,10 +16,11 @@ return function(args)
     local s = args.screen
     local geo = args.geometry
 
-    local function popup_placement(widget)
-        return awful.placement.top_left(widget,
+    local function popup_placement(d)
+        awful.placement.top_left(d,
             {
-                margins = {top = geo.bottom + 2 * bt.useless_gap, left = geo.side}
+                margins = {top = geo.bottom + 2 * bt.useless_gap, left = geo.side},
+                parent = s,
             })
     end
 
@@ -47,17 +48,18 @@ return function(args)
         end,
     }
 
-    local function redraw_bar()
-        if time_bar.visible then
-            time_bar:emit_signal("widget::redraw_needed")
+    local function hide_popups_on_lbutton(_, _, _, button)
+        if button == 1 then
+            --clock_widget.popup:emit_signal("popup::hide")
         end
     end
 
-    local function hide_popups_on_lbutton(_, _, _, button)
-        if button == 1 then
-            clock_widget.popup:emit_signal("popup::hide")
-        end
-    end
+    s:connect_signal("property::geometry", function(screen)
+        awful.placement.top_left(time_bar, {
+            margins = {top = geo.top, left = geo.side},
+            parent = screen
+        })
+    end)
 
     s:connect_signal("fullscreen_changed", function(_, has_fullscreen)
         if time_bar then
@@ -66,10 +68,9 @@ return function(args)
     end)
 
     time_bar:connect_signal("clear::popups", function()
-        clock_widget.popup:emit_signal("popup::hide")
+        --clock_widget.popup:emit_signal("popup::hide")
     end)
 
-    s:connect_signal("property::geometry", redraw_bar)
     capi.client.connect_signal("button::press", hide_popups_on_lbutton)
 
     s:connect_signal("removed", function(screen)

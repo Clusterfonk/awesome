@@ -22,24 +22,26 @@ return function(args)
     local s = args.screen
     local geo = args.geometry
 
-    local function placement(widget)
-        return awful.placement.top_right(widget,
-            {
-                margins = {top = geo.bottom + 2 * bt.useless_gap, right = geo.side}
-            })
+    local function popup_placement(d)
+        print("lil bro gets placed")
+        awful.placement.top_right(d, {
+            margins = {top = geo.bottom + 2 * bt.useless_gap, right = geo.side},
+            parent = s
+        })
     end
 
     local audio_w = audio {
         screen = s,
         height = args.height,
         margins = {left = bt.useless_gap},
-        --color = bt.colors.aqua_1,
-        placement = placement
+        color = bt.progressbar.audio_bg,
+        placement = popup_placement
     }
     local microphone_w = microphone {
         screen = s,
         height = args.height,
-        placement = placement,
+        color = bt.progressbar.mic_bg,
+        placement = popup_placement,
     }
     local network_w = network {
         height = args.height
@@ -50,13 +52,13 @@ return function(args)
     local notify_w = notify {
         screen = s,
         height = args.height,
-        placement = placement,
+        placement = popup_placement,
     }
     local systray_w = tray {
         screen = s,
         height = args.height,
         margins = {right = bt.useless_gap},
-        placement = placement
+        placement = popup_placement
     }
 
     local info_bar = awful.popup {
@@ -82,11 +84,10 @@ return function(args)
         end,
     }
 
-    local function redraw_bar()
-        if info_bar.visible then
-            info_bar:emit_signal("widget::redraw_needed")
-        end
-    end
+    local bar_geo = info_bar:geometry()
+    audio_w._private.popup:emit_signal("bar::width", bar_geo.width)
+    microphone_w._private.popup:emit_signal("bar::width", bar_geo.width)
+    systray_w._private.popup:emit_signal("bar::width", bar_geo.width)
 
     info_bar:connect_signal("clear::popups", function()
         --audio_w:emit_signal("popup::hide")
@@ -96,6 +97,8 @@ return function(args)
         --notification_w:emit_signal("popup::hide")
         --systray_w:emit_signal("popup::hide")
     end)
+
+    --audio_w._private.popup:emit_signal("bar::geometry_init", info_bar:geometry())
 
     capi.client.connect_signal("button::press", function(_, _, _, button)
         if button == 1 then
@@ -110,19 +113,25 @@ return function(args)
 
     local function hide_popups_on_lbutton(_, _, _, button)
         if button == 1 then
-            audio_w.popup:emit_signal("popup::hide")
+            --audio_w.popup:emit_signal("popup::hide")
         end
     end
+
+    s:connect_signal("property::geometry", function(screen)
+        awful.placement.top_right(info_bar, {
+            margins = { top = geo.top, right = geo.side},
+            parent = screen
+        })
+    end)
 
     s:connect_signal("fullscreen_changed", function(_, has_fullscreen)
         if info_bar then
             info_bar.visible = not has_fullscreen
         end
     end)
-    s:connect_signal("property::geometry", redraw_bar)
     capi.client.connect_signal("button::press", hide_popups_on_lbutton)
 
-    s:connect_signal("removed", function(screen)
+    s:connect_signal("removed", function(_)
         capi.client.disconnect_signal("button::press", hide_popups_on_lbutton)
         -- TODO: have it all in a list then iterate
         info_bar.visible = false

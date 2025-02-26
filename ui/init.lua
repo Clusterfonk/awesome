@@ -21,16 +21,16 @@ local SECONDARY_SCREEN <const> = 2
 by_pos_bar = {}
 
 capi.screen.connect_signal("request::desktop_decoration", function(s) -- created
-    by_pos_bar[s] = setmetatable({}, {__mode = "k"}) -- screen is weak
+    by_pos_bar[s] = setmetatable({}, { __mode = "k" })                -- screen is weak
 
     local taglist_bar_width = dpi(350)
     local bar_height = dpi(24)
     local bar_offset = bt.useless_gap
 
-    local geometry = {top = bar_offset, side = 2 * bt.useless_gap}
+    local geometry = { top = bar_offset, side = 2 * bt.useless_gap }
     geometry.bottom = geometry.top + bar_height + 2 * bt.taglist_border_width
 
-    by_pos_bar[s] = setmetatable({"left", "middle", "right"},{__mode = "v"})
+    by_pos_bar[s] = setmetatable({ "left", "middle", "right" }, { __mode = "v" }) -- this may be wrong bars should be weak
 
     time_bar {
         screen = s,
@@ -44,19 +44,15 @@ capi.screen.connect_signal("request::desktop_decoration", function(s) -- created
         geometry = geometry
     }
 
-	by_pos_bar[s].middle = taglist_bar {
+    by_pos_bar[s].middle = taglist_bar {
         screen = s,
         height = bar_height,
         width = taglist_bar_width,
         strut_offset = bar_offset
     }
-
-    s:connect_signal("removed", function()
-    end)
-
-    s:connect_signal("property::geometry", function() --resize everything and prob. replace end)
-    end)
 end)
+
+notification_builder(by_pos_bar)
 
 awful.mouse.append_global_mousebindings({
     awful.button({}, 1, function()
@@ -73,7 +69,7 @@ if DEBUG then
         single_shot = true,
         callback = function()
             local geo = capi.screen[1].geometry
-            local new_width = math.ceil(geo.width/2)
+            local new_width = math.ceil(geo.width / 2)
             local new_width2 = geo.width - new_width
             capi.screen[1]:fake_resize(geo.x, geo.y, new_width, geo.height)
             capi.screen.fake_add(geo.x + new_width, geo.y, new_width2, geo.height)

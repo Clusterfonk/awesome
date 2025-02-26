@@ -7,38 +7,44 @@ local bt = require("beautiful")
 local dpi = bt.xresources.apply_dpi
 
 local ibutton = require("ui.widgets.ibutton")
-local popup = require("ui.popups.systray")
+local systray = require("ui.popups.systray")
 
 
 local capi = {
     awesome = awesome
 }
 
-tray = { mt = {} }
+local tray = { mt = {} }
 
-local function on_lmb_press(self)
-    if capi.awesome.systray() > 0 then
-        self.popup:show()
+local function on_press(self, _, _, btn)
+    if btn == 1  and capi.awesome.systray() > 0 then
+        self._private.popup:show(self._private.screen, self._private.placement)
     end
 end
 
+local function get_icons()
+    return {
+        bt.icon.menu_down,
+        gcolor.recolor_image(bt.icon.menu_down, bt.fg_focus),
+
+        bt.icon.menu_up,
+        gcolor.recolor_image(bt.icon.menu_up, bt.fg_focus)
+    }
+end
+
 function tray.new(args)
-    local ret = ibutton {
-        normal_color = args.normal_color,
-        focus_color = args.focus_color,
-        margins = args.margins,
-        icons = { bt.icon.menu_down, gcolor.recolor_image(bt.icon.menu_down, bt.fg_focus),
-            bt.icon.menu_up, gcolor.recolor_image(bt.icon.menu_up, bt.fg_focus)},
-        widget = wibox.widget {
-            widget = wibox.widget.imagebox,
-            image = bt.icon.menu_down, -- TODO: set nil
-            forced_height = args.height - 2 * dpi(2, args.screen),
-            forced_width = args.height - 2 * dpi(2, args.screen)
-        }
+    args.popup = systray(args)
+    args.widget = wibox.widget {
+        widget = wibox.widget.imagebox,
+        image = bt.icon.menu_down,
+        forced_height = args.height - 2 * dpi(2, args.screen),
+        forced_width = args.height - 2 * dpi(2, args.screen)
     }
 
-    ret.popup = popup(args)
-    ret:connect_signal("button::press", on_lmb_press)
+    args.icons = get_icons()
+    local ret = ibutton(args)
+
+    ret:connect_signal("button::press", on_press)
 
     gtable.crush(ret, tray, true)
     return ret

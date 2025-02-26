@@ -2,8 +2,8 @@
 --      @author clusterfonk
 ---------------------------------------------------------------
 --  Sections:
---      -> Garbage-Collection
 --      -> Debug
+--      -> Garbage-Collection
 --      -> Error-Handling
 --      -> Theme
 --      -> Autostart
@@ -20,42 +20,56 @@ local capi = {
 }
 
 ---------------------------------------------------------------
+-- => Debug
+---------------------------------------------------------------
+if os.getenv("AWMTT_DEBUG") then
+    DEBUG = true
+end
+
+---------------------------------------------------------------
 -- => Garbage-Collection
 ---------------------------------------------------------------
 collectgarbage("incremental", 110, 1000)
 
 local memory_last_check_count = collectgarbage("count")
 local memory_last_run_time = os.time()
-local memory_growth_factor = 1.1 -- 10% over last
+local memory_growth_factor = 1.1        -- 10% over last
 local memory_long_collection_time = 300 -- five minutes in seconds
+if DEBUG then
+    memory_long_collection_time = 10
+end
 
 local gtimer = require("gears.timer")
 gtimer.start_new(5, function()
-	local cur_memory = collectgarbage("count")
-	-- instead of forcing a garbage collection every 5 seconds
-	-- check to see if memory has grown enough since we last ran
-	-- or if we have waited a sificiently long time
-	local elapsed = os.time() - memory_last_run_time
-	local waited_long = elapsed >= memory_long_collection_time
-	local grew_enough = cur_memory > (memory_last_check_count * memory_growth_factor)
-	if grew_enough or waited_long then
-		collectgarbage("collect")
-		collectgarbage("collect")
-		memory_last_run_time = os.time()
-	end
-	-- even if we didn't clear all the memory we would have wanted
-	-- update the current memory usage.
-	-- slow growth is ok so long as it doesn't go unchecked
-	memory_last_check_count = collectgarbage("count")
-	return true
-end)
+    local cur_memory = collectgarbage("count")
 
----------------------------------------------------------------
--- => Debug
----------------------------------------------------------------
-if os.getenv("AWMTT_DEBUG") then
-    DEBUG = true
-end
+    local elapsed = os.time() - memory_last_run_time
+    local waited_long = elapsed >= memory_long_collection_time
+    local grew_enough = cur_memory > (memory_last_check_count * memory_growth_factor)
+
+    if DEBUG then
+        -- Output memory statistics
+        print(string.format(
+            "[DEBUG] Memory: %.2f KB | Elapsed: %d sec | Grew Enough: %s | Waited Long: %s",
+            cur_memory, elapsed, tostring(grew_enough), tostring(waited_long)
+        ))
+    end
+    if grew_enough or waited_long then
+        if DEBUG then
+            print("[DEBUG] Running garbage collection...")
+        end
+        collectgarbage("collect")
+        collectgarbage("collect")
+        memory_last_run_time = os.time()
+        if DEBUG then
+            -- Output memory after garbage collection
+            local post_memory = collectgarbage("count")
+            print(string.format("[DEBUG] Memory after GC: %.2f KB", post_memory))
+        end
+    end
+    memory_last_check_count = collectgarbage("count")
+    return true
+end)
 
 ---------------------------------------------------------------
 -- => Theme

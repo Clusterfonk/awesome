@@ -3,7 +3,7 @@
 local setmetatable = setmetatable
 
 
-utils = { mt = {} }
+local utils = { mt = {} }
 
 function utils.set_cursor(symbol)
     root.cursor(symbol)

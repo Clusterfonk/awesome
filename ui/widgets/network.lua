@@ -9,7 +9,7 @@ local dpi = bt.xresources.apply_dpi
 local ibutton = require("ui.widgets.ibutton")
 
 
-network = { mt = {} }
+local network = { mt = {} }
 
 local function on_lmb_press(self, _, _, btn)
     if btn == 1 then

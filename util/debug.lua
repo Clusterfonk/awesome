@@ -11,9 +11,9 @@ local gtable = require("gears.table")
 --    timeout = 0,
 --})
 
-_debug = { mt = {} }
+local _debug = { mt = {} }
 
-weak_objects = setmetatable({}, { __mode = "k" }) -- Ephemeron table
+local weak_objects = setmetatable({}, { __mode = "k" }) -- Ephemeron table
 
 function _debug.dump(t, tag, d)
     debug.dump(t, tag, d)

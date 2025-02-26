@@ -23,7 +23,7 @@ local logout_icon = icon_dir .. "logout.svg"
 local lock_icon = icon_dir .. "lock.svg"
 local supsend_icon = icon_dir .. "suspend.svg"
 
-panel = { mt = {} }
+local panel = { mt = {} }
 
 local function shutdown()
     awful.spawn.with_shell("systemctl shutdown")

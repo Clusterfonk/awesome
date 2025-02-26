@@ -7,7 +7,7 @@ local bt = require("beautiful")
 local dpi = bt.xresources.apply_dpi
 
 
-entry = { mt = {} }
+local entry = { mt = {} }
 
 function entry.new(args)
     local header = {

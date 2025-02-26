@@ -24,7 +24,7 @@ local function on_leave(self)
 end
 
 function ibutton.new(args)
-    local widget = wibox.widget {
+    local ret = wibox.widget {
         screen = args.screen,
         normal_color = args.normal_color,
         focus_color = args.focus_color,
@@ -42,16 +42,20 @@ function ibutton.new(args)
             margins = args.margins
         }
     }
+    ret._private = ret._private or {}
+    ret._private.popup = args.popup
+    ret._private.screen = args.screen
+    ret._private.placement = args.placement
 
     ibutton.index = 1
     ibutton.icons = args.icons
 
-    gtable.crush(widget, ibutton, true)
+    gtable.crush(ret, ibutton, true)
 
-    widget:connect_signal("mouse::enter", on_enter)
-    widget:connect_signal("mouse::leave", on_leave)
+    ret:connect_signal("mouse::enter", on_enter)
+    ret:connect_signal("mouse::leave", on_leave)
 
-    return widget
+    return ret
 end
 
 function ibutton.mt:__call(...)

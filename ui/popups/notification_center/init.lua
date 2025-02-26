@@ -11,7 +11,7 @@ local entry = require("ui.popups.notification_center.entry")
 local notifications = require("ui.popups.notification_center.notifications")
 
 
-center = { mt = {} }
+local center = { mt = {} }
 
 function center:eidx(delta)
     self._private.eidx = (self._private.eidx + delta - 1) % 5 + 1

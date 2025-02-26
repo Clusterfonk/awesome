@@ -14,7 +14,7 @@ local capi = {
 }
 
 -- NOTE: notification builder
-notification_builder = { mt = {} }
+local notification_builder = { mt = {} }
 
 ruled.notification.connect_signal("request::rules", function() -- TODO: /configuration/ folder
     --ruled.notification.append_rule({
@@ -29,19 +29,21 @@ end)
 
 capi.screen.connect_signal("removed", function(s)
     gtimer.delayed_call(function()
-        by_pos_bar[s] = nil
+        if by_pos_bar then -- NOTE: temp
+            by_pos_bar[s] = nil
+        end
     end)
 end)
 
 function notification_builder.new(args)
-    by_pos_bar = args.by_pos_bar
+    by_pos_bar = args.by_pos_bar or {} -- NOTE: temp.
 
     naughty.connect_signal("request::display", function(n)
         local side_toggle = true -- will be turned into "left" "right"
         local dnd = bt.notification_dnd
 
         if dnd then
-            n:destroy("dnd")
+            return n:destroy("dnd")
         end
         n.app_name = n.app_name or "System"
         n.icon = n.icon or bt.icon.wlan

@@ -10,7 +10,7 @@ local ibutton = require("ui.widgets.ibutton")
 local center = require("ui.popups.notification_center")
 
 
-notify = { mt = {} }
+local notify = { mt = {} }
 
 local function on_press(self, _, _, btn, mods)
     if btn == 1 then

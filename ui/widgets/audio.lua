@@ -11,14 +11,13 @@ local ibutton = require("ui.widgets.ibutton")
 local progressbar = require("ui.popups.progressbar")
 
 
-audio = { mt = {} }
+local audio = { mt = {} }
 
 -- information is retrievable from the bus (which will be cached by the daemon)
 local command = "amixer -c 0 get Headphone | grep '\\[on\\]'"
 
 local function on_press(self, _, _, btn, mods)
     if btn == 1 then
-        print("left press")
         awful.spawn.easy_async_with_shell(command, function(out)
             if out == "" then
                 awful.spawn.with_shell("amixer -c 0 sset Headphone toggle >> /dev/null 2>&1")
@@ -30,46 +29,54 @@ local function on_press(self, _, _, btn, mods)
         end)
     elseif btn == 4 then
         if mods[1] == "Shift" then
-            self.popup:emit_signal("popup::increment", 1)
+            self._private.popup:emit_signal("progress::change",
+                1, self.screen, self._private.placement)
         else
-            self.popup:emit_signal("popup::increment", 5)
+            self._private.popup:emit_signal("progress::change",
+                5, self.screen, self._private.placement)
         end
     elseif btn == 5 then
         if mods[1] == "Shift" then
-            self.popup:emit_signal("popup::decrement", 1)
+            self._private.popup:emit_signal("progress::change",
+                -1, self.screen, self._private.placement)
         else
-            self.popup:emit_signal("popup::decrement", 5)
+            self._private.popup:emit_signal("progress::change",
+                -5, self.screen, self._private.placement)
         end
     end
 end
 
-function audio.new(args)
-    local ret = ibutton {
-        normal_color = args.normal_color,
-        focus_color = args.focus_color,
-        margins = args.margins,
-        icons = { bt.icon.speaker, gcolor.recolor_image(bt.icon.speaker, bt.fg_focus),
-            bt.icon.headphones, gcolor.recolor_image(bt.icon.headphones, bt.fg_focus)},
-        widget = wibox.widget {
-            widget = wibox.widget.imagebox,
-            image = bt.icon.speaker,
-            forced_height = args.height - 2 * dpi(2, args.screen),
-            forced_width = args.height - 2 * dpi(2, args.screen)
-        }
-    }
-    -- TODO: every image setting should be done by the dbus emitted signal
-    --awful.spawn.easy_async_with_shell(command, function(out)
-    --    if out == "" then
-    --        ret.image = audio.icons[audio.icon_index]
-    --    else
-    --        ret.image = audio.icons[audio.icon_index + 2]
-    --    end
-    --end)
+local function get_icons()
+    return {
+        bt.icon.speaker,
+        gcolor.recolor_image(bt.icon.speaker, bt.fg_focus),
 
-    ret.popup = progressbar(args) -- showing on scroll
+        bt.icon.headphones,
+        gcolor.recolor_image(bt.icon.headphones, bt.fg_focus)
+    }
+end
+
+
+-- TODO: every image setting should be done by the dbus emitted signal
+--awful.spawn.easy_async_with_shell(command, function(out)
+--    if out == "" then
+--        ret.image = audio.icons[audio.icon_index]
+--    else
+--        ret.image = audio.icons[audio.icon_index + 2]
+--    end
+function audio.new(args)
+    args.popup = progressbar("audio", args)
+    args.widget = wibox.widget {
+        widget = wibox.widget.imagebox,
+        image = bt.icon.speaker,
+        forced_height = args.height - 2 * dpi(2, args.screen),
+        forced_width = args.height - 2 * dpi(2, args.screen)
+    }
+
+    args.icons = get_icons()
+
+    local ret = ibutton(args)
     ret:connect_signal("button::press", on_press)
-    --awesome:connect_signal("daemon::audio::refresh", func)
-    --function will get the change msg
 
     gtable.crush(ret, audio, true)
     return ret

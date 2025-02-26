@@ -21,34 +21,23 @@ local function on_leave(self)
     mouse.set_cursor("left_ptr")
 end
 
-local function on_press(self, lx, ly, btn, mode, mods)
-    if btn == 1 then
-        self:emit_signal("button::lmb_press")
-    elseif btn == 3 then
-        self:emit_signal("button::rmb_press")
-    elseif btn == 4 then
-        self:emit_signal("button::mousescrollup")
-    elseif btn == 5 then
-        self:emit_signal("button::mousescrolldown")
-    end
-end
-
 function button.new(args)
-    local widget = wibox.container.background {
+    local ret = wibox.container.background {
         widget = args.widget,
     }
+    ret._private = ret._private or {}
+    ret._private.popup = args.popup
+    ret._private.screen = args.screen
+    ret._private.placement = args.placement
+    gtable.crush(ret, button, true)
 
-    widget.normal_color = args.normal_color or bt.fg_normal
-    widget.focus_color = args.focus_color or bt.border_focus
-    widget:set_fg(widget.normal_color)
+    ret.normal_color = args.normal_color or bt.fg_normal
+    ret.focus_color = args.focus_color or bt.border_focus
+    ret:set_fg(ret.normal_color)
 
-    gtable.crush(widget, button, true)
-
-    widget:connect_signal("mouse::enter", on_enter)
-    widget:connect_signal("mouse::leave", on_leave)
-    widget:connect_signal("button::press", on_press)
-
-    return widget
+    ret:connect_signal("mouse::enter", on_enter)
+    ret:connect_signal("mouse::leave", on_leave)
+    return ret
 end
 
 function button.mt:__call(...)

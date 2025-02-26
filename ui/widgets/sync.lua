@@ -10,7 +10,7 @@ local dpi = bt.xresources.apply_dpi
 local ibutton = require("ui.widgets.ibutton")
 
 
-sync = { mt = {} }
+local sync = { mt = {} }
 
 --TODO: can use syncthing cli show pending devices/folder
 -- or status and such

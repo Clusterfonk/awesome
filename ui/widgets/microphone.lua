@@ -10,43 +10,53 @@ local ibutton = require("ui.widgets.ibutton")
 local progressbar = require("ui.popups.progressbar")
 
 
-microphone = { mt = {} }
+local microphone = { mt = {} }
 
-local function on_lmb_press(self, _, _, btn, mods)
+local function on_press(self, _, _, btn, mods)
     if btn == 1 then
         print("pressed mic")
     elseif btn == 4 then
         if mods[1] == "Shift" then
-            self.popup:emit_signal("popup::increment", 1)
+            self._private.popup:emit_signal("progress::change",
+                1, self._private.screen, self._private.placement)
         else
-            self.popup:emit_signal("popup::increment", 5)
+            self._private.popup:emit_signal("progress::change",
+                5, self._private.screen, self._private.placement)
         end
     elseif btn == 5 then
         if mods[1] == "Shift" then
-            self.popup:emit_signal("popup::decrement", 1)
+            self._private.popup:emit_signal("progress::change",
+                -1, self._private.screen, self._private.placement)
         else
-            self.popup:emit_signal("popup::decrement", 5)
+            self._private.popup:emit_signal("progress::change",
+                -5, self._private.screen, self._private.placement)
         end
     end
 end
 
+local function get_icons()
+    return {
+        bt.icon.mic,
+        gcolor.recolor_image(bt.icon.mic, bt.fg_focus),
+
+        bt.icon.mic_muted,
+        gcolor.recolor_image(bt.icon.mic_muted, bt.fg_focus)
+    }
+end
+
 function microphone.new(args)
-    local ret = ibutton {
-        normal_color = args.normal_color,
-        focus_color = args.focus_color,
-        margins = args.margins,
-        icons = { bt.icon.mic, gcolor.recolor_image(bt.icon.mic, bt.fg_focus),
-            bt.icon.mic_muted, gcolor.recolor_image(bt.icon.mic_muted, bt.fg_focus)},
-        widget = wibox.widget {
-            widget = wibox.widget.imagebox,
-            image = bt.icon.mic, -- TODO: set nil
-            forced_height = args.height - 2 * dpi(2, args.screen),
-            forced_width = args.height - 2 * dpi(2, args.screen)
-        }
+    args.popup = progressbar("mic", args)
+    args.widget = wibox.widget {
+        widget = wibox.widget.imagebox,
+        image = bt.icon.mic, -- TODO: set nil
+        forced_height = args.height - 2 * dpi(2, args.screen),
+        forced_width = args.height - 2 * dpi(2, args.screen)
     }
 
-    ret.popup = progressbar(args)
-    ret:connect_signal("button::press", on_lmb_press)
+    args.icons = get_icons()
+
+    local ret = ibutton(args)
+    ret:connect_signal("button::press", on_press)
 
     gtable.crush(ret, microphone, true)
     return ret

@@ -4,7 +4,7 @@ local setmetatable = setmetatable
 local dpi = require("beautiful").xresources.apply_dpi
 
 
-utils = { mt = {} }
+local utils = { mt = {} }
 
 -- Applies dpi to a table
 -- @tparam table t The table to which the dpi is applied.

@@ -79,7 +79,7 @@ theme.border_radius = 0
 theme.border_normal = colors.bw_2
 theme.border_focus = colors.red_2
 theme.border_marked = colors.bw_5
-theme.useless_gap = dpi(5) -- WARNING:
+theme.useless_gap = dpi(5)
 
 -- general
 theme.fg_normal = colors.bw_9
@@ -179,10 +179,16 @@ theme.icon.deprecation              = load_icon(icon_dir, "deprecation.svg")
 theme.systray                       = {}
 theme.bg_systray                    = theme.tasklist_bg_normal
 theme.systray_icon_spacing          = 2 * theme.useless_gap
+theme.systray_max_rows              = 20
 
 -- clock
 theme.clock = {}
 theme.clock.font = theme:create_font({ size = 10, emphasis = "SemiBold"})
+
+-- progerssbar
+theme.progressbar = {}
+theme.progressbar.audio_bg          = colors.aqua_1
+theme.progressbar.mic_bg            = colors.purple_1
 
 -- calendar
 theme.calendar                      = {}
@@ -211,6 +217,7 @@ theme.notification_shape            = function(cr, width, height)
 end
 
 -- notification_center
+theme.notification_dnd              = true
 theme.notification_title_font       = theme:create_font({ emphasis = "Bold", size = 14})
 theme.notification_message_font     = theme.font
 theme.notification_header_font      = theme:create_font({ emphasis = "Bold", size = 12})

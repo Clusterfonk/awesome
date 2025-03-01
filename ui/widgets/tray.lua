@@ -1,6 +1,5 @@
 -- @license APGL-3.0 <https://www.gnu.org/licenses/>
 -- @author Clusterfonk <https://github.com/Clusterfonk>
-local wibox = require("wibox")
 local gtable = require("gears.table")
 local gcolor = require("gears.color")
 local bt = require("beautiful")
@@ -16,37 +15,69 @@ local capi = {
 
 local tray = { mt = {} }
 
+tray.icons = {
+    normal = bt.icon.menu_down,
+    normal_focus = gcolor.recolor_image(bt.icon.menu_down, bt.fg_focus),
+    active = bt.icon.menu_up,
+    active_focus = gcolor.recolor_image(bt.icon.menu_up, bt.fg_focus)
+}
+
 local function on_press(self, _, _, btn)
-    if btn == 1  and capi.awesome.systray() > 0 then
-        self._private.popup:show(self._private.screen, self._private.placement)
+    if btn == 1 then
+        self:request_show()
     end
 end
 
-local function get_icons()
-    return {
-        bt.icon.menu_down,
-        gcolor.recolor_image(bt.icon.menu_down, bt.fg_focus),
+function tray:request_show()
+    local instance = self._popup.instance
+    if not instance then
+        instance = self._popup(self._private.args)
+    end
 
-        bt.icon.menu_up,
-        gcolor.recolor_image(bt.icon.menu_up, bt.fg_focus)
-    }
+    if instance._private.screen ~= self._private.screen then
+        instance:set_screen(self._private.screen)
+        self._private.attach(instance)     -- auto detaches
+    end
+
+    instance:show()
+end
+
+local function on_remove(self)
+    if not self._popup then return end
+
+    local instance = self._popup.instance
+    if instance and instance._private.screen == self._private.screen then
+        instance:detach()
+        instance:emit_signal("popup::hide")
+    end
+end
+
+local function on_geometry_change(self, geometry)
+    local width = geometry.width + 2 * bt.border_width
+    self._private.args.width = width
+
+    local instance = self._popup.instance
+    if not instance then return end
+    print("geo change tray")
+
+    if instance._private.screen == self._private.screen then
+        instance:emit_signal("update::width", width)
+    end
 end
 
 function tray.new(args)
-    args.popup = systray(args)
-    args.widget = wibox.widget {
-        widget = wibox.widget.imagebox,
-        image = bt.icon.menu_down,
-        forced_height = args.height - 2 * dpi(2, args.screen),
-        forced_width = args.height - 2 * dpi(2, args.screen)
+    args.icons = tray.icons
+    args.popup = systray
+
+    local ret = ibutton(args)
+    gtable.crush(ret, tray, true)
+    ret._private.args = {
+        height = args.height,
     }
 
-    args.icons = get_icons()
-    local ret = ibutton(args)
-
     ret:connect_signal("button::press", on_press)
-
-    gtable.crush(ret, tray, true)
+    ret:connect_signal("bar::geometry", on_geometry_change)
+    ret:connect_signal("bar::removed", on_remove)
     return ret
 end
 

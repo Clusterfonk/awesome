@@ -16,36 +16,44 @@ return function(args)
     local s = args.screen
     local geo = args.geometry
 
-    local function popup_placement(d)
-        awful.placement.top_left(d,
-            {
-                margins = {top = geo.bottom + 2 * bt.useless_gap, left = geo.side},
-                parent = s,
-            })
+    local function bar_placement(c)
+        awful.placement.top_left(c, {
+            margins = { top = geo.top, left = geo.side },
+        })
+    end
+
+    local time_bar = awful.popup {
+        screen = s,
+        ontop = true,
+        border_width = bt.bars.border_width,
+        border_color = bt.bars.border_color,
+        minimum_height = args.height,
+        maximum_height = args.height,
+        bg = bt.bg_normal,
+        widget = wibox.widget.base.empty_widget(),
+        placement = bar_placement
+    }
+
+    local function attach_to_bar(popup)
+        awful.placement.next_to(popup, {
+            preferred_positions = "bottom",
+            preferred_anchor = "front",
+            offset = { x = 0, y = bt.useless_gap * 2 },
+            attach = true,
+            geometry = time_bar,
+        })
     end
 
     local clock_widget = clock {
         screen = s,
         format = " %d %b %H:%M ", -- spaces prevent colors bugging out
         font = bt.clock.font,
-        placement = popup_placement
+        attach = attach_to_bar
     }
 
-    local time_bar = awful.popup {
-        screen = s,
-        ontop = true,
-        border_width = dpi(bt.taglist_border_width, s),
-        border_color = bt.taglist_border_color,
-        minimum_height = args.height,
-        maximum_height = args.height,
-        bg = bt.bg_normal,
-        widget = {
-            layout = wibox.layout.fixed.horizontal,
-            clock_widget,
-        },
-        placement = function(c)
-            awful.placement.top_left(c, { margins = {top = geo.top, left = geo.side}})
-        end,
+    time_bar:setup {
+        layout = wibox.layout.fixed.horizontal,
+        clock_widget,
     }
 
     local function hide_popups_on_lbutton(_, _, _, button)
@@ -54,11 +62,13 @@ return function(args)
         end
     end
 
-    s:connect_signal("property::geometry", function(screen)
-        awful.placement.top_left(time_bar, {
-            margins = {top = geo.top, left = geo.side},
-            parent = screen
-        })
+    time_bar:connect_signal("clear::popups", function()
+        --clock_widget.popup:emit_signal("popup::hide")
+    end)
+
+    -- screens
+    s:connect_signal("property::geometry", function(_)
+        bar_placement(time_bar)
     end)
 
     s:connect_signal("fullscreen_changed", function(_, has_fullscreen)
@@ -66,27 +76,21 @@ return function(args)
             time_bar.visible = not has_fullscreen
         end
     end)
-
-    time_bar:connect_signal("clear::popups", function()
-        --clock_widget.popup:emit_signal("popup::hide")
-    end)
-
     capi.client.connect_signal("button::press", hide_popups_on_lbutton)
-
     s:connect_signal("removed", function(screen)
         capi.client.disconnect_signal("button::press", hide_popups_on_lbutton)
         time_bar.visible = false
         clock_widget.visible = false
-        time_bar = nil
+        clock_widget:emit_signal("bar::removed")
         clock_widget = nil
+        time_bar = nil
         -- TODO: might need to emit signals to let popups know ?
     end)
 
     if DEBUG then
-        local debug =require("util.debug")
+        local debug = require("util.debug")
         debug.attach_finalizer(time_bar, "time_bar")
         debug.attach_finalizer(clock_widget, "clock_widget")
     end
     return time_bar
 end
-

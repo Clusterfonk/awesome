@@ -1,10 +1,9 @@
 -- @license APGL-3.0 <https://www.gnu.org/licenses/>
 -- @author Clusterfonk <https://github.com/Clusterfonk>
-local awful = require("awful")
 local wibox = require("wibox")
 local bt = require("beautiful")
 local gtable = require("gears.table")
-local dpi = bt.xresources.apply_dpi
+local gtimer = require("gears.timer")
 
 local base = require("ui.popups.base")
 
@@ -15,54 +14,63 @@ local capi = {
 
 local systray = { mt = {} }
 
-
-function systray:show(screen, placement, ...)
-    self.widget:get_children_by_id("systray")[1].screen = screen
-    self._parent.show(self, screen, nil, ...) -- placement on every update
-    self._private.placement = placement
-end
-
 function systray.update_width(self, width)
     self.widget:get_children_by_id("constrainer")[1].width = width
     self:geometry({width = width})
 end
 
+function systray:set_screen(screen)
+    self._private.screen = screen
+    self.widget:get_children_by_id("systray")[1].screen = screen
+end
+
+function systray.destroy(self)
+    self._parent:destroy()
+    systray.instance = nil
+
+    gtimer.delayed_call(function()
+        collectgarbage("collect")
+        collectgarbage("collect")
+    end)
+end
+
 function systray.new(args)
     args = args or {}
-    args.widget = {
+    local ret = base(args)
+    gtable.crush(ret, systray, true)
+
+    ret.minimum_height = args.height
+    ret.minimum_width = args.width
+    ret.maximum_width = args.width
+    ret.widget = wibox.widget.base.make_widget_declarative {
+        id = "constrainer",
+        widget = wibox.container.constraint,
+        strategy = "max",
         {
+            widget = wibox.container.margin,
+            margins = { top = 2, bottom = 2, left = bt.useless_gap, right = bt.useless_gap },
             {
+                widget = wibox.container.place,
+                valign = "center",
+                halign = "right",
                 {
                     id = "systray",
                     widget = wibox.widget.systray,
                     margins = bt.useless_gap,
                     reverse = true,
                     horizontal = false,
-                    base_size = args.height - 2,
-                },
-                id = "constrainer",
-                widget = wibox.container.constraint,
-                strategy = "max",
-            },
-            widget = wibox.container.place,
-            valign = "center",
-            halign = "right"
-        },
-        widget = wibox.container.margin,
-        margins = { top = 1, bottom = 1, left = bt.useless_gap, right = bt.useless_gap },
+                    base_size = args.height,
+                }
+            }
+        }
     }
-    local ret = base(args)
-    rawset(ret, "_parent", { show = ret.show })
-    gtable.crush(ret, systray, true)
 
-    -- NOTE: calls for every item in the systray
-    capi.awesome.connect_signal("systray::update", function()
-        if ret._private.placement then
-            ret._private.placement()
-        end
-    end)
+    ret:connect_signal("update::width", systray.update_width)
 
-    ret:connect_signal("bar::width", systray.update_width)
+    if DEBUG then
+        local debug = require("util.debug")
+        debug.attach_finalizer(ret, "systray")
+    end
     return ret
 end
 

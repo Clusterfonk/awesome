@@ -1,60 +1,87 @@
 -- @license APGL-3.0 <https://www.gnu.org/licenses/>
 -- @author Clusterfonk <https://github.com/Clusterfonk>
+local awful = require("awful")
 local wibox = require("wibox")
 local gtable = require("gears.table")
+local bt = require("beautiful")
+local dpi = bt.xresources.apply_dpi
 
-local mouse = require("util.mouse")
+local umouse = require("util.mouse")
 
 
 local ibutton = { mt = {} }
 
+ibutton.icons = {
+    normal = nil,
+    normal_focus = nil,
+    active = nil,
+    active_focus = nil,
+}
+
 local function on_enter(self)
-    self.index = 2
-    self:get_widget():get_widget().image = self.icons[self.index]
-    self:emit_signal("widget::redraw_needed")
-    mouse.set_cursor("hand2")
+    if not self._private.hovered then
+        self._private.hovered = true
+        self:update_icon()
+        umouse.set_cursor("hand2")
+    end
 end
 
 local function on_leave(self)
-    self.index = 1
-    -- needs to know which icon +2 or not
-    self:get_widget():get_widget().image = self.icons[self.index]
-    self:emit_signal("widget::redraw_needed")
-    mouse.set_cursor("left_ptr")
+    if self._private.hovered then
+        self._private.hovered = false
+        self:update_icon()
+        --self:emit_signal("widget::redraw_needed") -- NOTE: probably not needed
+        umouse.set_cursor("left_ptr")
+    end
+end
+
+-- State-to-icon mapping
+function ibutton:get_icon()
+    local i = self._private.icons
+    if self._private.active then
+        return self._private.hovered and i.acitve_focus or i.active
+    else
+        return self._private.hovered and i.normal_focus or i.normal
+    end
+end
+
+function ibutton:update_icon()
+    local icon = self:get_icon()
+    self.widget.image = icon
+    --self:emit_signal("widget::redraw_needed")
 end
 
 function ibutton.new(args)
-    local ret = wibox.widget {
-        screen = args.screen,
-        normal_color = args.normal_color,
-        focus_color = args.focus_color,
-        widget = wibox.widget {
-            {
+    args = args or {}
+    assert(args.icons, "Icons must be provided to ibutton")
 
-                {
-                    widget = args.widget
-                },
+    local ret = wibox.container.background {
+        widget = wibox.widget {
+            widget = wibox.container.margin,
+            margins = args.margins,
+            {
                 widget = wibox.container.place,
                 valign = "center",
-                halign = "center"
+                halign = "center",
+                {
+                    widget = wibox.widget.imagebox,
+                    image = args.icons.normal, -- TODO: ONLY TEMP.
+                    forced_height = args.height - 2 * dpi(2),
+                    forced_width = args.height - 2 * dpi(2)
+                },
             },
-            widget = wibox.container.margin,
-            margins = args.margins
         }
     }
     ret._private = ret._private or {}
-    ret._private.popup = args.popup
+    ret._private.hovered = false
+    ret._private.icons = args.icons
     ret._private.screen = args.screen
-    ret._private.placement = args.placement
-
-    ibutton.index = 1
-    ibutton.icons = args.icons
-
+    ret._private.attach = args.attach
+    ret._popup = args.popup
     gtable.crush(ret, ibutton, true)
 
     ret:connect_signal("mouse::enter", on_enter)
     ret:connect_signal("mouse::leave", on_leave)
-
     return ret
 end
 

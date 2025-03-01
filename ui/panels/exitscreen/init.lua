@@ -45,17 +45,17 @@ local function suspend()
 end
 
 local function create_button(args, text)
-    local button = button(args)
-    button:connect_signal("mouse::enter",
+    local b = button(args)
+    b:connect_signal("mouse::enter",
     args.enter or function(b)
         text.point = {x=100, y=0}
         text:set_text(b.hover_text)
     end)
-    button:connect_signal("mouse::leave",
-    args.leave or function(b)
+    b:connect_signal("mouse::leave",
+    args.leave or function()
         text:set_text(" ")
     end)
-    return button
+    return b
 end
 
 local function create_keygrabber(self)
@@ -120,7 +120,7 @@ local function create_widget(self, s)
                 hover_text = "shutdown",
                 size = dpi(self.icon_size, s),
                 margins = dpi(self.icon_margin, s),
-                bg_focus = bt.exitscreen_shutdown,
+                bg_focus = bt.exitscreen.shutdown,
                 callback = shutdown
             }, bottom_text),
             create_button({
@@ -128,7 +128,7 @@ local function create_widget(self, s)
                 hover_text = "reboot",
                 size = dpi(self.icon_size, s),
                 margins = dpi(self.icon_margin, s),
-                bg_focus = bt.exitscreen_reboot,
+                bg_focus = bt.exitscreen.reboot,
                 callback = reboot
             }, bottom_text),
             create_button({
@@ -136,7 +136,7 @@ local function create_widget(self, s)
                 hover_text = "logout",
                 size = dpi(self.icon_size, s),
                 margins = dpi(self.icon_margin, s),
-                bg_focus = bt.exitscreen_logout,
+                bg_focus = bt.exitscreen.logout,
                 callback = logout
             }, bottom_text),
             create_button({
@@ -144,7 +144,7 @@ local function create_widget(self, s)
                 hover_text = "lock",
                 size = dpi(self.icon_size, s),
                 margins = dpi(self.icon_margin, s),
-                bg_focus = bt.exitscreen_lock,
+                bg_focus = bt.exitscreen.lock,
                 callback = lock
             }, bottom_text),
             create_button({
@@ -152,7 +152,7 @@ local function create_widget(self, s)
                 hover_text = "suspend",
                 size = dpi(self.icon_size, s),
                 margins = dpi(self.icon_margin, s),
-                bg_focus = bt.exitscreen_suspend,
+                bg_focus = bt.exitscreen.suspend,
                 callback = suspend
             }, bottom_text),
             id = 'buttons',

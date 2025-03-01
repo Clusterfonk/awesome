@@ -21,14 +21,24 @@ local function on_leave(self)
     mouse.set_cursor("left_ptr")
 end
 
+function button.on_remove(self)
+    if not self._popup then return end
+
+    local instance = self._popup.instance
+    if instance and instance._private.screen == self._private.screen then
+        instance:detach()
+        instance:emit_signal("popup::hide")
+    end
+end
+
 function button.new(args)
     local ret = wibox.container.background {
-        widget = args.widget,
+        widget = args.widget
     }
     ret._private = ret._private or {}
-    ret._private.popup = args.popup
+    ret._popup = args.popup
     ret._private.screen = args.screen
-    ret._private.placement = args.placement
+    ret._private.attach = args.attach
     gtable.crush(ret, button, true)
 
     ret.normal_color = args.normal_color or bt.fg_normal
@@ -37,6 +47,7 @@ function button.new(args)
 
     ret:connect_signal("mouse::enter", on_enter)
     ret:connect_signal("mouse::leave", on_leave)
+    ret:connect_signal("bar::removed", button.on_remove)
     return ret
 end
 

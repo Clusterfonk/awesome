@@ -5,10 +5,14 @@ local bt = require("beautiful")
 local gtimer = require("gears.timer")
 local gtable = require("gears.table")
 
+capi = {
+    screen = screen
+}
+
 
 popup = { mt = {} }
 
-function popup:show(screen, placement, ...)
+function popup:show()
     if self.destory_timer then
         self.destroy_timer:stop()
     end
@@ -16,17 +20,7 @@ function popup:show(screen, placement, ...)
     self.hide_timer.timeout = self._private.timeout
     self.hide_timer:again()
 
-    if not self.visible then
-        gtimer.delayed_call(function() self.visible = true end)
-    end
-
-    if self._private.last_screen == screen then return end
-    self._private.last_screen = screen
-    self.screen = screen
-
-    if placement then
-        placement(self, ...)
-    end
+    self.visible = true
 end
 
 function popup.hide(self)
@@ -35,6 +29,10 @@ function popup.hide(self)
         if self.destroy_timer then
             self.destroy_timer:again()
         end
+    end
+
+    if self.hide_timer then
+        self.hide_timer:stop()
     end
 end
 
@@ -45,6 +43,9 @@ end
 
 function popup.mouse_enter(self)
     self.hide_timer:stop()
+    if self.destroy_timer then
+        self.destroy_timer:stop()
+    end
 end
 
 function popup:destroy()
@@ -58,13 +59,19 @@ function popup:destroy()
         self.destroy_timer = nil
     end
 
-    self.widget = nil
+    if self.detach_callback then
+        self:detach_callback()
+        self.detach_callback = nil
+    end
 
-    -- Disconnect any signals that might be holding a reference
-    self:disconnect_signal("mouse::leave", popup.mouse_leave)
-    self:disconnect_signal("mouse::enter", popup.hide)
-    self:disconnect_signal("popup::hide", popup.hide)
-    self:emit_signal("popup::destroyed") -- no clue how to use
+    self.widget = nil
+end
+
+function popup:detach()
+    if self.detach_callback then
+        self:detach_callback()
+        self.detach_callback = nil
+    end
 end
 
 function popup.new(args)
@@ -79,6 +86,7 @@ function popup.new(args)
         widget = args.widget or {}
     }
 
+    ret._private.screen = nil
     ret._private.timeout = args.timeout or 1
     ret.hide_timer = gtimer({
         timeout = args.timeout or 1,
@@ -87,22 +95,20 @@ function popup.new(args)
             ret.hide(ret)
         end,
     })
+
     if args.destroy_timeout then
         ret.destroy_timer = gtimer({
             timeout = args.destroy_timeout,
-            auto_start = false,
             single_shot = true,
             callback = function()
                 ret:destroy()
             end,
-
         })
     end
 
-    ret:connect_signal("mouse::leave", popup.mouse_leave)
     ret:connect_signal("mouse::enter", popup.mouse_enter)
+    ret:connect_signal("mouse::leave", popup.mouse_leave)
     ret:connect_signal("popup::hide", popup.hide)
-
     gtable.crush(ret, popup, true)
     return ret
 end

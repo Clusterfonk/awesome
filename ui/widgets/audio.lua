@@ -1,17 +1,22 @@
 -- @license APGL-3.0 <https://www.gnu.org/licenses/>
 -- @author Clusterfonk <https://github.com/Clusterfonk>
 local awful = require("awful")
-local wibox = require("wibox")
 local gtable = require("gears.table")
 local gcolor = require("gears.color")
 local bt = require("beautiful")
-local dpi = bt.xresources.apply_dpi
 
 local ibutton = require("ui.widgets.ibutton")
 local progressbar = require("ui.popups.progressbar")
 
 
 local audio = { mt = {} }
+
+audio.icons = {
+    normal = bt.icon.speaker,
+    normal_focus = gcolor.recolor_image(bt.icon.speaker, bt.fg_focus),
+    active = bt.icon.headphones,
+    active_focus = gcolor.recolor_image(bt.icon.headphones, bt.fg_focus)
+}
 
 -- information is retrievable from the bus (which will be cached by the daemon)
 local command = "amixer -c 0 get Headphone | grep '\\[on\\]'"
@@ -29,56 +34,96 @@ local function on_press(self, _, _, btn, mods)
         end)
     elseif btn == 4 then
         if mods[1] == "Shift" then
-            self._private.popup:emit_signal("progress::change",
-                1, self.screen, self._private.placement)
+            self.value = self.value + 1 -- daemon signal <----
+            self:request_show()
         else
-            self._private.popup:emit_signal("progress::change",
-                5, self.screen, self._private.placement)
+            self.value = self.value + 5 -- daemon signal <----
+            self:request_show()
         end
     elseif btn == 5 then
         if mods[1] == "Shift" then
-            self._private.popup:emit_signal("progress::change",
-                -1, self.screen, self._private.placement)
+            self.value = self.value - 1 -- daemon signal <----
+            self:request_show()
         else
-            self._private.popup:emit_signal("progress::change",
-                -5, self.screen, self._private.placement)
+            -- daemon pactl @DEFAULT_SINK - 5
+            self.value = self.value - 5 -- daemon signal <----
+            self:request_show()
         end
     end
 end
 
-local function get_icons()
-    return {
-        bt.icon.speaker,
-        gcolor.recolor_image(bt.icon.speaker, bt.fg_focus),
-
-        bt.icon.headphones,
-        gcolor.recolor_image(bt.icon.headphones, bt.fg_focus)
-    }
+function audio.volume_change(self, volume)
+    if self._popup.instance then
+        if volume ~= self.value then
+            self._popup.instance:emit_signal("update::value")
+        end
+    end
 end
 
+local function on_geometry_change(self, geometry)
+    local width = geometry.width + 2 * bt.border_width
+    self._private.args.width = width
 
--- TODO: every image setting should be done by the dbus emitted signal
---awful.spawn.easy_async_with_shell(command, function(out)
---    if out == "" then
---        ret.image = audio.icons[audio.icon_index]
---    else
---        ret.image = audio.icons[audio.icon_index + 2]
---    end
+    if self._popup.instance and self._popup.instance.owner and
+        self._popup.instance.owner == self then
+        self._popup.instance:emit_signal("update::width", width)
+    end
+end
+
+function audio:take_ownership(instance)
+    instance.owner = self
+    instance:init(self._private.args)
+end
+
+function audio:request_show()
+    local instance = self._popup.instance
+
+    if not instance then
+        instance = self._popup(self._private.args)
+        instance.owner = self
+    elseif instance.owner ~= self then
+        self:take_ownership(instance)
+    end
+
+    if instance._private.screen ~= self._private.screen then
+        instance._private.screen = self._private.screen
+        self._private.attach(instance) -- auto detaches
+    end
+    instance:show()
+end
+
+local function on_remove(self)
+    if not self._popup.instance then return end
+    local instance = self._popup.instance
+
+    local is_same_screen = instance._private.screen == self._private.screen
+    local is_owner = instance.owner == self
+
+    if is_owner then instance.owner = nil end
+
+    if is_same_screen then
+        instance:detach()
+        if is_owner then instance:emit_signal("popup::hide") end
+    end
+end
+
 function audio.new(args)
-    args.popup = progressbar("audio", args)
-    args.widget = wibox.widget {
-        widget = wibox.widget.imagebox,
-        image = bt.icon.speaker,
-        forced_height = args.height - 2 * dpi(2, args.screen),
-        forced_width = args.height - 2 * dpi(2, args.screen)
-    }
-
-    args.icons = get_icons()
+    args.icons = audio.icons
+    args.popup = progressbar
 
     local ret = ibutton(args)
-    ret:connect_signal("button::press", on_press)
-
     gtable.crush(ret, audio, true)
+    ret._private.args = {
+        height = args.height,
+        color = args.color,
+        screen = args.screen
+    }
+    ret.value = 50 ---- <- this will be managed by a signal completly
+    -- even able to say ret.value == nil -> not ready now or not reachable
+
+    ret:connect_signal("button::press", on_press)
+    ret:connect_signal("bar::geometry", on_geometry_change)
+    ret:connect_signal("bar::removed", on_remove)
     return ret
 end
 

@@ -3,12 +3,11 @@
 local awful = require("awful")
 local wibox = require("wibox")
 local bt = require("beautiful")
-local dpi = bt.xresources.apply_dpi
 
 local template = require(... .. ".tag_template")
 local partial_taglist = require(... .. ".partial_taglist")
 
--- s, bar_width, bar_height, bar_offset
+
 return function(args)
     local s = args.screen
 
@@ -45,8 +44,8 @@ return function(args)
         screen   = s,
         stretch  = false,
         width    = args.width,
-        border_width = dpi(bt.taglist_border_width, s),
-        border_color = bt.taglist_border_color,
+        border_width = bt.bars.border_width,
+        border_color = bt.bars.border_color,
         bg = bt.taglist_bg_normal,
         height = args.height,
         visible = true,
@@ -77,24 +76,14 @@ return function(args)
     }
     taglist_bar:struts({top = taglist_bar:geometry().height + 2 * bt.useless_gap})
 
-    local function redraw_bar()
-        if taglist_bar.visible then
-            taglist_bar:emit_signal("widget::redraw_needed")
-        end
-    end
-
-    s:connect_signal("property::geometry", redraw_bar)
-    --s:connect_signal("client::fullscreen_changed", function(has_fullscreen)
-    --    taglist_bar.visible = not has_fullscreen
-    --end)
-
-
-    s:connect_signal("removed", function(screen)
+    s:connect_signal("removed", function(_)
         taglist_bar.visible = false
         taglist_bar = nil
     end)
 
-
-
+    if DEBUG then
+        local debug = require("util.debug")
+        debug.attach_finalizer(taglist_bar, "taglist_bar")
+    end
     return taglist_bar
 end

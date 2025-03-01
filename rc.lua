@@ -36,7 +36,7 @@ local memory_last_run_time = os.time()
 local memory_growth_factor = 1.1        -- 10% over last
 local memory_long_collection_time = 300 -- five minutes in seconds
 if DEBUG then
-    memory_long_collection_time = 10
+    memory_long_collection_time = 5
 end
 
 local gtimer = require("gears.timer")

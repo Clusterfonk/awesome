@@ -16,21 +16,13 @@ local capi = {
 
 local SECONDARY_SCREEN <const> = 2
 
--- BUG: global usage!
--- The notification placement is dependent on the bars not changing in size(x)!
-by_pos_bar = {}
-
 capi.screen.connect_signal("request::desktop_decoration", function(s) -- created
-    by_pos_bar[s] = setmetatable({}, { __mode = "k" })                -- screen is weak
-
     local taglist_bar_width = dpi(350)
     local bar_height = dpi(24)
     local bar_offset = bt.useless_gap
 
     local geometry = { top = bar_offset, side = 2 * bt.useless_gap }
-    geometry.bottom = geometry.top + bar_height + 2 * bt.taglist_border_width
-
-    by_pos_bar[s] = setmetatable({ "left", "middle", "right" }, { __mode = "v" }) -- this may be wrong bars should be weak
+    geometry.bottom = geometry.top + bar_height + 2 * bt.bars.border_width
 
     time_bar {
         screen = s,
@@ -38,13 +30,13 @@ capi.screen.connect_signal("request::desktop_decoration", function(s) -- created
         geometry = geometry
     }
 
-    by_pos_bar[s].right = info_bar {
+    info_bar {
         screen = s,
         height = bar_height,
         geometry = geometry
     }
 
-    by_pos_bar[s].middle = taglist_bar {
+    taglist_bar {
         screen = s,
         height = bar_height,
         width = taglist_bar_width,
@@ -52,7 +44,7 @@ capi.screen.connect_signal("request::desktop_decoration", function(s) -- created
     }
 end)
 
-notification_builder(by_pos_bar)
+--notification_builder()
 
 awful.mouse.append_global_mousebindings({
     awful.button({}, 1, function()
@@ -77,7 +69,7 @@ if DEBUG then
     }
 
     gtimer {
-        timeout = 5,
+        timeout = 4,
         autostart = true,
         single_shot = true,
         callback = function()
@@ -107,8 +99,8 @@ end
     local tb_geo = tb:geometry()
     local tag_geo = by_pos_bar[s].middle:geometry()
 
-    local wlx = tb_geo.x + tb_geo.width + bt.useless_gap + 2* bt.taglist_border_width
-    local wl = tag_geo.x - wlx - bt.useless_gap - bt.taglist_border_width
+    local wlx = tb_geo.x + tb_geo.width + bt.useless_gap + 2* bt.bars.border_width
+    local wl = tag_geo.x - wlx - bt.useless_gap - bt.bars.border_width
     by_pos_bar[s].left.width = wl
 
     local test = {
@@ -121,8 +113,8 @@ end
     local ib = by_pos_bar[s].right
     local ib_geo = ib:geometry()
 
-    local wrx = tag_geo.x + tag_geo.width + 2 * bt.taglist_border_width + bt.useless_gap
-    local wr = ib_geo.x  - wrx - 2 * bt.taglist_border_width - bt.useless_gap
+    local wrx = tag_geo.x + tag_geo.width + 2 * bt.bars.border_width + bt.useless_gap
+    local wr = ib_geo.x  - wrx - 2 * bt.bars.border_width - bt.useless_gap
 
     --local test = {
     --    x = wrx,

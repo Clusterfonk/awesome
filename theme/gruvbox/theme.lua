@@ -89,9 +89,16 @@ theme.bg_normal = colors.bw_0
 theme.bg_focus = colors.bw_2
 theme.bg_urgent = colors.red_2
 
+-- bars
+theme.bars = {}
+theme.bars.border_width = dpi(2)
+theme.bars.border_color = theme.border_normal
+theme.bars.bg_normal    = theme.bg_normal
+theme.bars.fg_normal    = theme.fg_normal
+
 -- taglist
 theme.taglist_font = theme:create_font({ emphasis = "Bold", size = 11})
-theme.taglist_fg_normal = theme.fg_normal
+theme.taglist_fg_normal = theme.bars.fg_normal
 theme.taglist_fg_focus = theme.fg_focus
 theme.taglist_fg_urgent = colors.bw_0
 theme.taglist_fg_empty = colors.bw_2
@@ -101,8 +108,6 @@ theme.taglist_bg_empty = colors.bw_0
 theme.taglist_bg_volatile = colors.bw_0
 theme.taglist_bg_focus = colors.bw_0
 theme.taglist_bg_urgent = colors.red_2
-theme.taglist_border_color = colors.bw_2
-theme.taglist_border_width = dpi(2)
 theme.taglist_underline_height = dpi(2)
 
 -- titlebar
@@ -152,6 +157,7 @@ local icon_dir                      = theme_dir .. "icons/"
 theme.icon                          = {}
 theme.icon.notification             = load_icon(icon_dir, "notification.svg")
 theme.icon.notification_muted       = load_icon(icon_dir, "notification-muted.svg")
+theme.icon.notification_unread      = load_icon(icon_dir, "notification-unread.svg")
 
 theme.icon.menu_up                  = load_icon(icon_dir, "menu-up.svg")
 theme.icon.menu_down                = load_icon(icon_dir, "menu-down.svg")
@@ -260,10 +266,12 @@ naughty.config.presets.critical = {
 }
 
 -- exitscreen
-theme.exitscreen_shutdown = colors.red_2
-theme.exitscreen_reboot = colors.yellow_2
-theme.exitscreen_logout = colors.green_2
-theme.exitscreen_lock = colors.aqua_2
-theme.exitscreen_suspend = colors.blue_2
+theme.exitscreen = {}
+theme.exitscreen.border_color = theme.border_normal
+theme.exitscreen.shutdown = colors.red_2
+theme.exitscreen.reboot = colors.yellow_2
+theme.exitscreen.logout = colors.green_2
+theme.exitscreen.lock = colors.aqua_2
+theme.exitscreen.suspend = colors.blue_2
 
 return theme

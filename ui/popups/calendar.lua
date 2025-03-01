@@ -315,7 +315,7 @@ end
 
 function calendar.new(args)
     args = args or {}
-    args.destroy_timeout = 30
+    args.destroy_timeout = 20
     local ret = base(args)
     rawset(ret, "_parent", { destroy = ret.destroy })
     gtable.crush(ret, calendar, true)
@@ -448,10 +448,8 @@ end
 
 function calendar.mt:__call(...)
     if calendar.instance then
-        print("instance already exists")
         return calendar.instance
     end
-    print("new instance")
     calendar.instance = calendar.new(...)
     return calendar.instance
 end

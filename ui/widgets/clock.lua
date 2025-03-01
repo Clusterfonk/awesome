@@ -9,13 +9,28 @@ local calendar = require("ui.popups.calendar")
 
 local clock = { mt = {} }
 
+
 local function on_press(self, _, _, btn, _, _)
     if btn == 1 then
-        self._private.popup():show(self._private.screen, self._private.placement)
+        self:request_show()
     elseif btn == 3 then
     elseif btn == 4 then
     elseif btn == 5 then
     end
+end
+
+function clock:request_show()
+    local instance = self._popup.instance
+    if not instance then
+        instance = self._popup()
+    end
+
+    if instance._private.screen ~= self._private.screen then
+        instance._private.screen = self._private.screen
+        self._private.attach(instance)     -- auto detaches
+    end
+
+    instance:show()
 end
 
 function clock.new(args)
@@ -27,6 +42,7 @@ function clock.new(args)
     args.popup = calendar
 
     local ret = button(args)
+    gtable.crush(ret, clock, true)
 
     ret:connect_signal("button::press", on_press)
     return ret

@@ -19,7 +19,8 @@ microphone.icons = {
 
 local function on_press(self, _, _, btn, mods)
     if btn == 1 then
-        print("pressed mic")
+        self._private.active = not self._private.active
+        self:update_icon()
     elseif btn == 4 then
         if mods[1] == "Shift" then
             self.value = self.value + 1 -- daemon signal <----

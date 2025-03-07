@@ -30,7 +30,6 @@ local function on_leave(self)
     if self._private.hovered then
         self._private.hovered = false
         self:update_icon()
-        --self:emit_signal("widget::redraw_needed") -- NOTE: probably not needed
         umouse.set_cursor("left_ptr")
     end
 end
@@ -39,7 +38,7 @@ end
 function ibutton:get_icon()
     local i = self._private.icons
     if self._private.active then
-        return self._private.hovered and i.acitve_focus or i.active
+        return self._private.hovered and i.active_focus or i.active
     else
         return self._private.hovered and i.normal_focus or i.normal
     end
@@ -47,34 +46,37 @@ end
 
 function ibutton:update_icon()
     local icon = self:get_icon()
-    self.widget.image = icon
-    --self:emit_signal("widget::redraw_needed")
+    self._private.imagebox:set_image(icon)
+    self:emit_signal("widget::redraw_needed")
 end
 
 function ibutton.new(args)
     args = args or {}
     assert(args.icons, "Icons must be provided to ibutton")
 
-    local ret = wibox.container.background {
-        widget = wibox.widget {
-            widget = wibox.container.margin,
-            margins = args.margins,
-            {
-                widget = wibox.container.place,
-                valign = "center",
-                halign = "center",
-                {
-                    widget = wibox.widget.imagebox,
-                    image = args.icons.normal, -- TODO: ONLY TEMP.
-                    forced_height = args.height - 2 * dpi(2),
-                    forced_width = args.height - 2 * dpi(2)
-                },
-            },
-        }
+    local imagebox = wibox.widget {
+        id = "imagebox",
+        widget = wibox.widget.imagebox,
+        image = args.icons.normal,             -- TODO: ONLY TEMP.
+        forced_height = args.height - 2 * dpi(2),
+        forced_width = args.height - 2 * dpi(2)
+    }
+
+    local ret = wibox.widget {
+        widget = wibox.container.margin,
+        margins = args.margins,
+        {
+            widget = wibox.container.place,
+            valign = "center",
+            halign = "center",
+            imagebox
+        },
     }
     ret._private = ret._private or {}
     ret._private.hovered = false
+    ret._private.active = false
     ret._private.icons = args.icons
+    ret._private.imagebox = imagebox
     ret._private.screen = args.screen
     ret._private.attach = args.attach
     ret._popup = args.popup

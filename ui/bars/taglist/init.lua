@@ -40,8 +40,8 @@ return function(args)
     }
 
     local taglist_bar = awful.popup {
-        index = "taglist_bar",
         screen   = s,
+        ontop = true,
         stretch  = false,
         width    = args.width,
         border_width = bt.bars.border_width,
@@ -76,14 +76,28 @@ return function(args)
     }
     taglist_bar:struts({top = taglist_bar:geometry().height + 2 * bt.useless_gap})
 
+    s:connect_signal("property::geometry", function(screen)
+        awful.placement.align(taglist_bar, {
+            position = "top",
+            margins = {top = args.strut_offset},
+            parent = screen
+        })
+    end)
+
+    s:connect_signal("fullscreen_changed", function(_, has_fullscreen)
+        if taglist_bar then
+            taglist_bar.visible = not has_fullscreen
+        end
+    end)
+
     s:connect_signal("removed", function(_)
         taglist_bar.visible = false
         taglist_bar = nil
     end)
 
-    if DEBUG then
-        local debug = require("util.debug")
-        debug.attach_finalizer(taglist_bar, "taglist_bar")
+    local _debug = require("_debug")
+    if _debug.gc_finalize then
+        _debug.attach_finalizer(taglist_bar, "taglist_bar")
     end
     return taglist_bar
 end

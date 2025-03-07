@@ -87,10 +87,10 @@ return function(args)
         -- TODO: might need to emit signals to let popups know ?
     end)
 
-    if DEBUG then
-        local debug = require("util.debug")
-        debug.attach_finalizer(time_bar, "time_bar")
-        debug.attach_finalizer(clock_widget, "clock_widget")
+    local _debug = require("_debug")
+    if _debug.gc_finalize then
+        _debug.attach_finalizer(time_bar, "time_bar")
+        _debug.attach_finalizer(clock_widget, "clock_widget")
     end
     return time_bar
 end

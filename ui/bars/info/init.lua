@@ -141,15 +141,15 @@ return function(args)
         info_bar = nil
     end)
 
-    if DEBUG then
-        local debug = require("util.debug")
-        debug.attach_finalizer(info_bar, "info_bar")
-        debug.attach_finalizer(widgets[1], "audio")
-        debug.attach_finalizer(widgets[2], "microphone")
-        debug.attach_finalizer(widgets[3], "network")
-        debug.attach_finalizer(widgets[4], "sync")
-        debug.attach_finalizer(widgets[5], "notify")
-        debug.attach_finalizer(widgets[6], "tray")
+    local _debug = require("_debug")
+    if _debug.gc_finalize then
+        _debug.attach_finalizer(info_bar, "info_bar")
+        _debug.attach_finalizer(widgets[1], "audio")
+        _debug.attach_finalizer(widgets[2], "microphone")
+        _debug.attach_finalizer(widgets[3], "network")
+        _debug.attach_finalizer(widgets[4], "sync")
+        _debug.attach_finalizer(widgets[5], "notify")
+        _debug.attach_finalizer(widgets[6], "tray")
     end
     return info_bar
 end

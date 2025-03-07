@@ -23,13 +23,13 @@ local command = "amixer -c 0 get Headphone | grep '\\[on\\]'"
 
 local function on_press(self, _, _, btn, mods)
     if btn == 1 then
+        self._private.active = not self._private.active -- TODO: actual logice
+        self:update_icon()
         awful.spawn.easy_async_with_shell(command, function(out)
             if out == "" then
-                awful.spawn.with_shell("amixer -c 0 sset Headphone toggle >> /dev/null 2>&1")
-                self.image = self.icons[self.index]
+                --awful.spawn.with_shell("amixer -c 0 sset Headphone toggle >> /dev/null 2>&1")
             else
-                awful.spawn.with_shell("amixer -c 0 sset Headphone toggle >> /dev/null 2>&1")
-                self.image = self.icons[self.index + 2]
+                --awful.spawn.with_shell("amixer -c 0 sset Headphone toggle >> /dev/null 2>&1")
             end
         end)
     elseif btn == 4 then

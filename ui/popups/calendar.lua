@@ -235,14 +235,14 @@ local function create_header(self)
     return { header_month, header_year }
 end
 
-local function is_leap_year(year)
-    return (year % 4 == 0 and year % 100 ~= 0) or (year % 400 == 0)
+local function is_leap_year(y)
+    return (y % 4 == 0 and y % 100 ~= 0) or (y % 400 == 0)
 end
 
-local function get_days_in_month(year, month)
-    if month == 2 then
-        return is_leap_year(year) and 29 or 28
-    elseif month == 4 or month == 6 or month == 9 or month == 11 then
+local function get_days_in_month(y, m)
+    if m == 2 then
+        return is_leap_year(y) and 29 or 28
+    elseif m == 4 or m == 6 or m == 9 or m == 11 then
         return 30
     else
         return 31
@@ -264,7 +264,7 @@ end
 local function update_days(self, date)
     local current_date = os.date("*t")
     local total_days_in_month = get_days_in_month(date.year, date.month)
-    local first_day_of_week = get_day_of_week(1, date.month, date.year)
+    local first_day_of_week = get_day_of_week(date.year, date.month, 1)
     local days_from_previous_month = (first_day_of_week - 1) % 7
     local days_from_next_month = 42 - (total_days_in_month + days_from_previous_month)
 
@@ -439,9 +439,9 @@ function calendar.new(args)
     ret:set_date(os.date("*t"))
     setup_midnight_timer(ret)
 
-    if DEBUG then
-        local debug = require("util.debug")
-        debug.attach_finalizer(ret, "calendar")
+    local _debug = require("_debug")
+    if _debug.gc_finalize then
+        _debug.attach_finalizer(ret, "calendar")
     end
     return ret
 end

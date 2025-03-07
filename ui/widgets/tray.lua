@@ -24,9 +24,13 @@ tray.icons = {
 
 local function on_press(self, _, _, btn)
     if btn == 1 then
+        self._private.active = not self._private.active -- TODO: actual logic needed
+        self:update_icon()
         self:request_show()
     end
 end
+
+-- popup emits signal destroy unbind property::visible
 
 function tray:request_show()
     local instance = self._popup.instance
@@ -58,7 +62,6 @@ local function on_geometry_change(self, geometry)
 
     local instance = self._popup.instance
     if not instance then return end
-    print("geo change tray")
 
     if instance._private.screen == self._private.screen then
         instance:emit_signal("update::width", width)

@@ -68,9 +68,9 @@ function progress.new(args)
     ret._private.txt = ret.widget:get_children_by_id("textbox")[1]
 
     ret:connect_signal("update::width", progress.update_width)
-    if DEBUG then
-        local debug = require("util.debug")
-        debug.attach_finalizer(ret, "progressbar")
+    local _debug = require("_debug")
+    if _debug.gc_finalize then
+        _debug.attach_finalizer(ret, "progressbar")
     end
     return ret
 end

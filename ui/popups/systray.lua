@@ -67,9 +67,9 @@ function systray.new(args)
 
     ret:connect_signal("update::width", systray.update_width)
 
-    if DEBUG then
-        local debug = require("util.debug")
-        debug.attach_finalizer(ret, "systray")
+    local _debug = require("_debug")
+    if _debug.gc_finalize then
+        _debug.attach_finalizer(ret, "systray")
     end
     return ret
 end

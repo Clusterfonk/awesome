@@ -27,10 +27,8 @@ local function on_remove()
 end
 
 function network.new(args)
-    args.popup = nil
-
-    args.height = args.height - 2 * dpi(2, args.screen)
     args.icons = network.icons
+    args.popup = nil
 
     local ret = ibutton(args)
     gtable.crush(ret, network, true)

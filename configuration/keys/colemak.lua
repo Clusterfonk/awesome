@@ -33,7 +33,7 @@ awful.keyboard.append_global_keybindings({
 -- => Launch
 ---------------------------------------------------------------
     --- Launcher
-	awful.key({ MODKEY, SHIFT }, "o", function() awful.spawn(cmd.launcher) end,
+	awful.key({ MODKEY, SHIFT }, "o", function() awful.spawn(cmd.launcher()) end,
 	          { description = "open launcher", group = "cmd" }),
 
     --- Terminal
@@ -52,7 +52,7 @@ awful.keyboard.append_global_keybindings({
     awful.key({ MODKEY, SHIFT }, "w", function() awful.spawn(cmd.notes) end,
         {description = "open vimwiki", group = "cmd"}),
 
-    awful.key({ MODKEY }, "p", function() menubar.show() end,
+    awful.key({ MODKEY }, "p", function() awful.spawn(cmd.launcher()) end,
               {description = "show the menubar", group = "cmd"}),
 
     -- Snipregion

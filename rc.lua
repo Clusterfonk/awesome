@@ -22,9 +22,7 @@ local capi = {
 ---------------------------------------------------------------
 -- => Debug
 ---------------------------------------------------------------
-if os.getenv("AWMTT_DEBUG") then
-    DEBUG = true
-end
+local debug = require("_debug")
 
 ---------------------------------------------------------------
 -- => Garbage-Collection
@@ -35,7 +33,7 @@ local memory_last_check_count = collectgarbage("count")
 local memory_last_run_time = os.time()
 local memory_growth_factor = 1.1        -- 10% over last
 local memory_long_collection_time = 300 -- five minutes in seconds
-if DEBUG then
+if debug.is_enabled then
     memory_long_collection_time = 5
 end
 
@@ -47,7 +45,7 @@ gtimer.start_new(5, function()
     local waited_long = elapsed >= memory_long_collection_time
     local grew_enough = cur_memory > (memory_last_check_count * memory_growth_factor)
 
-    if DEBUG then
+    if debug.gc_statistics then
         -- Output memory statistics
         print(string.format(
             "[DEBUG] Memory: %.2f KB | Elapsed: %d sec | Grew Enough: %s | Waited Long: %s",
@@ -55,13 +53,13 @@ gtimer.start_new(5, function()
         ))
     end
     if grew_enough or waited_long then
-        if DEBUG then
+        if debug.gc_statistics then
             print("[DEBUG] Running garbage collection...")
         end
         collectgarbage("collect")
         collectgarbage("collect")
         memory_last_run_time = os.time()
-        if DEBUG then
+        if debug.gc_statistics then
             -- Output memory after garbage collection
             local post_memory = collectgarbage("count")
             print(string.format("[DEBUG] Memory after GC: %.2f KB", post_memory))
@@ -140,6 +138,7 @@ require("configuration.mouse")
 
 require("configuration.clients")
 require("configuration.screens")
+require("configuration.notifications")
 
 require("configuration.layout")
 require("configuration.tags")

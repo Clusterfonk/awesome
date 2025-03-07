@@ -156,7 +156,8 @@ theme.layout_floating = load_icon(layout_dir, "floating.png")
 local icon_dir                      = theme_dir .. "icons/"
 theme.icon                          = {}
 theme.icon.notification             = load_icon(icon_dir, "notification.svg")
-theme.icon.notification_muted       = load_icon(icon_dir, "notification-muted.svg")
+theme.icon.notification_dnd         = load_icon(icon_dir, "notification-dnd.svg")
+theme.icon.notification_unread_dnd  = load_icon(icon_dir, "notification-unread-dnd.svg")
 theme.icon.notification_unread      = load_icon(icon_dir, "notification-unread.svg")
 
 theme.icon.menu_up                  = load_icon(icon_dir, "menu-up.svg")
@@ -208,8 +209,9 @@ theme.calendar.day_off_fg           = colors.bw_2
 theme.notification_font             = theme.font
 theme.notification_bg               = theme.bg_normal
 theme.notification_fg               = theme.fg_normal
-theme.notification_border_width     = theme.border_width
-theme.notification_border_color     = theme.border_normal
+theme.notification_border_width     = theme.bars.border_width
+theme.notification_border_color     = theme.bars.border_color
+theme.notification_progress_color   = colors.bw_1
 --theme.notification_opacity
 theme.notification_icon_size        = dpi(40)
 theme.notification_width            = dpi(100)
@@ -223,7 +225,7 @@ theme.notification_shape            = function(cr, width, height)
 end
 
 -- notification_center
-theme.notification_dnd              = true
+theme.notification_dnd              = false
 theme.notification_title_font       = theme:create_font({ emphasis = "Bold", size = 14})
 theme.notification_message_font     = theme.font
 theme.notification_header_font      = theme:create_font({ emphasis = "Bold", size = 12})
@@ -238,6 +240,7 @@ naughty.config.defaults = {
 
 naughty.config.presets.normal = {
     fg      = theme.notification_fg,
+    timeout = 5
 }
 
 naughty.config.presets.ok = {

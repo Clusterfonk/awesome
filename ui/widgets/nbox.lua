@@ -1,51 +1,48 @@
-----------------------------------------------------------------------------
---- A notification popup widget.
---
--- By default, the box is composed of many other widgets:
---
---@DOC_wibox_nwidget_default_EXAMPLE@
---
--- @author Emmanuel Lepage Vallee &lt;elv1313@gmail.com&gt;
--- @copyright 2017 Emmanuel Lepage Vallee
--- @popupmod naughty.layout.box
--- @supermodule awful.popup
-----------------------------------------------------------------------------
-
-local capi       = {screen=screen}
-local beautiful  = require("beautiful")
-local gtimer     = require("gears.timer")
-local gtable     = require("gears.table")
-local wibox      = require("wibox")
-local popup      = require("awful.popup")
-local awcommon   = require("awful.widget.common")
-local placement  = require("awful.placement")
-local abutton    = require("awful.button")
-local ascreen    = require("awful.screen")
-local gpcall     = require("gears.protected_call")
-local dpi        = require("beautiful").xresources.apply_dpi
-local cst        = require("naughty.constants")
-
+--      @license APGL-3.0 <https://www.gnu.org/licenses/>
+--      @author clusterfonk
+local abutton        = require("awful.button")
+local ascreen        = require("awful.screen")
+local awcommon       = require("awful.widget.common")
+local beautiful      = require("beautiful")
+local cst            = require("naughty.constants")
 local default_widget = require("naughty.widget._default")
+local dpi            = require("beautiful").xresources.apply_dpi
+local gpcall         = require("gears.protected_call")
+local gtable         = require("gears.table")
+local gtimer         = require("gears.timer")
+local popup          = require("awful.popup")
+local wibox          = require("wibox")
 
-local box, by_position  = {}, {}
+local center         = require("ui.popups.notification_center")
+-- TODO: hide when opened somehow connect a signal to this ? dont want to poll the center
+-- opening on notify widget -> shoot a message to nbox
+-- maybe use awesome:emit_signal and then have popupxyz
+-- maybe a daemon i should write
 
-local debug = require "util.debug"
+local capi = {
+    screen = screen
+}
 
--- Init the weak tables for each positions. It is done ahead of time rather
--- than when notifications are added to simplify the code.
+
+local nbox            = { mt = {} }
+local notifications  = {}
+local by_bar         = setmetatable({}, { __mode = "k" })
+
 local function init_screen(s)
-    if not s.valid then return end
+    if notifications[s] then return notifications[s] end
 
-    if by_position[s] then return by_position[s] end
+    notifications[s] = setmetatable({}, { __mode = "kv" })
 
-    by_position[s] = setmetatable({},{__mode = "k"})
+    return notifications[s]
+end
 
-    for _, pos in ipairs { "top_left"   , "top_middle"   , "top_right",
-                           "bottom_left", "bottom_middle", "bottom_right" } do
-        by_position[s][pos] = setmetatable({},{__mode = "v"})
-    end
+function nbox.init_bars(screen, l, m, r)
+    local weak_values = setmetatable({}, { __mode = "v" })
+    weak_values.left = l
+    weak_values.middle = m
+    weak_values.right = r
 
-    return by_position[s]
+    by_bar[screen] = weak_values
 end
 
 local function disconnect(self)
@@ -67,165 +64,191 @@ ascreen.connect_for_each_screen(init_screen)
 
 -- Manually cleanup to help the GC.
 capi.screen.connect_signal("removed", function(scr)
+    for i = #notifications[scr], 1, -1 do
+        -- could move them over to primary screen if its not already
+        notifications[i]._private.destroy_callback()
+    end
     -- By that time, all direct events should have been handled. Cleanup the
     -- leftover. Being a weak table doesn't help Lua 5.1.
     gtimer.delayed_call(function()
-        by_position[scr] = nil
+        notifications[scr] = nil
+        by_bar[scr] = nil
     end)
 end)
 
+-- Get spacing measurements for notification positioning
 local function get_spacing()
-    local margin = beautiful.notification_spacing or dpi(2)
-    return {top = margin, bottom = margin}
+    local gap = beautiful.useless_gap
+    local border = beautiful.bars.border_width
+
+    return {
+        left = gap + 4 * border,
+        right = gap + 3 * border,
+        top = gap,
+        vertical = 2 * gap + border,
+        border = border
+    }
 end
 
-local function get_offset(position, val)
-    if position:match('_right') then
-        return {x = -val}
-    elseif position:match('_left') then
-        return {x = val}
+-- Calculate distance between a bar and the middle
+local function distance_between(bar, middle)
+    local bar_geo = bar:geometry()
+    local middle_geo = middle:geometry()
+
+    local bar_x = bar_geo.x
+    local bar_width = bar_geo.width
+    local middle_x = middle_geo.x
+    local middle_width = middle_geo.width
+
+    return (bar_x < middle_x)
+        and (middle_x - bar_x - bar_width) -- left bar
+        or  (bar_x - middle_x - middle_width) -- right bar
+end
+
+-- Position a main notification
+local function position_main(notif, left_element, right_element, spacing)
+    local geo = notif:geometry()
+    local left_geo = left_element:geometry()
+
+    geo.x = left_geo.x + left_geo.width + spacing.left
+    geo.y = spacing.top
+    local width = distance_between(left_element, right_element) - spacing.left - spacing.right
+    local height = left_geo.height + spacing.border
+
+    notif:geometry(geo)
+    notif.minimum_width = width
+    notif.maximum_width = width
+    notif.minimum_height = height
+    notif.maximum_height = height
+
+    return {
+        x = geo.x,
+        y = geo.y,
+        width = width,
+        height = height
+    }
+end
+
+-- Position a notification below another one
+local function position_stacked(notif, above_notif, main_geo, spacing)
+    local geo = notif:geometry()
+    local above_geo = above_notif:geometry()
+
+    geo.x = main_geo.x
+    geo.y = above_geo.y + above_geo.height + spacing.vertical
+
+    notif:geometry(geo)
+    notif.minimum_width = main_geo.width
+    notif.maximum_width = main_geo.width
+    notif.minimum_height = main_geo.height
+    notif.maximum_height = main_geo.height
+end
+
+-- Update notification positions starting from a specific index
+local function update_position(screen, start_index)
+    start_index = start_index or 1
+
+    local bars = by_bar[screen]
+    local notifs = notifications[screen]
+    local spacing = get_spacing()
+
+    -- Get references to the main notification geometries
+    local left_geo, right_geo
+
+    if notifs[2] then  -- If left main exists
+        left_geo = {
+            x = notifs[2]:geometry().x,
+            y = notifs[2]:geometry().y,
+            width = notifs[2].minimum_width
+        }
     end
-    return {}
-end
 
--- Leverage `awful.placement` to create the stacks.
-local function update_position(position, preset)
-    local pref  = position:match("top_") and "bottom" or "top"
-    local side = position:match("_(.*)")
-    local align = side
-        :gsub("left", "front"):gsub("right", "back")
+    if notifs[1] then  -- If right main exists
+        right_geo = {
+            x = notifs[1]:geometry().x,
+            y = notifs[1]:geometry().y,
+            width = notifs[1].minimum_width
+        }
+    end
 
+    for i = start_index, #notifs do
+        local notif = notifs[i]
 
-    --local height = preset.height or beautiful.notification_max_height or {}
-    local height = dpi(30)
-
-    local side = get_offset(position, dpi(192) + beautiful.useless_gap)
-
-    for _, pos in pairs(by_position) do
-        for k, wdg in ipairs(pos[position]) do
-            local args = {
-                geometry            = pos[position][k-1], -- THIS IS THE PARENT
-                preferred_position  = {pref },
-                preferred_anchor    = {align},
-                margins             = get_spacing(),
-                honor_workarea      = false,
-                offset = side
-            }
-
-            if k == 1 then
-                --print(pos[position][k].screen.left_bar) <- one way but kinda dirty
-                 --args.geometry = self._private.bar -- TODO: this needs to be provided
-                 args.margins[side] = beautiful.useless_gap
+        if i % 2 == 0 then -- left
+            if i == 2 then -- left main notification
+                left_geo = position_main(notif, bars.left, bars.middle, spacing)
+            else
+                position_stacked(notif, notifs[i-2], left_geo, spacing)
             end
-            args.offset.y = (k - 1) * (height + 2 * beautiful.useless_gap)
-
-            -- The first entry is aligned to the workarea, then the following to the
-            -- previous widget.
-
-            --wdg:geometry(lgeo)
-            placement[position:gsub("_middle", "")](wdg, args)
+        else -- right
+            if i == 1 then -- right main notification
+                right_geo = position_main(notif, bars.middle, bars.right, spacing)
+            else
+                position_stacked(notif, notifs[i-2], right_geo, spacing)
+            end
         end
+
+        notif:_apply_size_now()
     end
 end
 
 local function finish(self)
     self.visible = false
-    assert(init_screen(self.screen)[self.position])
+    assert(init_screen(self.screen))
 
-    for k, v in ipairs(init_screen(self.screen)[self.position]) do
+    local index = 1
+    for k, v in ipairs(init_screen(self.screen)) do
         if v == self then
-            table.remove(init_screen(self.screen)[self.position], k)
+            index = k
+            table.remove(init_screen(self.screen), k)
             break
         end
     end
 
-    local preset = (self._private.notification[1] or {}).preset
-
-    update_position(self.position, preset)
+    update_position(self.screen, index)
 
     disconnect(self)
 
     self._private.notification = {}
 end
 
+local function setup_timeout(self, notification)
+    local original_timeout = notification.timeout
+
+    local progressbar = self.widget:get_children_by_id("progress")[1]
+    progressbar.max_value = original_timeout - 32 / 60
+    local timeout_timer = gtimer {
+        timeout   = 1 / 60, -- 60 fps
+        autostart = true,
+        callback  = function()
+            progressbar.value = progressbar.value + (1 / 60)
+        end
+    }
+
+    if notification.timeout then
+        self:connect_signal("mouse::enter", function()
+            self.widget:get_children_by_id("progress")[1].value = 0
+            notification.timeout = 99999
+            timeout_timer:stop()
+        end)
+    end
+
+    if notification.timeout then
+        self:connect_signal("mouse::leave", function()
+            notification.timeout = original_timeout
+            timeout_timer:start()
+        end)
+    end
+end
+
 -- It isn't a good idea to use the `attach` `awful.placement` property. If the
 -- screen is resized or the notification is moved, it causes side effects.
 -- Better listen to geometry changes and reflow.
 capi.screen.connect_signal("property::geometry", function(s)
-    for pos, notifs in pairs(by_position[s]) do
-        if #notifs > 0 then
-            update_position(pos, notifs[1].preset)
-        end
+    if #notifications[s] > 0 then
+        update_position(s)
     end
 end)
-
---- The maximum notification width.
--- @beautiful beautiful.notification_max_width
--- @tparam[opt=500] number notification_max_width
-
---- The maximum notification position.
---
--- Valid values are:
---
--- * top_left
--- * top_middle
--- * top_right
--- * bottom_left
--- * bottom_middle
--- * bottom_right
---
--- @beautiful beautiful.notification_position
--- @tparam[opt="top_right"] string notification_position
-
---- The widget notification object.
---
--- @property notification
--- @tparam naughty.notification notification
--- @propertydefault This must be provided by the constructor.
--- @propemits true false
-
---- The widget template to construct the box content.
---
---@DOC_wibox_nwidget_default_EXAMPLE@
---
--- The default template is (less or more):
---
---    {
---        {
---            {
---                {
---                    {
---                        naughty.widget.icon,
---                        {
---                            naughty.widget.title,
---                            naughty.widget.message,
---                            spacing = 4,
---                            layout  = wibox.layout.fixed.vertical,
---                        },
---                        fill_space = true,
---                        spacing    = 4,
---                        layout     = wibox.layout.fixed.horizontal,
---                    },
---                    naughty.list.actions,
---                    spacing = 10,
---                    layout  = wibox.layout.fixed.vertical,
---                },
---                margins = beautiful.notification_margin,
---                widget  = wibox.container.margin,
---            },
---            id     = "background_role",
---            widget = naughty.container.background,
---        },
---        strategy = "max",
---        width    = width(beautiful.notification_max_width
---            or beautiful.xresources.apply_dpi(500)),
---        widget   = wibox.container.constraint,
---    }
---
--- @property widget_template
--- @tparam[opt=nil] template|nil widget_template
--- @usebeautiful beautiful.notification_max_width The maximum width for the
---  resulting widget.
 
 local function generate_widget(args, n)
     local w = gpcall(wibox.widget.base.make_widget_from_value,
@@ -247,10 +270,6 @@ local function generate_widget(args, n)
         return nil
     end
 
-    if w.set_width then
-        w:set_width(n.max_width or beautiful.notification_max_width or dpi(500)) -- TODO: this needs to be filled
-    end
-
     -- Call `:set_notification` on all children
     awcommon._set_common_property(w, "notification", n)
 
@@ -258,23 +277,18 @@ local function generate_widget(args, n)
 end
 
 local function init(self, notification)
-    local preset = notification.preset or {}
-
-    local position = self._private.position or notification.position or
-        preset.position or beautiful.notification_position or "top_right"
-
     if not self.widget then
         self.widget = generate_widget(self._private, notification)
     end
 
-    local bg = self._private.widget:get_children_by_id( "background_role" )[1]
+    local bg = self._private.widget:get_children_by_id("background_role")[1]
 
     -- Make sure the border isn't set twice, favor the widget one since it is
     -- shared by the notification list and the notification box.
     if bg then
         if bg.set_notification then
             bg:set_notification(notification)
-            self.border_width = 0
+            self.border_width = dpi(1)
         else
             bg:set_bg(notification.bg)
             self.border_width = notification.border_width
@@ -282,56 +296,46 @@ local function init(self, notification)
     end
 
     local s = notification.screen
-    assert(s)
+    local notifs = init_screen(s)
 
-    -- Add the notification to the active list
-    assert(init_screen(s)[position], "Invalid position "..position)
+    table.insert(notifs, self)
 
-    self:_apply_size_now()
-
-    table.insert(init_screen(s)[position], self)
-
-    self._private.update = function() update_position(position, preset) end
+    self._private.update = function()
+        update_position(self.screen)
+    end
     self._private.hide = function(_, value)
         if value then
             finish(self)
         end
     end
 
-    self:connect_signal("property::geometry", self._private.update)
+    if notification.timeout and notification.timeout > 0 then
+        setup_timeout(self, notification)
+    end
+
     notification:weak_connect_signal("property::margin", self._private.update)
     notification:weak_connect_signal("property::suspended", self._private.hide)
     notification:weak_connect_signal("destroyed", self._private.destroy_callback)
 
-    update_position(position, preset)
+    update_position(self.screen, #notifs)
 
     self.visible = true
 end
 
-function box:set_notification(notif)
+function nbox:set_notification(notif)
     if self._private.notification[1] == notif then return end
 
     disconnect(self)
 
     init(self, notif)
 
-    self._private.notification = setmetatable({notif}, {__mode="v"})
+    self._private.notification = setmetatable({ notif }, { __mode = "v" })
 
     self:emit_signal("property::notification", notif)
 end
 
-function box:get_notification()
+function nbox:get_notification()
     return self._private.notification[1]
-end
-
-function box:get_position()
-    local n = self._private.notification[1]
-
-    if n then
-        return n:get_position()
-    end
-
-    return "top_right"
 end
 
 --- Create a notification popup box.
@@ -366,9 +370,9 @@ local function new(args)
     -- Add a weak-table layer for the screen.
     local weak_args = setmetatable({
         screen = args.notification and args.notification.screen or nil
-    }, {__mode="v"})
+    }, { __mode = "v" })
 
-    setmetatable(new_args, {__index = weak_args})
+    setmetatable(new_args, { __index = weak_args })
 
     -- Generate the box before the popup is created to avoid the size changing
     new_args.widget = generate_widget(new_args, new_args.notification)
@@ -379,9 +383,8 @@ local function new(args)
     local ret = popup(new_args)
     ret._private.notification = {}
     ret._private.widget_template = args.widget_template
-    ret._private.position = args.position
 
-    gtable.crush(ret, box, true)
+    gtable.crush(ret, nbox, true)
 
     function ret._private.destroy_callback()
         finish(ret)
@@ -391,9 +394,8 @@ local function new(args)
         ret:set_notification(new_args.notification)
     end
 
-    --TODO remove
     local function hide(reason)
-        return function ()
+        return function()
             local n = ret._private.notification[1]
 
             if n then
@@ -402,15 +404,21 @@ local function new(args)
         end
     end
 
+    ret:weak_connect_signal("destroyed", ret._private.destroy_callback)
+
     -- On right click, close the notification without triggering the default action
     ret:buttons(gtable.join(
-        abutton({ }, 1, hide(cst.notification_closed_reason.dismissed_by_user)),
-        abutton({ }, 3, hide(cst.notification_closed_reason.silent))
+        abutton({}, 1, hide(cst.notification_closed_reason.dismissed_by_user)),
+        abutton({}, 3, hide(cst.notification_closed_reason.silent))
     ))
 
-    gtable.crush(ret, box, false)
+    gtable.crush(ret, nbox, false)
 
+    local _debug = require("_debug")
+    if _debug.gc_finalize then
+        _debug.attach_finalizer(ret._private.notification[1], "notification")
+    end
     return ret
 end
 
-return setmetatable(box, {__call = function(_, args) return new(args) end})
+return setmetatable(nbox, { __call = function(_, args) return new(args) end })

@@ -42,7 +42,7 @@ function button.new(args)
     gtable.crush(ret, button, true)
 
     ret.normal_color = args.normal_color or bt.fg_normal
-    ret.focus_color = args.focus_color or bt.border_focus
+    ret.focus_color = args.focus_color or bt.fg_focus
     ret:set_fg(ret.normal_color)
 
     ret:connect_signal("mouse::enter", on_enter)

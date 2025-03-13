@@ -15,39 +15,41 @@ local naughty = require("naughty")
 local dpi = require("beautiful.").xresources.apply_dpi
 
 
+-- 1: neutral
+-- 2: faded
 local colors    = {
-    black_1  = "#302302f",
-    black_2  = "#928374",
-    red_1    = "#cc241d",
-    red_2    = "#fb4934",
-    green_1  = "#98971a",
-    green_2  = "#b8bb26",
-    yellow_1 = "#d79921",
-    yellow_2 = "#fabd2f",
-    blue_1   = "#458588",
-    blue_2   = "#83a598",
-    purple_1 = "#b16286",
-    purple_2 = "#d3869b",
-    aqua_1   = "#689d6a",
-    aqua_2   = "#8ec07c",
-    white_1  = "#a89984",
-    white_2  = "#ebdbb2",
-    orange_1 = "#d65d0e",
-    orange_2 = "#fe8019",
+    black_1     = "#302302f",
+    black_2     = "#928374",
+    red_1       = "#cc241d",
+    red_2       = "#fb4934",
+    green_1     = "#98971a",
+    green_2     = "#b8bb26",
+    yellow_1    = "#d79921",
+    yellow_2    = "#fabd2f",
+    blue_1      = "#458588",
+    blue_2      = "#83a598",
+    purple_1    = "#b16286",
+    purple_2    = "#d3869b",
+    aqua_1      = "#689d6a",
+    aqua_2      = "#8ec07c",
+    white_1     = "#a89984",
+    white_2     = "#ebdbb2",
+    orange_1    = "#d65d0e",
+    orange_2    = "#fe8019",
+    gray        = "#928374",
 
-    bw_0_h   = "#1d2021",
-    bw_0     = "#32302f",
-    bw_0_s   = "#32302f",
-    bw_1     = "#3c3836",
-    bw_2     = "#504945",
-    bw_3     = "#665c54",
-    bw_4     = "#7c6f64",
-    bw_5     = "#928374",
-    bw_6     = "#a89984",
-    bw_7     = "#bdae93",
-    bw_8     = "#d5c4a1",
-    bw_9     = "#ebdbb2",
-    bw_10    = "#fbf1c7",
+    bg_0        = "#282828",
+    bg_0_h      = "#1d2021",
+    bg_0_s      = "#32302f",
+    bg_1        = "#3c3836",
+    bg_2        = "#504945",
+    bg_3        = "#665c54",
+    bg_4        = "#7c6f64",
+    fg_0        = "#fbf1c7",
+    fg_1        = "#ebdbb2",
+    fg_2        = "#d5c4a1",
+    fg_3        = "#bdae93",
+    fg_4        = "#a89984",
 }
 
 local theme     = {}
@@ -76,23 +78,22 @@ theme.font_bold_italic = theme:create_font({ emphasis = "Bold Italic" })
 -- border
 theme.border_width = dpi(1)
 theme.border_radius = 0
-theme.border_normal = colors.bw_2
-theme.border_focus = colors.red_2
-theme.border_marked = colors.bw_5
+theme.border_normal = colors.bg_2
+theme.border_focus = colors.bg_4
 theme.useless_gap = dpi(5)
 
 -- general
-theme.fg_normal = colors.bw_9
+theme.fg_normal = colors.fg_1
 theme.fg_focus = colors.red_2
-theme.fg_urgent = colors.bw_0
-theme.bg_normal = colors.bw_0
-theme.bg_focus = colors.bw_2
+theme.fg_urgent = colors.bg_0_s
+theme.bg_normal = colors.bg_0_s
+theme.bg_focus = colors.bg_2
 theme.bg_urgent = colors.red_2
 
 -- bars
 theme.bars = {}
 theme.bars.border_width = dpi(2)
-theme.bars.border_color = theme.border_normal
+theme.bars.border_color = colors.bg_3
 theme.bars.bg_normal    = theme.bg_normal
 theme.bars.fg_normal    = theme.fg_normal
 
@@ -100,13 +101,13 @@ theme.bars.fg_normal    = theme.fg_normal
 theme.taglist_font = theme:create_font({ emphasis = "Bold", size = 11})
 theme.taglist_fg_normal = theme.bars.fg_normal
 theme.taglist_fg_focus = theme.fg_focus
-theme.taglist_fg_urgent = colors.bw_0
-theme.taglist_fg_empty = colors.bw_2
-theme.taglist_bg_normal = colors.bw_0
-theme.taglist_bg_occupied = colors.bw_0
-theme.taglist_bg_empty = colors.bw_0
-theme.taglist_bg_volatile = colors.bw_0
-theme.taglist_bg_focus = colors.bw_0
+theme.taglist_fg_urgent = colors.bg_0_s
+theme.taglist_fg_empty = colors.bg_2
+theme.taglist_bg_normal = colors.bg_0_s
+theme.taglist_bg_occupied = colors.bg_0_s
+theme.taglist_bg_empty = colors.bg_0_s
+theme.taglist_bg_volatile = colors.bg_0_s
+theme.taglist_bg_focus = colors.bg_0_s
 theme.taglist_bg_urgent = colors.red_2
 theme.taglist_underline_height = dpi(2)
 
@@ -115,18 +116,18 @@ theme.titlebar_enabled = false
 
 -- help popup
 theme.hotkeys_border_width = dpi(30)
-theme.hotkeys_border_color = colors.bw_0
+theme.hotkeys_border_color = theme.border_normal
 theme.hotkeys_group_margin = dpi(30)
 theme.hotkeys_shape = function(cr, width, height)
     gears.shape.rounded_rect(cr, width, height, 20)
 end
 
 -- prompt
-theme.prompt_bg = colors.bw_2
+theme.prompt_bg = colors.bg_2
 theme.prompt_fg = theme.fg_normal
 
 -- snap
-theme.snap_bg = theme.border_focus
+theme.snap_bg = colors.red_2
 theme.snap_shape = function(cr, w, h)
     gears.shape.rounded_rect(cr, w, h, theme.border_radius or 0)
 end
@@ -135,9 +136,9 @@ end
 theme.progress = {}
 theme.progressbar_bg = theme.bg_normal
 theme.progressbar_fg = colors.purple_1
-theme.progressbar_border_color = colors.bw_2
+theme.progressbar_border_color = colors.bg_2
 theme.progressbar_border_width = 0
-theme.progressbar_bar_border_color = colors.bw_1
+theme.progressbar_bar_border_color = colors.bg_1
 theme.progressbar_bar_border_width = theme.border_width
 
 -- Icons
@@ -203,7 +204,7 @@ theme.calendar.header_font          = theme:create_font({ emphasis = "Bold", siz
 theme.calendar.grid_font            = theme:create_font({ size = 12})
 theme.calendar.day_focus_bg         = theme.bg_urgent
 theme.calendar.day_fg               = theme.fg_normal
-theme.calendar.day_off_fg           = colors.bw_2
+theme.calendar.day_off_fg           = colors.bg_2
 
 -- naughty
 theme.notification_font             = theme.font
@@ -211,7 +212,7 @@ theme.notification_bg               = theme.bg_normal
 theme.notification_fg               = theme.fg_normal
 theme.notification_border_width     = theme.bars.border_width
 theme.notification_border_color     = theme.bars.border_color
-theme.notification_progress_color   = colors.bw_1
+theme.notification_progress_color   = colors.bg_1
 --theme.notification_opacity
 theme.notification_icon_size        = dpi(40)
 theme.notification_width            = dpi(100)

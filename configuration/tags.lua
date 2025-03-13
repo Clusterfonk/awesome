@@ -2,15 +2,27 @@
 -- @author Clusterfonk <https://github.com/Clusterfonk>
 local awful = require("awful")
 
+local capi = {
+    screen = screen
+}
 
---
--- Configure Tag Properties
---
+local multi_monitor = capi.screen.count() > 1
+
 awful.screen.connect_for_each_screen(function(s)
-    -- Make sure there are an even number of tags
-    awful.tag({ "1", "2", "3", "4", "7", "8", "9", "0"},
-        s,
-        awful.layout.layouts[1])
+    if multi_monitor and s == capi.screen.primary then
+        awful.tag.add("1", {
+            screen = s,
+            layout = awful.layout.layouts[1],
+            layouts = {table.unpack(awful.layout.layouts, 1, 2)},
+            gap_single_client = false,
+            selected = true
+        })
+    else
+        awful.tag({ "1", "2", "3", "4", "7", "8", "9", "0"},
+            s,
+            awful.layout.layouts[1])
+        assert(#s.tags % 2 == 0, "the amount of tags should be even")
+    end
 
     awful.tag.attached_connect_signal(s, "property::selected",
         function(t)
@@ -22,8 +34,7 @@ awful.screen.connect_for_each_screen(function(s)
             end
         end)
 
-    -- messy but prevents unnessecary emits
+    -- prevents unnecessary emits
     s:connect_signal("removed", function(screen) screen.marked_for_removal = true end)
-
 end)
 

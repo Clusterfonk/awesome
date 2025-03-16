@@ -115,31 +115,22 @@ theme.taglist_underline_height = dpi(2)
 theme.titlebar_enabled = false
 
 -- help popup
-theme.hotkeys_border_width = dpi(30)
-theme.hotkeys_border_color = theme.border_normal
+theme.hotkeys_bg = theme.bg_normal
+theme.hotkeys_fg = theme.fg_normal
+theme.hotkeys_border_width = theme.border_width
+theme.hotkeys_border_color = theme.border_focus
+theme.hotkeys_modifiers_fg = colors.blue_2
+theme.hotkeys_label_bg = theme.bg_focus
+theme.hotkeys_label_fg = theme.bg_normal
+theme.hotkeys_font = theme.font_bold
+theme.hotkeys_description_font = theme.font
 theme.hotkeys_group_margin = dpi(30)
-theme.hotkeys_shape = function(cr, width, height)
-    gears.shape.rounded_rect(cr, width, height, 20)
-end
-
--- prompt
-theme.prompt_bg = colors.bg_2
-theme.prompt_fg = theme.fg_normal
 
 -- snap
 theme.snap_bg = colors.red_2
 theme.snap_shape = function(cr, w, h)
     gears.shape.rounded_rect(cr, w, h, theme.border_radius or 0)
 end
-
--- progressbar
-theme.progress = {}
-theme.progressbar_bg = theme.bg_normal
-theme.progressbar_fg = colors.purple_1
-theme.progressbar_border_color = colors.bg_2
-theme.progressbar_border_width = 0
-theme.progressbar_bar_border_color = colors.bg_1
-theme.progressbar_bar_border_width = theme.border_width
 
 -- Icons
 local function load_icon(dir, filename)
@@ -193,11 +184,6 @@ theme.systray_max_rows              = 20
 theme.clock = {}
 theme.clock.font = theme:create_font({ size = 10, emphasis = "SemiBold"})
 
--- progerssbar
-theme.progressbar = {}
-theme.progressbar.audio_bg          = colors.aqua_1
-theme.progressbar.mic_bg            = colors.purple_1
-
 -- calendar
 theme.calendar                      = {}
 theme.calendar.header_font          = theme:create_font({ emphasis = "Bold", size = 12 })
@@ -206,6 +192,20 @@ theme.calendar.day_focus_bg         = theme.bg_urgent
 theme.calendar.day_fg               = theme.fg_normal
 theme.calendar.day_off_fg           = colors.bg_2
 
+-- progressbar
+theme.progressbar = {}
+theme.progressbar_bg = theme.bg_normal
+theme.progressbar_fg = colors.purple_1
+theme.progressbar_border_color = colors.bg_2
+theme.progressbar_border_width = 0
+theme.progressbar_bar_border_color = colors.bg_1
+theme.progressbar_bar_border_width = theme.border_width
+
+-- audio
+theme.progressbar.audio_bg          = colors.aqua_1
+-- mic
+theme.progressbar.mic_bg            = colors.purple_1
+
 -- naughty
 theme.notification_font             = theme.font
 theme.notification_bg               = theme.bg_normal
@@ -213,7 +213,6 @@ theme.notification_fg               = theme.fg_normal
 theme.notification_border_width     = theme.bars.border_width
 theme.notification_border_color     = theme.bars.border_color
 theme.notification_progress_color   = colors.bg_1
---theme.notification_opacity
 theme.notification_icon_size        = dpi(40)
 theme.notification_width            = dpi(100)
 theme.notification_height           = dpi(150)

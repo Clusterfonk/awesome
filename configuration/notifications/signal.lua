@@ -15,7 +15,6 @@ capi           = {
 local active_notifications = {}
 local multi_screen = capi.screen.count() > 1 -- TODO: implement update logic when screen added / removed
 
--- Connect to visibility changes of the notification center
 center.signal:connect_signal("property::visible", function()
     local to_remove = {}
     for i, box in ipairs(active_notifications) do

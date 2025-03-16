@@ -10,22 +10,21 @@
 ---------------------------------------------------------------
 local awful = require("awful")
 local hotkeys_popup = require("awful.hotkeys_popup")
-local menubar = require("menubar")
 
-local keys = require("configuration.keys.defaults")
 local cmd = require("configuration.defaults.commands")
+local keys = require("configuration.keys.defaults")
 local panels = require("ui.panels")
 
 local capi = {
     awesome = awesome
 }
 
-local SHIFT = keys.shift
-local CTRL = keys.ctrl
-local SUPER = keys.super
-local ALT = keys.alt
-local MODKEY = keys.alt
 
+local ALT = keys.alt
+local CTRL = keys.ctrl
+local MODKEY = keys.alt
+local SHIFT = keys.shift
+local SUPER = keys.super
 
 awful.keyboard.append_global_keybindings({
 ---------------------------------------------------------------
@@ -51,8 +50,9 @@ awful.keyboard.append_global_keybindings({
     awful.key({ MODKEY, SHIFT }, "w", function() awful.spawn(cmd.notes) end,
         {description = "open vimwiki", group = "cmd"}),
 
-    awful.key({ MODKEY }, "p", function() awful.spawn(cmd.launcher()) end,
-              {description = "show the menubar", group = "cmd"}),
+    -- Password Manager
+    awful.key({ MODKEY, SHIFT }, "p", function() cmd.pw_manager() end,
+        {description = "open password manager", group = "cmd"}),
 
     -- Snipregion
     awful.key({ MODKEY }, "s", function()
@@ -89,16 +89,16 @@ awful.keyboard.append_global_keybindings({
 ---------------------------------------------------------------
     -- next
     awful.key({ }, "XF86AudioNext", function() awful.spawn.with_shell("playerctl next") end,
-              {description = "Play next", group = "Audio"}),
+              {description = "Play next track", group = "Audio"}),
     -- prev
     awful.key({ }, "XF86AudioPrev", function() awful.spawn.with_shell("playerctl previous") end,
-              {description = "Play prev", group = "Audio"}),
+              {description = "Play previous track", group = "Audio"}),
     -- play / pause
     awful.key({ }, "XF86AudioPlay", function() awful.spawn.with_shell("playerctl play-pause") end,
-              {description = "Play or Pause", group = "Audio"}),
+              {description = "Play / Pause MPRIS-enabled media players", group = "Audio"}),
     -- stop
     awful.key({ }, "XF86AudioStop", function() awful.spawn.with_shell("playerctl stop") end,
-              {description = "Stop", group = "Audio"}),
+              {description = "Stop MPRIS-enabled media players", group = "Audio"}),
 
 ---------------------------------------------------------------
 -- Layout Navigation

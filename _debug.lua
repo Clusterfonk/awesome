@@ -13,6 +13,7 @@ end
 
 if _debug.is_enabled then
     local weak_objects = setmetatable({}, { __mode = "k" }) -- Ephemeron table
+
     function _debug.attach_finalizer(obj, msg)
         local gc_proxy = setmetatable({}, {
             __gc = function()
@@ -48,7 +49,22 @@ if _debug.notifications then
     local gtimer = require("gears.timer")
     local naughty = require("naughty")
     local bt = require("beautiful")
-    local lorem = "Lorem ipsum odor amet, consectetuer adipiscing elit. Gravida senectus est commodo dignissim sodales platea porta lobortis. Nam vehicula tellus porta aliquam cursus; rutrum facilisis auctor. Sodales duis tristique nisl sapien lacus finibus conubia condimentum. Imperdiet donec vestibulum porta etiam suscipit erat. Dapibus faucibus viverra volutpat; mauris torquent neque nam? Aporta adipiscing augue dapibus adipiscing condimentum; a sapien mollis. Fringilla habitant montes morbi molestie adipiscing aliquam consequat. Cras ipsum torquent viverra curae convallis. Ligula ullamcorper sed class integer proin mattis ut habitant. Aliquet aliquam parturient est aptent hendrerit metus ac. Inceptos nisl purus luctus mauris feugiat fermentum. Eu dapibus neque est cubilia consectetur ante iaculis ultrices. Tempor sit habitant fusce himenaeos lectus justo; cursus nisi habitasse? Auctor dui sit aenean dignissim curabitur faucibus efficitur placerat. Odio porta nunc vitae pharetra molestie. Urna himenaeos duis nisi duis adipiscing aliquam pulvinar. Viverra elit diam nam himenaeos efficitur amet sociosqu. Rutrum quam ridiculus dui lorem rutrum accumsan ac. Placerat cubilia imperdiet diam aliquet vitae libero tempus. Augue cras taciti lacus diam aptent elementum et ut velit. Posuere accumsan elementum magna nulla, efficitur semper vivamus. Nascetur habitant class orci mattis dis sagittis inceptos. Nullam egestas egestas adipiscing aliquet, volutpat dui. Habitasse elementum metus sociosqu augue fringilla nisi nunc eros interdum. Facilisi nostra mus dignissim arcu montes posuere integer. Massa vulputate non litora volutpat interdum praesent. In at penatibus nec pellentesque quis sapien metus. Malesuada feugiat placerat sociosqu est rutrum erat sollicitudin ornare. Per volutpat nunc vestibulum taciti class etiam condimentum. Luctus mi pellentesque fermentum luctus varius hac lacus. Dictum tristique semper lectus; mauris congue praesent class nam. Ligula blandit in sollicitudin curae dictum phasellus nunc aenean. Hendrerit nisl quisque vulputate sapien ligula habitant; pharetra ad faucibus. Ex donec torquent molestie dui habitant torquent dictum ligula. Magnis dapibus non non velit primis; augue cras. Turpis elementum neque massa metus aptent."
+
+    function generateLoremIpsum()
+        local loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in \n reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+
+        -- Generate a random length between 10 and 500
+        local length = math.random(10, 500)
+
+        -- Ensure the length does not exceed the length of the Lorem Ipsum text
+        length = math.min(length, #loremIpsum)
+
+        -- Extract a substring of the specified length
+        local randomText = loremIpsum:sub(1, length)
+
+        return randomText
+    end
+
     local i = 0
     gtimer {
         timeout = 1,
@@ -57,9 +73,9 @@ if _debug.notifications then
             if i <= 10 then
                 naughty.notification {
                     preset = naughty.config.presets.critical,
-                    title = 'ERROR!',
+                    title = 'TEST ' .. i .. "!",
                     app_name = 'System Notification',
-                    message = lorem,
+                    message = generateLoremIpsum(),
                     icon = bt.icon.wlan,
                 }
             end

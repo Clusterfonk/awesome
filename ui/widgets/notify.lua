@@ -11,19 +11,22 @@ local center = require("ui.popups.notification_center")
 local notify = { mt = {} }
 
 notify.icons = {
-    normal = bt.icon.notification,
-    normal_focus = gcolor.recolor_image(bt.icon.notification, bt.fg_focus),
     dnd = bt.icon.notification_dnd,
     dnd_focus = gcolor.recolor_image(bt.icon.notification_dnd, bt.fg_focus),
-    unread_dnd = bt.icon.notification_unread_dnd,
-    unread_dnd_focus = gcolor.recolor_image(bt.icon.notification_unread_dnd, bt.fg_focus),
+    normal = bt.icon.notification,
+    normal_focus = gcolor.recolor_image(bt.icon.notification, bt.fg_focus),
     unread = bt.icon.notification_unread,
-    unread_focus = gcolor.recolor_image(bt.icon.notification_unread, bt.fg_focus)
+    unread_focus = gcolor.recolor_image(bt.icon.notification_unread, bt.fg_focus),
+    unread_dnd = bt.icon.notification_unread_dnd,
+    unread_dnd_focus = gcolor.recolor_image(bt.icon.notification_unread_dnd, bt.fg_focus)
 }
 
 local function on_press(self, _, _, btn, mods)
     if btn == 1 then
         self:request_show()
+    elseif btn == 3 then
+        bt.notification_dnd = not bt.notification_dnd
+        self:update_icon()
     end
 end
 
@@ -45,15 +48,16 @@ function notify:get_icon()
     local i = self._private.icons
 
     if bt.notification_dnd then
-        -- unread
-        -- normal
-        return self._private.hovered and i.dnd_focus or i.dnd
-    elseif self._private.unread then
-        -- unread
-        -- normal
-        return self._private.hovered and i.unread_focus or i.unread
-    else
+        if center.is_empty then
+            return self._private.hovered and i.dnd_focus or i.dnd
+        end
+        return self._private.hovered and i.unread_dnd_focus or i.unread_dnd
+    end
+
+    if center.is_empty then
         return self._private.hovered and i.normal_focus or i.normal
+    else
+        return self._private.hovered and i.unread_focus or i.unread
     end
 
 end
@@ -71,6 +75,8 @@ local function on_remove(self)
         instance:detach()
         if is_owner then instance:emit_signal("popup::hide") end
     end
+
+    center.signal:disconnect_signal("property::list_empty", self._private.on_list_update)
 end
 
 function notify.new(args)
@@ -83,6 +89,12 @@ function notify.new(args)
 
     ret:connect_signal("button::press", on_press)
     ret:connect_signal("bar::removed", on_remove)
+
+    ret._private.on_list_update = function()
+        ret:update_icon()
+    end
+
+    center.signal:connect_signal("property::list_empty", ret._private.on_list_update)
     return ret
 end
 

@@ -3,15 +3,10 @@
 local gtable = require("gears.table")
 local gcolor = require("gears.color")
 local bt = require("beautiful")
-local dpi = bt.xresources.apply_dpi
 
 local ibutton = require("ui.widgets.ibutton")
 local systray = require("ui.popups.systray")
 
-
-local capi = {
-    awesome = awesome
-}
 
 local tray = { mt = {} }
 
@@ -24,13 +19,10 @@ tray.icons = {
 
 local function on_press(self, _, _, btn)
     if btn == 1 then
-        self._private.active = not self._private.active -- TODO: actual logic needed
         self:update_icon()
         self:request_show()
     end
 end
-
--- popup emits signal destroy unbind property::visible
 
 function tray:request_show()
     local instance = self._popup.instance
@@ -54,6 +46,8 @@ local function on_remove(self)
         instance:detach()
         instance:emit_signal("popup::hide")
     end
+
+    systray.signal:disconnect_signal("property::visible", self._private.on_visible_update)
 end
 
 local function on_geometry_change(self, geometry)
@@ -78,6 +72,12 @@ function tray.new(args)
         height = args.height,
     }
 
+    ret._private.on_visible_update = function(_, is_visible)
+        ret._private.active = is_visible
+        ret:update_icon()
+    end
+
+    systray.signal:connect_signal("property::visible", ret._private.on_visible_update)
     ret:connect_signal("button::press", on_press)
     ret:connect_signal("bar::geometry", on_geometry_change)
     ret:connect_signal("bar::removed", on_remove)

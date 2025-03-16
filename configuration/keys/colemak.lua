@@ -16,7 +16,6 @@ local keys = require("configuration.keys.defaults")
 local cmd = require("configuration.defaults.commands")
 local panels = require("ui.panels")
 
-
 local capi = {
     awesome = awesome
 }
@@ -64,6 +63,11 @@ awful.keyboard.append_global_keybindings({
     awful.key({ MODKEY }, "F1", function()
         awful.spawn(cmd.toggle_headphone_speakers) end,
               {description = "Toggle between Headphone and Speakers", group = "cmd"}),
+
+    -- Zathura
+    awful.key({ MODKEY }, "z", function()
+        awful.spawn("zathura") end,
+              {description = "open zathura", group = "cmd"}),
 
     -- logout panel
     awful.key({ MODKEY }, "Escape", function()

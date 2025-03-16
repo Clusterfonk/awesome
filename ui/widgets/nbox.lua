@@ -13,12 +13,6 @@ local gtimer         = require("gears.timer")
 local popup          = require("awful.popup")
 local wibox          = require("wibox")
 
-local center         = require("ui.popups.notification_center")
--- TODO: hide when opened somehow connect a signal to this ? dont want to poll the center
--- opening on notify widget -> shoot a message to nbox
--- maybe use awesome:emit_signal and then have popupxyz
--- maybe a daemon i should write
-
 local capi = {
     screen = screen
 }
@@ -46,8 +40,15 @@ function nbox.init_bars(screen, l, m, r)
 end
 
 local function disconnect(self)
-    local n = self._private.notification[1]
+    if self.widget then
+        local progress = self.widget:get_children_by_id("progress")[1]
+        if progress and progress.timer then
+            progress.timer:stop()
+            progress.timer = nil
+        end
+    end
 
+    local n = self._private.notification[1]
     if n then
         n:disconnect_signal("destroyed",
             self._private.destroy_callback)
@@ -57,7 +58,12 @@ local function disconnect(self)
 
         n:disconnect_signal("property::suspended",
             self._private.hide)
+
+        self._private.notification[1] = nil
     end
+
+    self._private.update = nil
+    self._private.hide = nil
 end
 
 ascreen.connect_for_each_screen(init_screen)
@@ -192,6 +198,18 @@ local function update_position(screen, start_index)
     end
 end
 
+local function clear_notification_refs(w)
+    if w.set_notification then
+        pcall(function() w:set_notification(nil) end)
+    end
+
+    if w.get_children then
+        for _, child in ipairs(w:get_children()) do
+            clear_notification_refs(child)
+        end
+    end
+end
+
 local function finish(self)
     self.visible = false
     assert(init_screen(self.screen))
@@ -207,6 +225,10 @@ local function finish(self)
 
     update_position(self.screen, index)
 
+    if self.widget then
+        clear_notification_refs(self.widget)
+    end
+
     disconnect(self)
 
     self._private.notification = {}
@@ -217,7 +239,7 @@ local function setup_timeout(self, notification)
 
     local progressbar = self.widget:get_children_by_id("progress")[1]
     progressbar.max_value = original_timeout - 32 / 60
-    local timeout_timer = gtimer {
+    progressbar.timer = gtimer {
         timeout   = 1 / 60, -- 60 fps
         autostart = true,
         callback  = function()
@@ -229,14 +251,14 @@ local function setup_timeout(self, notification)
         self:connect_signal("mouse::enter", function()
             self.widget:get_children_by_id("progress")[1].value = 0
             notification.timeout = 99999
-            timeout_timer:stop()
+            progressbar.timer:stop()
         end)
     end
 
     if notification.timeout then
         self:connect_signal("mouse::leave", function()
             notification.timeout = original_timeout
-            timeout_timer:start()
+            progressbar.timer:start()
         end)
     end
 end
@@ -388,35 +410,26 @@ local function new(args)
 
     function ret._private.destroy_callback()
         finish(ret)
+        ret:emit_signal("box::destroyed")
     end
 
     if new_args.notification then
         ret:set_notification(new_args.notification)
     end
 
-    local function hide(reason)
-        return function()
-            local n = ret._private.notification[1]
-
-            if n then
-                n:destroy(reason)
-            end
-        end
-    end
-
     ret:weak_connect_signal("destroyed", ret._private.destroy_callback)
 
     -- On right click, close the notification without triggering the default action
     ret:buttons(gtable.join(
-        abutton({}, 1, hide(cst.notification_closed_reason.dismissed_by_user)),
-        abutton({}, 3, hide(cst.notification_closed_reason.silent))
+        abutton({}, 1, ret._private.destroy_callback),
+        abutton({}, 3, ret._private.destroy_callback)
     ))
 
     gtable.crush(ret, nbox, false)
 
     local _debug = require("_debug")
     if _debug.gc_finalize then
-        _debug.attach_finalizer(ret._private.notification[1], "notification")
+        _debug.attach_finalizer(ret, "notification box")
     end
     return ret
 end

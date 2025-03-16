@@ -2,17 +2,15 @@
 -- @author Clusterfonk <https://github.com/Clusterfonk>
 local wibox = require("wibox")
 local bt = require("beautiful")
+local gobject = require("gears.object")
 local gtable = require("gears.table")
 local gtimer = require("gears.timer")
 
 local base = require("ui.popups.base")
 
-local capi = {
-    awesome = awesome
-}
-
 
 local systray = { mt = {} }
+systray.signal = gobject{}
 
 function systray.update_width(self, width)
     self.widget:get_children_by_id("constrainer")[1].width = width
@@ -34,10 +32,22 @@ function systray.destroy(self)
     end)
 end
 
+function systray:show()
+    self._parent.show(self)
+    systray.signal:emit_signal("property::visible", self.visible)
+end
+
+function systray:hide()
+    self._parent.hide(self)
+    systray.signal:emit_signal("property::visible", self.visible)
+end
+
 function systray.new(args)
     args = args or {}
     local ret = base(args)
+    rawset(ret, "_parent", { show = ret.show, hide = ret.hide})
     gtable.crush(ret, systray, true)
+
 
     ret.minimum_height = args.height
     ret.minimum_width = args.width

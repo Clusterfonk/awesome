@@ -12,7 +12,6 @@ local base = require("ui.popups.base")
 
 
 calendar = { mt = {} }
-setmetatable(calendar, { __index = popup })
 
 local month_lut = {
     "January", "February", "March", "April", "May", "June",
@@ -433,7 +432,6 @@ function calendar.new(args)
     end)
 
     ret:connect_signal("button::press", function(self, _, _, btn)
-        -- TODO: add scroll support
     end)
 
     ret:set_date(os.date("*t"))

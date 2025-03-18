@@ -10,4 +10,4 @@ run() {
 }
 
 run "keepassxc"
-#run "discord --start-minimized"
+run "protonvpn-app --start-minimized"

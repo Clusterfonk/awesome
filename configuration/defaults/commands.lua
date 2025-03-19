@@ -95,10 +95,33 @@ function toggle_keepassxc()
     end)
 end
 
+-- Function to toggle Signal Desktop
+local function toggle_signal()
+    -- Check if Signal Desktop is already open
+    local signal_clients = client.get()
+    local signal_client = nil
+
+    for _, c in pairs(signal_clients) do
+        if c.class == "Signal" then
+            signal_client = c
+            break
+        end
+    end
+
+    -- If Signal is open, close it
+    if signal_client then
+        signal_client:kill()
+    else
+        -- If Signal is not open, start it
+        awful.spawn("signal-desktop", false)
+    end
+end
+
 return {
     launcher = launcher,
     notes = "notes",
     pw_manager = toggle_keepassxc,
+    messenger = toggle_signal,
     snipregion = "snipregion",
     terminal = "alacritty",
     text_editor = "alacritty -e nvim",

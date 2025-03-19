@@ -54,6 +54,10 @@ awful.keyboard.append_global_keybindings({
     awful.key({ MODKEY, SHIFT }, "p", function() cmd.pw_manager() end,
         {description = "open password manager", group = "cmd"}),
 
+    -- Messenger
+    awful.key({ MODKEY, SHIFT }, "m", function() cmd.messenger() end,
+        {description = "open messenger", group = "cmd"}),
+
     -- Snipregion
     awful.key({ MODKEY }, "s", function()
         awful.spawn(cmd.snipregion) end,

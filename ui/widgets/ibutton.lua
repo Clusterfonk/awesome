@@ -57,7 +57,7 @@ function ibutton.new(args)
     local imagebox = wibox.widget {
         id = "imagebox",
         widget = wibox.widget.imagebox,
-        image = args.icons.normal,             -- TODO: ONLY TEMP.
+        image = args.icons.normal,
         forced_height = args.height - 2 * dpi(2),
         forced_width = args.height - 2 * dpi(2)
     }

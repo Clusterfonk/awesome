@@ -218,7 +218,7 @@ local function create_header(self)
         header_year:get_widget():set_text(y)
     end)
 
-    header_month:connect_signal("button::press", function(_, _, _, btn) -- TODO: move to header const.
+    header_month:connect_signal("button::press", function(_, _, _, btn)
         if btn == 1 then
             local w = self.widget:get_children_by_id("month_view")[1]
             self.widget:raise_widget(w)
@@ -278,7 +278,8 @@ local function update_days(self, date)
 
     -- Days in the current month
     for current_month_day = 1, total_days_in_month do
-        local is_current_day = current_month_day == current_date.day and date.month == current_date.month and date.year == current_date.year
+        local is_current_day = current_month_day == current_date.day and date.month == current_date.month and
+            date.year == current_date.year
         self:emit_signal(cell_index .. "::day_updated", current_month_day, is_current_day, false)
         cell_index = cell_index + 1
     end
@@ -307,7 +308,7 @@ end
 -- Set the current date
 function calendar:set_date(date)
     self:emit_signal("header_month::updated", date.month)
-    self:emit_signal("header_year::updated", date.year) -- TODO: might be able to combine
+    self:emit_signal("header_year::updated", date.year)
     update_days(self, date)
     update_months_years(self, date)
 end
@@ -366,7 +367,7 @@ function calendar.new(args)
                             widget = wibox.container.margin,
                             margins = { left = 10, right = 10, top = 5, bottom = 5 },
                             {
-                                widget = header[2]     -- year_header
+                                widget = header[2] -- year_header
                             },
                         },
                     },
@@ -393,7 +394,7 @@ function calendar.new(args)
                             widget = wibox.container.margin,
                             margins = { left = 10, right = 10, top = 5, bottom = 5 },
                             {
-                                widget = header[1]     -- month_header
+                                widget = header[1] -- month_header
                             },
                         },
                     },

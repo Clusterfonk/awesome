@@ -23,7 +23,7 @@ local command = "amixer -c 0 get Headphone | grep '\\[on\\]'"
 
 local function on_press(self, _, _, btn, mods)
     if btn == 1 then
-        self._private.active = not self._private.active -- TODO: actual logice
+        self._private.active = not self._private.active
         self:update_icon()
         awful.spawn.easy_async_with_shell(command, function(out)
             if out == "" then

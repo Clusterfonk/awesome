@@ -7,7 +7,7 @@ local awful = require("awful")
 
 local bus = Gio.bus_get_sync(Gio.BusType.SESSION)
 
---bus:signal_subscribe(
+-- bus:signal_subscribe(
 --    "org.PulseAudio1",               -- Service name
 --    "org.PulseAudio.Core1.Device",   -- Interface
 --    "VolumeUpdated",                 -- Signal name
@@ -22,4 +22,4 @@ local bus = Gio.bus_get_sync(Gio.BusType.SESSION)
 --            awesome.emit_signal("daemon::volume_changed", volume)
 --        end)
 --    end
---)
+-- )

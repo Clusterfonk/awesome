@@ -84,7 +84,6 @@ return function(args)
         clock_widget:emit_signal("bar::removed")
         clock_widget = nil
         time_bar = nil
-        -- TODO: might need to emit signals to let popups know ?
     end)
 
     local _debug = require("_debug")

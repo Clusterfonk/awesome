@@ -10,4 +10,4 @@ run() {
 }
 
 run "keepassxc"
-run "protonvpn-app --start-minimized"
+run "protonvpn-app" "--start-minimized"

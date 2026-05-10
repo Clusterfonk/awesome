@@ -126,5 +126,5 @@ return {
     terminal = "alacritty",
     text_editor = "alacritty -e nvim",
     toggle_headphone_speakers = "toggle-headphone-speakers",
-    web_browser = "brave-beta",
+    web_browser = "firefox",
 }

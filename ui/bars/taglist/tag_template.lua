@@ -8,7 +8,6 @@ local dpi = bt.xresources.apply_dpi
 
 local tag_template = { mt = {} }
 
--- TODO: redo this without setting the width of it and let it all take place like they need
 function tag_template.new(s, bar_width, bar_height)
     local font_size = bar_height / 2
 

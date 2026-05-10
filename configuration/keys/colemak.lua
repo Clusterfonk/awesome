@@ -46,9 +46,8 @@ awful.keyboard.append_global_keybindings({
 	awful.key({ MODKEY, SHIFT }, "b", function() awful.spawn(cmd.web_browser) end,
 	          { description = "open web browser", group = "cmd" }),
 
-    -- Notes
-    awful.key({ MODKEY, SHIFT }, "w", function() awful.spawn(cmd.notes) end,
-        {description = "open vimwiki", group = "cmd"}),
+    awful.key({ MODKEY, SHIFT }, "n", function() awful.spawn() end,
+        {description = "open notes", group = "cmd"}),
 
     -- Password Manager
     awful.key({ MODKEY, SHIFT }, "p", function() cmd.pw_manager() end,

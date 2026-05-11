@@ -9,19 +9,6 @@ local capi = {
     mouse = mouse
 }
 
-
-local function launcher()
-    local screen = capi.mouse.screen
-    local index = screen.index - 1 -- dmenu uses 0 index start
-
-    width = math.floor(screen.geometry.width / 3)
-    x = math.floor(screen.geometry.width / 2 - width / 2)
-    y = dpi(24) + 1 + bt.useless_gap * 2 + 2 * bt.bars.border_width + bt.useless_gap
-    l = 1
-
-    return string.format("dmenu_run -x %d -y %d -z %d -l %d -m %d", x, y, width, l, index)
-end
-
 function toggle_keepassxc()
     -- Command to check if KeePassXC is running
     local check_cmd = "pgrep -x keepassxc"
@@ -98,10 +85,8 @@ end
 -- Function to toggle Signal Desktop
 local function toggle_signal()
     -- Check if Signal Desktop is already open
-    local signal_clients = client.get()
     local signal_client = nil
-
-    for _, c in pairs(signal_clients) do
+    for _, c in pairs(client.get()) do
         if c.class == "Signal" then
             signal_client = c
             break
@@ -117,9 +102,56 @@ local function toggle_signal()
     end
 end
 
+-- Function to toggle TriliumNext
+local function toggle_trilium()
+    -- Check if TriliumNext Desktop is already open
+    local trilium_client = nil
+
+    for _, c in pairs(client.get()) do
+        if c.class == "Trilium Notes" then
+            trilium_client = c
+            break
+        end
+    end
+
+
+    if trilium_client then
+        local focused_screen = awful.screen.focused()
+        local current_tag = focused_screen.selected_tag
+
+        -- If the client is found, toggle its visibility
+        if trilium_client.minimized then
+            trilium_client:move_to_screen(focused_screen)
+            trilium_client:move_to_tag(current_tag)
+            trilium_client.minimized = false
+            trilium_client:raise()
+            trilium_client:emit_signal("request::activate", "key.unminimize", { raise = true })
+        else
+            local on_current_screen = trilium_client.screen == focused_screen
+            local on_current_tag = trilium_client:isvisible() and
+                trilium_client.first_tag == current_tag
+
+            if on_current_screen and on_current_tag then
+                trilium_client.minimized = true
+            else
+                trilium_client:move_to_screen(focused_screen)
+                trilium_client:move_to_tag(current_tag)
+                trilium_client:raise()
+                trilium_client:emit_signal("request::activate", "switcher", { raise = true })
+            end
+        end
+    else
+        -- not started
+        awful.spawn("triliumnext", false)
+    end
+end
+
 return {
-    launcher = launcher,
-    notes = "notes",
+    launcher = "rofi -show drun",
+    windows = "rofi -show window",
+    file_broswer = "rofi -show filebrowser",
+    mixer = "rofi-mixer",
+    notes = toggle_trilium,
     pw_manager = toggle_keepassxc,
     messenger = toggle_signal,
     snipregion = "snipregion",

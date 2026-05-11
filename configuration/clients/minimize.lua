@@ -4,4 +4,5 @@
 -- Clients of the systray that should be minimized instead of closed
 return {
     "KeePassXC",
+    "Trilium Notes"
 }

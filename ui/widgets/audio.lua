@@ -8,7 +8,6 @@ local bt = require("beautiful")
 local ibutton = require("ui.widgets.ibutton")
 local progressbar = require("ui.popups.progressbar")
 
-
 local audio = { mt = {} }
 
 audio.icons = {
@@ -118,8 +117,8 @@ function audio.new(args)
         color = args.color,
         screen = args.screen
     }
+
     ret.value = 50 ---- <- this will be managed by a signal completly
-    -- even able to say ret.value == nil -> not ready now or not reachable
 
     ret:connect_signal("button::press", on_press)
     ret:connect_signal("bar::geometry", on_geometry_change)

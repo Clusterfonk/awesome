@@ -31,8 +31,20 @@ awful.keyboard.append_global_keybindings({
 -- => Launch
 ---------------------------------------------------------------
     --- Launcher
-	awful.key({ MODKEY, SHIFT }, "o", function() awful.spawn(cmd.launcher()) end,
+	awful.key({ SUPER }, "o", function() awful.spawn(cmd.launcher) end,
 	          { description = "open launcher", group = "cmd" }),
+
+	awful.key({ SUPER }, "Tab", function() awful.spawn(cmd.windows) end,
+	          { description = "open window selector", group = "cmd" }),
+
+	awful.key({ SUPER }, "w", function() awful.spawn(cmd.windows) end,
+	          { description = "open window selector", group = "cmd" }),
+
+	awful.key({ SUPER }, "f", function() awful.spawn(cmd.file_broswer) end,
+	          { description = "open filebrowser", group = "cmd" }),
+
+	awful.key({ SUPER }, "m", function() awful.spawn(cmd.mixer) end,
+	          { description = "open sound mixer", group = "cmd" }),
 
     --- Terminal
 	awful.key({ MODKEY, SHIFT }, "Return", function() awful.spawn(cmd.terminal) end,
@@ -46,9 +58,6 @@ awful.keyboard.append_global_keybindings({
 	awful.key({ MODKEY, SHIFT }, "b", function() awful.spawn(cmd.web_browser) end,
 	          { description = "open web browser", group = "cmd" }),
 
-    awful.key({ MODKEY, SHIFT }, "n", function() awful.spawn() end,
-        {description = "open notes", group = "cmd"}),
-
     -- Password Manager
     awful.key({ MODKEY, SHIFT }, "p", function() cmd.pw_manager() end,
         {description = "open password manager", group = "cmd"}),
@@ -56,6 +65,10 @@ awful.keyboard.append_global_keybindings({
     -- Messenger
     awful.key({ MODKEY, SHIFT }, "m", function() cmd.messenger() end,
         {description = "open messenger", group = "cmd"}),
+
+    -- Notes/Wiki
+    awful.key({ MODKEY, SHIFT }, "w", function() cmd.notes() end,
+        {description = "open notes", group = "cmd"}),
 
     -- Snipregion
     awful.key({ MODKEY }, "s", function()

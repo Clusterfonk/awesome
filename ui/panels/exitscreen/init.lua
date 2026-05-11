@@ -26,7 +26,7 @@ local supsend_icon = icon_dir .. "suspend.svg"
 local panel = { mt = {} }
 
 local function shutdown()
-    awful.spawn.with_shell("systemctl shutdown")
+    awful.spawn.with_shell("systemctl poweroff")
 end
 
 local function reboot()

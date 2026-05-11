@@ -6,9 +6,9 @@ _debug.is_enabled = os.getenv("AWMTT_DEBUG") ~= nil
 -- Settings:
 if _debug.is_enabled then
     _debug.gc_statistics = false
-    _debug.gc_finalize = true
-    _debug.multiscreen = false
-    _debug.notifications = true
+    _debug.gc_finalize   = false
+    _debug.multiscreen   = false
+    _debug.notifications = false
 end
 
 if _debug.is_enabled then

@@ -16,7 +16,7 @@ local capi = {
 
 local multi_screen = capi.screen.count() > 1
 
-capi.screen.connect_signal("request::desktop_decoration", function(s) -- created
+capi.screen.connect_signal("request::desktop_decoration", function(s)
     if multi_screen and s == capi.screen.primary then return end
 
     local taglist_bar_width = dpi(350)

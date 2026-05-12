@@ -11,3 +11,5 @@ run() {
 
 run "keepassxc"
 run "protonvpn-app" "--start-minimized"
+#run "opensnitch-ui" "--background"
+run "discord" "--start-minimized"

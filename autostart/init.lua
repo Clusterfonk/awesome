@@ -3,4 +3,11 @@
 
 local awful = require('awful')
 
-awful.spawn.with_shell("$XDG_CONFIG_HOME/awesome/autostart/autostart.sh")
+local start_lockfile = "/tmp/awesome-started.lock"
+
+if not io.open(start_lockfile, "r") then
+    awful.spawn.with_shell("$XDG_CONFIG_HOME/awesome/autostart/autostart.sh")
+    io.open(start_lockfile, "w"):close()
+end
+
+

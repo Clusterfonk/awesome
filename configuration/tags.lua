@@ -18,10 +18,9 @@ awful.screen.connect_for_each_screen(function(s)
             selected = true
         })
     else
-        awful.tag({ "1", "2", "3", "4", "7", "8", "9", "0"},
+        awful.tag({ "1", "2", "3", "4", "7", "8", "9", "0", "hidden"},
             s,
             awful.layout.layouts[1])
-        assert(#s.tags % 2 == 0, "the amount of tags should be even")
     end
 
     awful.tag.attached_connect_signal(s, "property::selected",

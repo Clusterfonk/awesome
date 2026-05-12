@@ -21,14 +21,26 @@ return function(args)
     })
 
     local function left_half_filter()
+        local visible = {}
+        for _, t in ipairs(s.tags) do
+            if tonumber(t.name) then
+                visible[#visible + 1] = t
+            end
+        end
         return function(t)
-            return t.index <= (#s.tags / 2)
+            return tonumber(t.name) and t.index <= visible[math.ceil(#visible / 2)].index
         end
     end
 
     local function right_half_filter()
+        local visible = {}
+        for _, t in ipairs(s.tags) do
+            if tonumber(t.name) then
+                visible[#visible + 1] = t
+            end
+        end
         return function(t)
-            return t.index > (#s.tags / 2)
+            return tonumber(t.name) and t.index > visible[math.ceil(#visible / 2)].index
         end
     end
 

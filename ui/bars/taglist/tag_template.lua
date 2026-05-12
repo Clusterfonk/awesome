@@ -13,7 +13,7 @@ function tag_template.new(s, bar_width, bar_height)
 
     local available_space = (bar_width / 2) - (bar_height / 2)
 
-    local n_tags = #s.tags / 2
+    local n_tags = (#s.tags - 1) / 2
     local spaces = ((n_tags - 1) * 2) + 2
 
     local tab_ocupied_space = n_tags *font_size * 1.6

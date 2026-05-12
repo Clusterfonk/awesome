@@ -7,41 +7,31 @@ local ruled = require("ruled")
 
 ruled.client.connect_signal("request::rules", function()
     --- Global
-	ruled.client.append_rule({
-		id = "global",
-		rule = {},
-		properties = {
-			raise = true,
-			size_hints_honor = false,
-			screen = awful.screen.preferred,
-			focus = awful.client.focus.filter,
-			titlebars_enabled = beautiful.titlebar_enabled,
-			placement = awful.placement.no_overlap + awful.placement.no_offscreen,
+    ruled.client.append_rule({
+        id = "global",
+        rule = {},
+        properties = {
+            raise = true,
+            size_hints_honor = false,
+            screen = awful.screen.preferred,
+            focus = awful.client.focus.filter,
+            titlebars_enabled = beautiful.titlebar_enabled,
+            placement = awful.placement.no_overlap + awful.placement.no_offscreen,
             previous_tag = nil
-		},
+        },
         {
             id = "tasklist_order",
             rule = {},
             properties = {},
             callback = awful.client.setslave,
         },
-	})
+    })
 
-    -- Float
-	ruled.client.append_rule({
-		id = "floating",
-		rule_any = {
-			instance = {
-			},
-			class = {
-			},
-			name = {
-			},
-			role = {
-			},
-			type = {
-			},
-		},
-		properties = { floating = true },
-	})
+    ruled.client.append_rule({
+        id = "KeePassXC",
+        rule = { class = "KeePassXC" },
+        properties = {
+            floating = true,
+        },
+    })
 end)

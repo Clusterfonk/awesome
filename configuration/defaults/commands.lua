@@ -6,8 +6,17 @@ local dpi = bt.xresources.apply_dpi
 local naughty = require("naughty")
 
 local capi = {
-    mouse = mouse
+    mouse = mouse,
+    screen = screen
 }
+
+local function get_hidden_tag()
+    for s in capi.screen do
+        if s ~= capi.screen.primary then
+            return awful.tag.find_by_name(s, "hidden")
+        end
+    end
+end
 
 function toggle_keepassxc()
     -- Command to check if KeePassXC is running
@@ -102,37 +111,35 @@ local function toggle_signal()
     end
 end
 
--- Function to toggle TriliumNext
 local function toggle_trilium()
-    -- Check if TriliumNext Desktop is already open
     local trilium_client = nil
-
     for _, c in pairs(client.get()) do
         if c.class == "Trilium Notes" then
             trilium_client = c
             break
         end
     end
-
-
     if trilium_client then
         local focused_screen = awful.screen.focused()
         local current_tag = focused_screen.selected_tag
+        local hidden = get_hidden_tag()
 
-        -- If the client is found, toggle its visibility
-        if trilium_client.minimized then
+        if trilium_client.first_tag == hidden then
+            trilium_client.minimized = false
             trilium_client:move_to_screen(focused_screen)
             trilium_client:move_to_tag(current_tag)
-            trilium_client.minimized = false
             trilium_client:raise()
             trilium_client:emit_signal("request::activate", "key.unminimize", { raise = true })
         else
             local on_current_screen = trilium_client.screen == focused_screen
             local on_current_tag = trilium_client:isvisible() and
                 trilium_client.first_tag == current_tag
-
             if on_current_screen and on_current_tag then
-                trilium_client.minimized = true
+                local hidden = get_hidden_tag()
+                if hidden then
+                    trilium_client:move_to_tag(hidden)
+                    trilium_client.minimized = true
+                end
             else
                 trilium_client:move_to_screen(focused_screen)
                 trilium_client:move_to_tag(current_tag)
@@ -141,7 +148,6 @@ local function toggle_trilium()
             end
         end
     else
-        -- not started
         awful.spawn("triliumnext", false)
     end
 end

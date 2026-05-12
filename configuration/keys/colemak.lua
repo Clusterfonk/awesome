@@ -188,21 +188,35 @@ awful.keyboard.append_global_keybindings({
             end
         end,
     },
+    awful.key {
+        modifiers   = { MODKEY },
+        key         = "0",
+        description = "view tag 0",
+        group       = "tags",
+        on_press    = function ()
+            local screen = awful.screen.focused()
+            for _, t in pairs(screen.tags) do
+                if t.name == "0" then
+                    return t:view_only()
+                end
+            end
+        end,
+    },
 
     -- move client to tag
     awful.key({
-		modifiers = { MODKEY, SHIFT },
-		keygroup = "numrow",
-		description = "move focused client to tag",
-		group = "tags",
-		on_press = function(num)
-			if client.focus then
+        modifiers = { MODKEY, SHIFT },
+        keygroup = "numrow",
+        description = "move focused client to tag",
+        group = "tags",
+        on_press = function(num)
+            if client.focus then
                 for _, t in pairs(client.focus.screen.tags) do
                     if t.name == tostring(num) then
                         return client.focus:move_to_tag(t)
                     end
                 end
-			end
-		end,
-	}),
+            end
+        end,
+    }),
 })
